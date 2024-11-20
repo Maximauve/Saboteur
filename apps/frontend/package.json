@@ -1,0 +1,36 @@
+{
+	"name": "@playpal/frontend",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"lint": "eslint .",
+		"preview": "vite preview",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"i18n-js": "^4.5.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-router-dom": "^6.27.0"
+	},
+	"devDependencies": {
+		"@types/react": "^18.3.11",
+		"@types/react-dom": "^18.3.1",
+		"@vitejs/plugin-react": "^4.3.3",
+		"autoprefixer": "^10.4.20",
+		"globals": "^15.11.0",
+		"jsdom": "^25.0.1",
+		"postcss": "^8.4.49",
+		"sass": "^1.81.0",
+		"tailwindcss": "^3.4.15",
+		"ts-node": "^10.9.2",
+		"vite": "^5.4.9"
+	},
+	"workspaceDependencies": {
+		"@playpal/eslint": "*",
+		"@playpal/schemas": "*"
+	}
+}
