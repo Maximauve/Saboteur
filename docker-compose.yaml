@@ -1,3 +1,5 @@
+name: saboteur
+
 services:
   db:
     image: postgres:12.3
@@ -5,13 +7,13 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
     ports:
-      - ${POSTGRES_PORT}:5432
+      - 5432:5432
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
     networks:
-      - play_pal
+      - database
 
   redis:
     image: redis:6.0.5
@@ -21,23 +23,23 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     networks:
-      - play_pal
+      - database
 
   minio:
     image: minio/minio
     ports:
-      - '${MINIO_ADDRESS}:${MINIO_ADDRESS}'
-      - '${MINIO_CONSOLE_ADDRESS}:${MINIO_CONSOLE_ADDRESS}'
+      - "${MINIO_ADDRESS}:${MINIO_ADDRESS}"
+      - "${MINIO_CONSOLE_ADDRESS}:${MINIO_CONSOLE_ADDRESS}"
     volumes:
       - s3-storage:/data
     environment:
       MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
-      MINIO_ADDRESS: ':${MINIO_ADDRESS}'
-      MINIO_CONSOLE_ADDRESS: ':${MINIO_CONSOLE_ADDRESS}'
+      MINIO_ADDRESS: ":${MINIO_ADDRESS}"
+      MINIO_CONSOLE_ADDRESS: ":${MINIO_CONSOLE_ADDRESS}"
     command: minio server /data
     healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
+      test: ["CMD", "mc", "ready", "local"]
       interval: 3s
       timeout: 5s
       retries: 3
@@ -59,8 +61,8 @@ services:
       - back
 
 networks:
-  play_pal:
-    name: play_pal
+  database:
+    name: database
   back:
     name: back
 

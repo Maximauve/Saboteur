@@ -17,5 +17,9 @@ fs.readdirSync(appsFolder, { withFileTypes: true })
 		try {
 			fs.symlinkSync(envFile, appEnvFile, 'file');
 			console.info(`No .env file found in ${dir.name}, symlinked to root .env`);
-		} catch (e) { }
+		} catch (e) {
+			if (e.code !== 'EEXIST') {
+				console.log("Error creating symlink : ", e);
+			}
+		}
 	});
