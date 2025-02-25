@@ -1,3 +1,4 @@
+import { PartialType } from "@nestjs/swagger";
 import { IsString } from "class-validator";
 
 export class CreateUserDto {
@@ -10,3 +11,5 @@ export class CreateUserDto {
   @IsString()
   password: string;
 }
+
+export class UpdatedUserDto extends PartialType(CreateUserDto) {}

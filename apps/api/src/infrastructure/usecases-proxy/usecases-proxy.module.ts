@@ -4,23 +4,20 @@ import { ExceptionsModule } from '@/infrastructure/exceptions/exceptions.module'
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
 import { LoggerService } from '@/infrastructure/logger/logger.service';
 import { RepositoriesModule } from '@/infrastructure/repositories/repositories.module';
-import { DatabaseTodoRepository } from '@/infrastructure/repositories/todo.repository';
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
-import { BcryptModule } from '@/infrastructure/services/bcrypt/bcrypt.module';
 import { JwtModule } from '@/infrastructure/services/jwt/jwt.module';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 // import { IsAuthenticatedUseCases } from '@/usecases/auth/isAuthenticated.usecases';
 // import { LoginUseCases } from '@/usecases/auth/login.usecases';
-import { AddTodoUseCases } from '@/usecases/todo/addTodo.usecases';
-import { DeleteTodoUseCases } from '@/usecases/todo/deleteTodo.usecases';
-import { GetTodoUseCases } from '@/usecases/todo/getTodo.usecases';
-import { GetTodosUseCases } from '@/usecases/todo/getTodos.usecases';
-import { UpdateTodoUseCases } from '@/usecases/todo/updateTodo.usecases';
 import { AddUserUsecaseProxy } from '@/usecases/user/addUser.usecases';
-import { GetUserByIdUseCases } from '@/usecases/user/getUser.usecases';
+import { DeleteUserByIdUseCases } from '@/usecases/user/deleteUser.usecases';
+import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
+import { GetUserByIdUseCases } from '@/usecases/user/getUserById.usecases';
+import { GetUsersUseCases } from '@/usecases/user/getUsers.usecases';
+import { UpdateUserUseCases } from '@/usecases/user/updateUser.usecases';
 
 @Module({
-  imports: [LoggerModule, JwtModule, BcryptModule, RepositoriesModule, ExceptionsModule],
+  imports: [LoggerModule, JwtModule, RepositoriesModule, ExceptionsModule],
 })
 export class UsecasesProxyModule {
   // Auth
@@ -28,14 +25,12 @@ export class UsecasesProxyModule {
   // static IS_AUTHENTICATED_USECASES_PROXY = 'IsAuthenticatedUseCasesProxy';
   // static LOGOUT_USECASES_PROXY = 'LogoutUseCasesProxy';
 
-  static GET_TODO_USECASES_PROXY = 'getTodoUsecasesProxy';
-  static GET_TODOS_USECASES_PROXY = 'getTodosUsecasesProxy';
-  static POST_TODO_USECASES_PROXY = 'postTodoUsecasesProxy';
-  static DELETE_TODO_USECASES_PROXY = 'deleteTodoUsecasesProxy';
-  static PUT_TODO_USECASES_PROXY = 'putTodoUsecasesProxy';
-
   static GET_USER_BY_ID_USECASES_PROXY = 'getUserByIdUsecasesProxy';
+  static GET_USER_BY_EMAIL_USECASES_PROXY = 'getUserByEmailUsecasesProxy';
+  static GET_USERS_USESCASES_PROXY = "getUsersUsescasesProxy";
   static ADD_USER_USECASES_PROXY = 'addUserUsecasesProxy';
+  static UPDATE_USER_USECASES_PROXY = "updateUserUsecasesProxy";
+  static DELETE_USER_BY_ID_USECASES_PROXY = "deleteUserByIdUsecasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -63,34 +58,6 @@ export class UsecasesProxyModule {
         //   useFactory: () => new UseCaseProxy(new LogoutUseCases()),
         // },
         {
-          inject: [DatabaseTodoRepository],
-          provide: UsecasesProxyModule.GET_TODO_USECASES_PROXY,
-          useFactory: (todoRepository: DatabaseTodoRepository) => new UseCaseProxy(new GetTodoUseCases(todoRepository)),
-        },
-        {
-          inject: [DatabaseTodoRepository],
-          provide: UsecasesProxyModule.GET_TODOS_USECASES_PROXY,
-          useFactory: (todoRepository: DatabaseTodoRepository) => new UseCaseProxy(new GetTodosUseCases(todoRepository)),
-        },
-        {
-          inject: [LoggerService, DatabaseTodoRepository],
-          provide: UsecasesProxyModule.POST_TODO_USECASES_PROXY,
-          useFactory: (logger: LoggerService, todoRepository: DatabaseTodoRepository) =>
-            new UseCaseProxy(new AddTodoUseCases(logger, todoRepository)),
-        },
-        {
-          inject: [LoggerService, DatabaseTodoRepository],
-          provide: UsecasesProxyModule.PUT_TODO_USECASES_PROXY,
-          useFactory: (logger: LoggerService, todoRepository: DatabaseTodoRepository) =>
-            new UseCaseProxy(new UpdateTodoUseCases(logger, todoRepository)),
-        },
-        {
-          inject: [LoggerService, DatabaseTodoRepository],
-          provide: UsecasesProxyModule.DELETE_TODO_USECASES_PROXY,
-          useFactory: (logger: LoggerService, todoRepository: DatabaseTodoRepository) =>
-            new UseCaseProxy(new DeleteTodoUseCases(logger, todoRepository)),
-        },
-        {
           inject: [LoggerService, DatabaseUserRepository],
           provide: UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
           useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
@@ -101,19 +68,42 @@ export class UsecasesProxyModule {
           provide: UsecasesProxyModule.ADD_USER_USECASES_PROXY,
           useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
             new UseCaseProxy(new AddUserUsecaseProxy(logger, userRepository))
-        }
+        },
+        {
+          inject: [LoggerService, DatabaseUserRepository],
+          provide: UsecasesProxyModule.GET_USER_BY_EMAIL_USECASES_PROXY,
+          useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
+            new UseCaseProxy(new GetUserByEmailUseCases(logger, userRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseUserRepository],
+          provide: UsecasesProxyModule.GET_USERS_USESCASES_PROXY,
+          useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
+            new UseCaseProxy(new GetUsersUseCases(logger, userRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseUserRepository],
+          provide: UsecasesProxyModule.UPDATE_USER_USECASES_PROXY,
+          useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
+            new UseCaseProxy(new UpdateUserUseCases(logger, userRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseUserRepository],
+          provide: UsecasesProxyModule.DELETE_USER_BY_ID_USECASES_PROXY,
+          useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
+            new UseCaseProxy(new DeleteUserByIdUseCases(logger, userRepository))
+        },
       ],
       exports: [
-        UsecasesProxyModule.GET_TODO_USECASES_PROXY,
-        UsecasesProxyModule.GET_TODOS_USECASES_PROXY,
-        UsecasesProxyModule.POST_TODO_USECASES_PROXY,
-        UsecasesProxyModule.PUT_TODO_USECASES_PROXY,
-        UsecasesProxyModule.DELETE_TODO_USECASES_PROXY,
         // UsecasesProxyModule.LOGIN_USECASES_PROXY,
         // UsecasesProxyModule.IS_AUTHENTICATED_USECASES_PROXY,
         // UsecasesProxyModule.LOGOUT_USECASES_PROXY,
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
+        UsecasesProxyModule.GET_USER_BY_EMAIL_USECASES_PROXY,
+        UsecasesProxyModule.GET_USERS_USESCASES_PROXY,
         UsecasesProxyModule.ADD_USER_USECASES_PROXY,
+        UsecasesProxyModule.UPDATE_USER_USECASES_PROXY,
+        UsecasesProxyModule.DELETE_USER_BY_ID_USECASES_PROXY
       ],
     };
   }

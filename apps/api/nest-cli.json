@@ -8,7 +8,7 @@
     "plugins": ["@nestjs/swagger"],
     "assets": [
       { 
-        "include": "i18n/**/*"
+        "include": "domain/i18n/**/*"
       }
     ]
   }

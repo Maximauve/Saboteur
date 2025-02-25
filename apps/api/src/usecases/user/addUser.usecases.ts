@@ -11,7 +11,6 @@ export class AddUserUsecaseProxy {
     user.email = body.email;
     user.username = body.username;
     user.password = body.password;
-    // check si l'email existe pas deja
     const result = await this.userRepository.insert(user);
     this.logger.log('addUserUsecase execute', 'New user have been inserted');
     return result;
