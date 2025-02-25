@@ -1,26 +1,34 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+import { Role } from '@/domain/model/role';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Index({ unique: true })
-  @Column('varchar', { unique: true })
+  @Column({ type: 'varchar', unique: true, nullable: false })
   username: string;
 
-  @Column('text')
+  @Column({ type: 'varchar', unique: true, nullable: false })
+  email: string;
+
+  @Column({ type: 'varchar', nullable: false })
   password: string;
 
+  @Column({ type: 'varchar', default: Role.Customer })
+  role: Role;
+
   @CreateDateColumn({ name: 'createdate' })
-  createdate: Date;
+  createdDate: Date;
 
   @UpdateDateColumn({ name: 'updateddate' })
-  updateddate: Date;
+  updatedDate: Date;
 
   @Column({ nullable: true })
-  last_login?: Date;
+  lastLogin?: Date;
 
   @Column('varchar', { nullable: true })
-  hach_refresh_token: string;
+  hashRefreshToken?: string;
 }
+

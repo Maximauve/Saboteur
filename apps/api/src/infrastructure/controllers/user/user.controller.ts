@@ -1,88 +1,48 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Inject, Param, Post } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
-  ApiConflictResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from "@/infrastructure/common/guards/jwtAuth.guard";
+import { CreateUserDto } from '@/infrastructure/controllers/user/user.dto';
+import { UserPresenter } from '@/infrastructure/controllers/user/user.presenter';
+import { User } from '@/infrastructure/entities/user.entity';
+import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { AddUserUsecaseProxy } from '@/usecases/user/addUser.usecases';
+import { GetUserByIdUseCases } from '@/usecases/user/getUser.usecases';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @ApiTags('users')
 @ApiUnauthorizedResponse({ description: "User not connected" })
 @Controller('users')
 export class UserController {
 
-  constructor(private userService: UserService) { }
-
-  @Get("")
-  @ApiOperation({ summary: 'Returns all users' })
-  @ApiOkResponse({ description: "Users found successfully", type: User, isArray: true })
-  async getAll(): Promise<User[]> {
-    return this.userService.getAll();
-  }
-
-  @Get('/me')
-  @ApiOperation({ summary: 'Return my user informations' })
-  @ApiOkResponse({ description: "User found successfully", type: User })
-  @ApiNotFoundResponse({ description: "User not found" })
-  getMe(@CurrentUser() user: User): User {
-    return user;
-  }
+  constructor(@Inject(UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY)
+  private readonly getUserbyIdUsecaseProxy: UseCaseProxy<GetUserByIdUseCases>,
+  @Inject(UsecasesProxyModule.ADD_USER_USECASES_PROXY)
+  private readonly addUserUsecaseProxy: UseCaseProxy<AddUserUsecaseProxy>) { }
 
   @Get("/:id")
-  @ApiOperation({ summary: 'Return a user' })
-  @ApiParam({ name: 'id', description: 'ID of user', required: true })
+  @ApiOperation({ summary: 'Returns user' })
   @ApiOkResponse({ description: "User found successfully", type: User })
-  @ApiNotFoundResponse({ description: "User not found" })
-  getOneUser(@UserRequest() user: User): User {
-    return user;
+  async getUserById(@Param('id') id: string): Promise<UserPresenter> {
+    const user = await this.getUserbyIdUsecaseProxy.getInstance().execute(id);
+    if (!user) {
+      throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+    }
+    return new UserPresenter(user);
   }
 
-  @Put('/:id')
-  @ApiOperation({ summary: 'Update a user' })
-  @ApiParam({ name: 'id', description: 'ID of user', required: true })
-  @ApiOkResponse({ description: "User updated successfully", type: User })
-  @ApiBadRequestResponse({ description: "UUID or Request body is invalid" })
-  @ApiNotFoundResponse({ description: "User not found" })
-  @ApiUnauthorizedResponse({ description: "User not connected or user not admin" })
-  @ApiConflictResponse({ description: "User already exists" })
-  async update(@CurrentUser() me: User, @UserRequest() user: User, @Body() body: UserUpdatedDto): Promise<User> {
-    if (me.role !== Role.Admin && me.id !== user.id) {
-      throw new HttpException(await this.translationService.translate('error.USER_NOT_ADMIN'), HttpStatus.UNAUTHORIZED);
-    }
-    if (me.role !== Role.Admin) {
-      delete body.role;
-    }
-    if (await this.userService.checkUnknownUser(body, user.id)) {
-      throw new HttpException(await this.translationService.translate('error.USER_EXIST'), HttpStatus.CONFLICT);
-    }
-    if (body.password) {
-      body.password = await hashPassword(body.password);
-    }
-    await this.userService.update(user.id, body);
-    const userUpdated = await this.userService.findOneUser(user.id);
-    if (!userUpdated) {
-      throw new HttpException(await this.translationService.translate('error.USER_NOT_FOUND'), HttpStatus.NOT_FOUND);
-    }
-    return userUpdated;
-  }
-
-  @Delete('/:id')
-  @ApiOperation({ summary: 'Delete a user' })
-  @ApiParam({ name: 'id', description: 'ID of user', required: true })
-  @ApiOkResponse({ description: "User deleted succesfully" })
-  @ApiUnauthorizedResponse({ description: "User not connected or user not admin" })
-  @ApiNotFoundResponse({ description: "User not found" })
-  async delete(@CurrentUser() me: User, @UserRequest() user: User): Promise<void> {
-    if (me.role !== Role.Admin && me.id !== user.id) {
-      throw new HttpException(await this.translationService.translate('error.USER_NOT_ADMIN'), HttpStatus.UNAUTHORIZED);
-    }
-    await this.userService.delete(user.id);
+  @Post("")
+  @ApiOperation({ summary: 'Create user' })
+  @ApiOkResponse({ description: "User created" })
+  async createUser(@Body() userBody: CreateUserDto) {
+    const userCreated = await this.addUserUsecaseProxy.getInstance().execute(userBody);
+    console.log(userCreated)
+    console.log(new UserPresenter(userCreated));
+    return new UserPresenter(userCreated);
   }
 }

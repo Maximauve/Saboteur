@@ -17,10 +17,10 @@ export class DatabaseUserRepository implements UserRepository {
       {
         username: username,
       },
-      { hach_refresh_token: refreshToken },
+      { hashRefreshToken: refreshToken },
     );
   }
-  async getUserByUsername(username: string): Promise<UserM> {
+  async getUserByUsername(username: string): Promise<UserM | null> {
     const adminUserEntity = await this.userEntityRepository.findOne({
       where: {
         username: username,
@@ -36,31 +36,64 @@ export class DatabaseUserRepository implements UserRepository {
       {
         username: username,
       },
-      { last_login: () => 'CURRENT_TIMESTAMP' },
+      { lastLogin: () => 'CURRENT_TIMESTAMP' },
     );
   }
 
-  private toUser(adminUserEntity: User): UserM {
-    const adminUser: UserM = new UserM();
-
-    adminUser.id = adminUserEntity.id;
-    adminUser.username = adminUserEntity.username;
-    adminUser.password = adminUserEntity.password;
-    adminUser.createDate = adminUserEntity.createdate;
-    adminUser.updatedDate = adminUserEntity.updateddate;
-    adminUser.lastLogin = adminUserEntity.last_login;
-    adminUser.hashRefreshToken = adminUserEntity.hach_refresh_token;
-
-    return adminUser;
+  async getAll(): Promise<UserM[]> {
+    const users = await this.userEntityRepository.find();
+    if (!users) {
+      return [];
+    }
+    return users.map(user => this.toUser(user));
   }
 
-  private toUserEntity(adminUser: UserM): User {
-    const adminUserEntity: User = new User();
+  async getOneById(id: string): Promise<UserM | null> {
+    const user = await this.userEntityRepository.findOne({
+      where: {
+        id: id,
+      }
+    });
+    if (!user) {
+      return null;
+    }
+    return this.toUser(user);
+  }
 
-    adminUserEntity.username = adminUser.username;
-    adminUserEntity.password = adminUser.password;
-    adminUserEntity.last_login = adminUser.lastLogin;
+  async insert(user: UserM): Promise<UserM> {
+    const userEntity = this.toUserEntity(user);
+    const result = await this.userEntityRepository.insert(userEntity);
+    return this.toUser(result.generatedMaps[0] as User);
+  }
 
-    return adminUserEntity;
+  private toUser(userEntity: User): UserM {
+    const user: UserM = new UserM();
+
+    user.id = userEntity.id;
+    user.username = userEntity.username;
+    user.email = userEntity.email;
+    user.password = userEntity.password;
+    user.role = userEntity.role;
+    user.createdDate = userEntity.createdDate;
+    user.updatedDate = userEntity.updatedDate;
+    user.lastLogin = userEntity.lastLogin;
+    user.hashRefreshToken = userEntity.hashRefreshToken;
+
+    return user;
+  }
+
+  private toUserEntity(user: UserM): User {
+    const userEntity: User = new User();
+
+    userEntity.username = user.username;
+    userEntity.password = user.password;
+    userEntity.email = user.email;
+    userEntity.lastLogin = user.lastLogin;
+    userEntity.createdDate = user.createdDate;
+    userEntity.updatedDate = user.updatedDate;
+    userEntity.hashRefreshToken = user.hashRefreshToken;
+    userEntity.role = user.role;
+
+    return userEntity;
   }
 }

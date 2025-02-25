@@ -1,9 +1,9 @@
 export interface DatabaseConfig {
-  getDatabaseHost(): string;
-  getDatabaseName(): string;
-  getDatabasePassword(): string;
-  getDatabasePort(): number;
-  getDatabaseSchema(): string;
-  getDatabaseSync(): boolean;
-  getDatabaseUser(): string;
+  getDatabaseHost(): string | undefined;
+  getDBDatabase(): string | undefined;
+  getDBPassword(): string | undefined;
+  getDBPort(): number | undefined;
+  getDBSSL(): boolean | undefined;
+  getDBUser(): string | undefined;
+  getJwtSecret(): string | undefined;
 }
