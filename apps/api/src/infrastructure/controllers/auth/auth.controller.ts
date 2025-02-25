@@ -1,93 +1,71 @@
-// import { Body, Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
-// import { ApiBearerAuth, ApiBody, ApiExtraModels, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-// import { FastifyReply } from 'fastify';
+import { Body, Controller, HttpException, HttpStatus, Inject, Post } from '@nestjs/common';
+import { ApiConflictResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import * as bcrypt from 'bcrypt';
 
-// import { JwtAuthGuard } from '@/infrastructure/common/guards/jwtAuth.guard';
-// import JwtRefreshGuard from '@/infrastructure/common/guards/jwtRefresh.guard';
-// import { LoginGuard } from '@/infrastructure/common/guards/login.guard';
-// import { ApiResponseType } from '@/infrastructure/common/swagger/response.decorator';
-// import { IsAuthPresenter } from '@/infrastructure/controllers/auth/auth.presenter';
-// import { AuthLoginDto } from '@/infrastructure/controllers/auth/auth-dto.class';
-// import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
-// import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
-// import { IsAuthenticatedUseCases } from '@/usecases/auth/isAuthenticated.usecases';
-// import { LoginUseCases } from '@/usecases/auth/login.usecases';
-// import { LogoutUseCases } from '@/usecases/auth/logout.usecases';
+import { LoginResponse } from '@/domain/adapters/loginResponse';
+import { LoginDto, RegisterDto } from '@/infrastructure/controllers/auth/auth-dto';
+import { AuthService } from '@/infrastructure/services/jwt/jwt.service';
+import { TranslationService } from '@/infrastructure/services/translation/translation.service';
+import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { AddUserUsecaseProxy } from '@/usecases/user/addUser.usecases';
+import { CheckUnknownUserUsecaseProxy } from '@/usecases/user/checkUnknownUser.usecases';
+import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
 
-// @Controller('auth')
-// @ApiTags('auth')
-// @ApiResponse({
-//   status: 401,
-//   description: 'No authorization token was found',
-// })
-// @ApiResponse({ status: 500, description: 'Internal error' })
-// @ApiExtraModels(IsAuthPresenter)
-// export class AuthController {
-//   constructor(
-//     @Inject(UsecasesProxyModule.LOGIN_USECASES_PROXY)
-//     private readonly loginUsecaseProxy: UseCaseProxy<LoginUseCases>,
-//     @Inject(UsecasesProxyModule.LOGOUT_USECASES_PROXY)
-//     private readonly logoutUsecaseProxy: UseCaseProxy<LogoutUseCases>,
-//     @Inject(UsecasesProxyModule.IS_AUTHENTICATED_USECASES_PROXY)
-//     private readonly isAuthUsecaseProxy: UseCaseProxy<IsAuthenticatedUseCases>,
-//   ) {}
+@ApiTags('auth')
+@Controller('auth')
+export class AuthController {
+  constructor(
+    @Inject(UsecasesProxyModule.GET_USER_BY_EMAIL_USECASES_PROXY)
+    private readonly getUserByEmailUsecaseProxy: UseCaseProxy<GetUserByEmailUseCases>,
+    @Inject(UsecasesProxyModule.CHECK_UNKNOWN_USER_USESCASES_PROXY)
+    private readonly checkUnknownUserUsecaseProxy: UseCaseProxy<CheckUnknownUserUsecaseProxy>,
+    @Inject(UsecasesProxyModule.ADD_USER_USECASES_PROXY)
+    private readonly addUserUsecasesProxy: UseCaseProxy<AddUserUsecaseProxy>,
+    private readonly translationService: TranslationService,
+    private readonly authService: AuthService
+  ) {}
+    
+  @Post('/login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiOkResponse({ type: LoginResponse })
+  async login(@Body() body: LoginDto): Promise<{ accessToken: string }> {
+    const user = await this.getUserByEmailUsecaseProxy.getInstance().execute(body.email);
+    if (!user) {
+      throw new HttpException(await this.translationService.translate('error.INVALID_CREDENTIALS'), HttpStatus.BAD_REQUEST);
+    }
+    if (!await comparePassword(body.password, user.password)) {
+      throw new HttpException(await this.translationService.translate('error.INVALID_CREDENTIALS'), HttpStatus.BAD_REQUEST); // user does not know if email or password is not valid
+    }
+    return this.authService.login(user);
+  }
 
-//   @Post('login')
-//   @UseGuards(LoginGuard)
-//   @ApiBearerAuth()
-//   @ApiBody({ type: AuthLoginDto })
-//   @ApiOperation({ description: 'login' })
-//   async login(@Body() auth: AuthLoginDto, @Res({ passthrough: true }) response: FastifyReply) {
-//     const accessTokenInfo = await this.loginUsecaseProxy.getInstance().getCookieWithJwtToken(auth.username);
-//     const refreshTokenInfo = await this.loginUsecaseProxy.getInstance().getCookieWithJwtRefreshToken(auth.username);
+  @Post('/register')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiInternalServerErrorResponse({ description: "An unexpected error occurred while creating the user" })
+  @ApiConflictResponse({ description: "A user with the given email or username already exists" })
+  @ApiCreatedResponse({ 
+    description: "The user was successfully registered and an access token has been returned", 
+    type: LoginResponse 
+  })
+  async register(@Body() body: RegisterDto): Promise<{ accessToken: string }> {
+    if (await this.checkUnknownUserUsecaseProxy.getInstance().execute(body)) {
+      throw new HttpException(await this.translationService.translate('error.USER_EXIST'), HttpStatus.CONFLICT);
+    }
+    body.password = await hashPassword(body.password);
+    const user = await this.addUserUsecasesProxy.getInstance().execute(body);
+    if (!user) {
+      throw new HttpException(await this.translationService.translate('error.USER_CANT_CREATE'), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return this.authService.login(user);
+  }
+}
 
-//     response.setCookie('accessToken', accessTokenInfo.token, {
-//       path: '/',
-//       httpOnly: true,
-//       secure: true,
-//       maxAge: Number(accessTokenInfo.maxAge),
-//     });
-//     response.setCookie('refreshToken', refreshTokenInfo.token, {
-//       path: '/',
-//       httpOnly: true,
-//       secure: true,
-//       maxAge: Number(refreshTokenInfo.maxAge),
-//     });
-//     return 'Login successful';
-//   }
+async function hashPassword(plaintextPassword: string) {
+  return bcrypt.hash(plaintextPassword, 10);
+}
 
-//   @Post('logout')
-//   @UseGuards(JwtAuthGuard)
-//   @ApiOperation({ description: 'logout' })
-//   logout(@Res({ passthrough: true }) response: FastifyReply) {
-//     response.clearCookie('accessToken');
-//     response.clearCookie('refreshToken');
-//     return 'Logout successful';
-//   }
-
-//   @Get('is_authenticated')
-//   @ApiBearerAuth()
-//   @UseGuards(JwtAuthGuard)
-//   @ApiOperation({ description: 'is_authenticated' })
-//   @ApiResponseType(IsAuthPresenter, false)
-//   async isAuthenticated(@Req() request: any) { // todo : fix request
-//     const user = await this.isAuthUsecaseProxy.getInstance().execute(request.user.username);
-//     const response = new IsAuthPresenter();
-//     response.username = user.username;
-//     return response;
-//   }
-
-//   @Get('refresh')
-//   @UseGuards(JwtRefreshGuard)
-//   @ApiBearerAuth()
-//   async refresh(@Req() request: any, @Res({ passthrough: true }) response: FastifyReply) { // todo : fix request
-//     const accessTokenInfo = await this.loginUsecaseProxy.getInstance().getCookieWithJwtToken(request.user.username);
-//     response.setCookie('accessToken', accessTokenInfo.token, {
-//       path: '/',
-//       httpOnly: true,
-//       secure: true,
-//       maxAge: Number(accessTokenInfo.maxAge),
-//     });
-//     return 'Refresh successful';
-//   }
-// }
+async function comparePassword(plaintextPassword: string, hash: string) {
+  return bcrypt.compare(plaintextPassword, hash);
+}

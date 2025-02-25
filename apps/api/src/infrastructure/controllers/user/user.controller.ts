@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Put, UseGuards } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -7,7 +7,8 @@ import {
 } from '@nestjs/swagger';
 
 import { UserRequest } from '@/infrastructure/common/decorators/user.decorator';
-import { CreateUserDto, UpdatedUserDto } from '@/infrastructure/controllers/user/user.dto';
+import { JwtAuthGuard } from '@/infrastructure/common/guards/jwtAuth.guard';
+import { UpdatedUserDto } from '@/infrastructure/controllers/user/user.dto';
 import { UserPresenter } from '@/infrastructure/controllers/user/user.presenter';
 import { User } from '@/infrastructure/entities/user.entity';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -20,7 +21,7 @@ import { GetUserByIdUseCases } from '@/usecases/user/getUserById.usecases';
 import { GetUsersUseCases } from '@/usecases/user/getUsers.usecases';
 import { UpdateUserUseCases } from '@/usecases/user/updateUser.usecases';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiTags('users')
 @ApiUnauthorizedResponse({ description: "User not connected" })
 @Controller('users')
@@ -59,18 +60,6 @@ export class UserController {
       throw new HttpException(await this.translationService.translate('error.USER_NOT_FOUND'), HttpStatus.NOT_FOUND);
     }
     return new UserPresenter(user);
-  }
-
-  @Post("")
-  @ApiOperation({ summary: 'Create user' })
-  @ApiOkResponse({ description: "User created" })
-  async createUser(@Body() userBody: CreateUserDto) {
-    const findUser = await this.getUserByEmailUsecaseProxy.getInstance().execute(userBody.email);
-    if (findUser) {
-      throw new HttpException(await this.translationService.translate('error.USER_EXIST'), HttpStatus.CONFLICT);
-    }
-    const userCreated = await this.addUserUsecaseProxy.getInstance().execute(userBody);
-    return new UserPresenter(userCreated);
   }
 
   @Put("/:id")

@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Role } from '@/domain/model/role';
 
@@ -21,14 +21,5 @@ export class User {
 
   @CreateDateColumn({ name: 'createdate' })
   createdDate: Date;
-
-  @UpdateDateColumn({ name: 'updateddate' })
-  updatedDate: Date;
-
-  @Column({ nullable: true })
-  lastLogin?: Date;
-
-  @Column('varchar', { nullable: true })
-  hashRefreshToken?: string;
 }
 

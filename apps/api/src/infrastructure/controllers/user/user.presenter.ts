@@ -13,16 +13,13 @@ export class UserPresenter {
   @ApiProperty()
   createdDate: Date;
   @ApiProperty()
-  updatedDate: Date;
-  @ApiProperty()
-  role: Role;  
+  role: Role;
 
   constructor(user: UserM) {
     this.id = user.id;
     this.username = user.username;
     this.email = user.email;
     this.createdDate = user.createdDate;
-    this.updatedDate = user.updatedDate;
     this.role = user.role;
   }
 }

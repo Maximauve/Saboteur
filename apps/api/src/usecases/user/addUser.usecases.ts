@@ -1,12 +1,12 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
 import { UserM } from '@/domain/model/user';
 import { type UserRepository } from '@/domain/repositories/userRepository.interface';
-import { type CreateUserDto } from '@/infrastructure/controllers/user/user.dto';
+import { type RegisterDto } from '@/infrastructure/controllers/auth/auth-dto';
 
 export class AddUserUsecaseProxy {
   constructor(private readonly logger: ILogger, private readonly userRepository: UserRepository) {}
 
-  async execute(body: CreateUserDto): Promise<UserM> {
+  async execute(body: RegisterDto): Promise<UserM> {
     const user = new UserM();
     user.email = body.email;
     user.username = body.username;

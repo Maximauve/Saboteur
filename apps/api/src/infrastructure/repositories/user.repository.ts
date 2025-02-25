@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 
 import { UserM } from '@/domain/model/user';
 import { UserRepository } from '@/domain/repositories/userRepository.interface';
+import { RegisterDto } from '@/infrastructure/controllers/auth/auth-dto';
 import { UpdatedUserDto } from '@/infrastructure/controllers/user/user.dto';
 import { User } from '@/infrastructure/entities/user.entity';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -16,14 +17,7 @@ export class DatabaseUserRepository implements UserRepository {
     private readonly userEntityRepository: Repository<User>,
     private readonly translationService: TranslationService
   ) {}
-  async updateRefreshToken(username: string, refreshToken: string): Promise<void> {
-    await this.userEntityRepository.update(
-      {
-        username: username,
-      },
-      { hashRefreshToken: refreshToken },
-    );
-  }
+
   async getUserByUsername(username: string): Promise<UserM | null> {
     const adminUserEntity = await this.userEntityRepository.findOne({
       where: {
@@ -34,14 +28,6 @@ export class DatabaseUserRepository implements UserRepository {
       return null;
     }
     return this.toUser(adminUserEntity);
-  }
-  async updateLastLogin(username: string): Promise<void> {
-    await this.userEntityRepository.update(
-      {
-        username: username,
-      },
-      { lastLogin: () => 'CURRENT_TIMESTAMP' },
-    );
   }
 
   async getAll(): Promise<UserM[]> {
@@ -120,6 +106,21 @@ export class DatabaseUserRepository implements UserRepository {
     await this.userEntityRepository.delete({ id });
   }
 
+  async checkUnknownUser(user: RegisterDto, userId?: string): Promise<boolean> {
+    const unknownUser = await this.userEntityRepository.findOne({
+      where: [
+        { username: user.username },
+        { email: user.email },
+      ],
+    });
+  
+    if (!unknownUser || (userId && unknownUser.id === userId)) {
+      return false;
+    }
+    return true;
+  }
+  
+
   private toUser(userEntity: User): UserM {
     const user: UserM = new UserM();
 
@@ -129,9 +130,6 @@ export class DatabaseUserRepository implements UserRepository {
     user.password = userEntity.password;
     user.role = userEntity.role;
     user.createdDate = userEntity.createdDate;
-    user.updatedDate = userEntity.updatedDate;
-    user.lastLogin = userEntity.lastLogin;
-    user.hashRefreshToken = userEntity.hashRefreshToken;
 
     return user;
   }
@@ -142,10 +140,7 @@ export class DatabaseUserRepository implements UserRepository {
     userEntity.username = user.username;
     userEntity.password = user.password;
     userEntity.email = user.email;
-    userEntity.lastLogin = user.lastLogin;
     userEntity.createdDate = user.createdDate;
-    userEntity.updatedDate = user.updatedDate;
-    userEntity.hashRefreshToken = user.hashRefreshToken;
     userEntity.role = user.role;
 
     return userEntity;

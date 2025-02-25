@@ -9,6 +9,7 @@ import * as path from 'node:path';
 
 import { ControllersModule } from '@/infrastructure/controllers/controllers.module';
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
+import { JwtStrategy } from '@/infrastructure/services/jwt/jwt.strategy';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
 
@@ -58,6 +59,6 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
     UsecasesProxyModule.register(),
   ],
   controllers: [],
-  providers: [TranslationService],
+  providers: [TranslationService, JwtStrategy],
 })
 export class AppModule { }

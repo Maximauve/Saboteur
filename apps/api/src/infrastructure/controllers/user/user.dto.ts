@@ -1,15 +1,5 @@
 import { PartialType } from "@nestjs/swagger";
-import { IsString } from "class-validator";
 
-export class CreateUserDto {
-  @IsString()
-  username: string;
+import { RegisterDto } from "@/infrastructure/controllers/auth/auth-dto";
 
-  @IsString()
-  email: string;
-
-  @IsString()
-  password: string;
-}
-
-export class UpdatedUserDto extends PartialType(CreateUserDto) {}
+export class UpdatedUserDto extends PartialType(RegisterDto) {}

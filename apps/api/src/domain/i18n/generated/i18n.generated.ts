@@ -14,6 +14,23 @@ export type I18nTranslations = {
         "UNAUTHORIZED": string;
         "ID_INVALID": string;
     };
+    "validation": {
+        "NOT_EMPTY": string;
+        "IS_EMPTY": string;
+        "INVALID_EMAIL": string;
+        "INVALID_BOOLEAN": string;
+        "MIN": string;
+        "MAX": string;
+        "MIN_NUMBER": string;
+        "MAX_NUMBER": string;
+        "NOT_STRING": string;
+        "NOT_INT": string;
+        "IS_STATE": string;
+        "NOT_BOOLEAN": string;
+        "NOT_DATE": string;
+        "IS_NOT_ARRAY": string;
+        "IS_NOT_UUID": string;
+    };
 };
 /* prettier-ignore */
 export type I18nPath = Path<I18nTranslations>;
