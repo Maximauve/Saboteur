@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ExceptionsService } from './exceptions.service';
+
+import { ExceptionsService } from '@/infrastructure/exceptions/exceptions.service';
 
 @Module({
   providers: [ExceptionsService],

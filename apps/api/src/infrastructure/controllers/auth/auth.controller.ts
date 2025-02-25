@@ -2,20 +2,17 @@ import { Body, Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestj
 import { ApiBearerAuth, ApiBody, ApiExtraModels, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyReply } from 'fastify';
 
-import { AuthLoginDto } from './auth-dto.class';
-import { IsAuthPresenter } from './auth.presenter';
-
-import JwtRefreshGuard from '../../common/guards/jwtRefresh.guard';
-import { JwtAuthGuard } from '../../common/guards/jwtAuth.guard';
-import { LoginGuard } from '../../common/guards/login.guard';
-
-import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { UsecasesProxyModule } from '../../usecases-proxy/usecases-proxy.module';
-import { LoginUseCases } from '../../../usecases/auth/login.usecases';
-import { IsAuthenticatedUseCases } from '../../../usecases/auth/isAuthenticated.usecases';
-import { LogoutUseCases } from '../../../usecases/auth/logout.usecases';
-
-import { ApiResponseType } from '../../common/swagger/response.decorator';
+import { JwtAuthGuard } from '@/infrastructure/common/guards/jwtAuth.guard';
+import JwtRefreshGuard from '@/infrastructure/common/guards/jwtRefresh.guard';
+import { LoginGuard } from '@/infrastructure/common/guards/login.guard';
+import { ApiResponseType } from '@/infrastructure/common/swagger/response.decorator';
+import { IsAuthPresenter } from '@/infrastructure/controllers/auth/auth.presenter';
+import { AuthLoginDto } from '@/infrastructure/controllers/auth/auth-dto.class';
+import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { IsAuthenticatedUseCases } from '@/usecases/auth/isAuthenticated.usecases';
+import { LoginUseCases } from '@/usecases/auth/login.usecases';
+import { LogoutUseCases } from '@/usecases/auth/logout.usecases';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -62,7 +59,7 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ description: 'logout' })
-  async logout(@Res({ passthrough: true }) response: FastifyReply) {
+  logout(@Res({ passthrough: true }) response: FastifyReply) {
     response.clearCookie('accessToken');
     response.clearCookie('refreshToken');
     return 'Logout successful';
@@ -73,7 +70,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ description: 'is_authenticated' })
   @ApiResponseType(IsAuthPresenter, false)
-  async isAuthenticated(@Req() request: any) {
+  async isAuthenticated(@Req() request: any) { // todo : fix request
     const user = await this.isAuthUsecaseProxy.getInstance().execute(request.user.username);
     const response = new IsAuthPresenter();
     response.username = user.username;
@@ -83,7 +80,7 @@ export class AuthController {
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
   @ApiBearerAuth()
-  async refresh(@Req() request: any, @Res({ passthrough: true }) response: FastifyReply) {
+  async refresh(@Req() request: any, @Res({ passthrough: true }) response: FastifyReply) { // todo : fix request
     const accessTokenInfo = await this.loginUsecaseProxy.getInstance().getCookieWithJwtToken(request.user.username);
     response.setCookie('accessToken', accessTokenInfo.token, {
       path: '/',

@@ -1,14 +1,15 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
-import { EnvironmentConfigService } from '../../config/environment-config/environment-config.service';
-import { UsecasesProxyModule } from '../../usecases-proxy/usecases-proxy.module';
-import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { LoginUseCases } from '../../../usecases/auth/login.usecases';
-import { TokenPayload } from '../../../domain/model/auth';
-import { LoggerService } from '../../logger/logger.service';
-import { ExceptionsService } from '../../exceptions/exceptions.service';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+import { TokenPayload } from '@/domain/model/auth';
+import { EnvironmentConfigService } from '@/infrastructure/config/environment-config/environment-config.service';
+import { ExceptionsService } from '@/infrastructure/exceptions/exceptions.service';
+import { LoggerService } from '@/infrastructure/logger/logger.service';
+import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { LoginUseCases } from '@/usecases/auth/login.usecases';
 
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {
@@ -22,6 +23,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           return request?.cookies?.refreshToken;
         },
       ]),
@@ -31,7 +33,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
   }
 
   async validate(request: Request, payload: TokenPayload) {
-    const refreshToken = request.cookies?.refreshToken;
+    const refreshToken = request.cookies?.refreshToken as string;
     const user = this.loginUsecaseProxy.getInstance().getUserIfRefreshTokenMatches(refreshToken, payload.username);
     if (!user) {
       this.logger.warn('JwtStrategy', `User not found or hash not correct`);

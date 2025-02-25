@@ -1,7 +1,7 @@
-import { ILogger } from '../../domain/logger/logger.interface';
-import { TodoRepository } from '../../domain/repositories/todoRepository.interface';
+import { type ILogger } from '@/domain/logger/logger.interface';
+import { type TodoRepository } from '@/domain/repositories/todoRepository.interface';
 
-export class deleteTodoUseCases {
+export class DeleteTodoUseCases {
   constructor(private readonly logger: ILogger, private readonly todoRepository: TodoRepository) {}
 
   async execute(id: number): Promise<void> {

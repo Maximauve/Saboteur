@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { IJwtService, IJwtServicePayload } from '../../../domain/adapters/jwt.interface';
+
+import { IJwtService, IJwtServicePayload } from '@/domain/adapters/jwt.interface';
 
 @Injectable()
 export class JwtTokenService implements IJwtService {

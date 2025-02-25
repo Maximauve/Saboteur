@@ -1,29 +1,26 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { addTodoUseCases } from '../../usecases/todo/addTodo.usecases';
-import { deleteTodoUseCases } from '../../usecases/todo/deleteTodo.usecases';
-import { GetTodoUseCases } from '../../usecases/todo/getTodo.usecases';
-import { getTodosUseCases } from '../../usecases/todo/getTodos.usecases';
-import { updateTodoUseCases } from '../../usecases/todo/updateTodo.usecases';
-import { IsAuthenticatedUseCases } from '../../usecases/auth/isAuthenticated.usecases';
-import { LoginUseCases } from '../../usecases/auth/login.usecases';
-import { LogoutUseCases } from '../../usecases/auth/logout.usecases';
 
-import { ExceptionsModule } from '../exceptions/exceptions.module';
-import { LoggerModule } from '../logger/logger.module';
-import { LoggerService } from '../logger/logger.service';
-
-import { BcryptModule } from '../services/bcrypt/bcrypt.module';
-import { BcryptService } from '../services/bcrypt/bcrypt.service';
-import { JwtModule } from '../services/jwt/jwt.module';
-import { JwtTokenService } from '../services/jwt/jwt.service';
-import { RepositoriesModule } from '../repositories/repositories.module';
-
-import { DatabaseTodoRepository } from '../repositories/todo.repository';
-import { DatabaseUserRepository } from '../repositories/user.repository';
-
-import { EnvironmentConfigModule } from '../config/environment-config/environment-config.module';
-import { EnvironmentConfigService } from '../config/environment-config/environment-config.service';
-import { UseCaseProxy } from './usecases-proxy';
+import { EnvironmentConfigModule } from '@/infrastructure/config/environment-config/environment-config.module';
+import { EnvironmentConfigService } from '@/infrastructure/config/environment-config/environment-config.service';
+import { ExceptionsModule } from '@/infrastructure/exceptions/exceptions.module';
+import { LoggerModule } from '@/infrastructure/logger/logger.module';
+import { LoggerService } from '@/infrastructure/logger/logger.service';
+import { RepositoriesModule } from '@/infrastructure/repositories/repositories.module';
+import { DatabaseTodoRepository } from '@/infrastructure/repositories/todo.repository';
+import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
+import { BcryptModule } from '@/infrastructure/services/bcrypt/bcrypt.module';
+import { BcryptService } from '@/infrastructure/services/bcrypt/bcrypt.service';
+import { JwtModule } from '@/infrastructure/services/jwt/jwt.module';
+import { JwtTokenService } from '@/infrastructure/services/jwt/jwt.service';
+import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { IsAuthenticatedUseCases } from '@/usecases/auth/isAuthenticated.usecases';
+import { LoginUseCases } from '@/usecases/auth/login.usecases';
+import { LogoutUseCases } from '@/usecases/auth/logout.usecases';
+import { AddTodoUseCases } from '@/usecases/todo/addTodo.usecases';
+import { DeleteTodoUseCases } from '@/usecases/todo/deleteTodo.usecases';
+import { GetTodoUseCases } from '@/usecases/todo/getTodo.usecases';
+import { GetTodosUseCases } from '@/usecases/todo/getTodos.usecases';
+import { UpdateTodoUseCases } from '@/usecases/todo/updateTodo.usecases';
 
 @Module({
   imports: [LoggerModule, JwtModule, BcryptModule, EnvironmentConfigModule, RepositoriesModule, ExceptionsModule],
@@ -73,25 +70,25 @@ export class UsecasesProxyModule {
         {
           inject: [DatabaseTodoRepository],
           provide: UsecasesProxyModule.GET_TODOS_USECASES_PROXY,
-          useFactory: (todoRepository: DatabaseTodoRepository) => new UseCaseProxy(new getTodosUseCases(todoRepository)),
+          useFactory: (todoRepository: DatabaseTodoRepository) => new UseCaseProxy(new GetTodosUseCases(todoRepository)),
         },
         {
           inject: [LoggerService, DatabaseTodoRepository],
           provide: UsecasesProxyModule.POST_TODO_USECASES_PROXY,
           useFactory: (logger: LoggerService, todoRepository: DatabaseTodoRepository) =>
-            new UseCaseProxy(new addTodoUseCases(logger, todoRepository)),
+            new UseCaseProxy(new AddTodoUseCases(logger, todoRepository)),
         },
         {
           inject: [LoggerService, DatabaseTodoRepository],
           provide: UsecasesProxyModule.PUT_TODO_USECASES_PROXY,
           useFactory: (logger: LoggerService, todoRepository: DatabaseTodoRepository) =>
-            new UseCaseProxy(new updateTodoUseCases(logger, todoRepository)),
+            new UseCaseProxy(new UpdateTodoUseCases(logger, todoRepository)),
         },
         {
           inject: [LoggerService, DatabaseTodoRepository],
           provide: UsecasesProxyModule.DELETE_TODO_USECASES_PROXY,
           useFactory: (logger: LoggerService, todoRepository: DatabaseTodoRepository) =>
-            new UseCaseProxy(new deleteTodoUseCases(logger, todoRepository)),
+            new UseCaseProxy(new DeleteTodoUseCases(logger, todoRepository)),
         },
       ],
       exports: [

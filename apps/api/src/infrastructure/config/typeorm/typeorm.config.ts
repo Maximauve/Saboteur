@@ -1,5 +1,5 @@
-import { DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
+import { type DataSourceOptions } from 'typeorm';
 
 if (process.env.NODE_ENV === 'local') {
   dotenv.config({ path: './env/local.env' });
@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'local') {
 const config: DataSourceOptions = {
   type: 'postgres',
   host: process.env.DATABASE_HOST,
-  port: parseInt(process.env.DATABASE_PORT),
+  port: Number.parseInt(process.env.DATABASE_PORT!),
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,

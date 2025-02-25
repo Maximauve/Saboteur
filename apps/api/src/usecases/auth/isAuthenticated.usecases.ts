@@ -1,5 +1,5 @@
-import { UserM, UserWithoutPassword } from '../../domain/model/user';
-import { UserRepository } from '../../domain/repositories/userRepository.interface';
+import { type UserM, type UserWithoutPassword } from '@/domain/model/user';
+import { type UserRepository } from '@/domain/repositories/userRepository.interface';
 
 export class IsAuthenticatedUseCases {
   constructor(private readonly adminUserRepo: UserRepository) {}

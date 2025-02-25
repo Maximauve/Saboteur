@@ -1,7 +1,6 @@
-import { UserM } from '../model/user';
+import { type UserM } from '@/domain/model/user';
 
 export interface UserRepository {
+  getAll(): Promise<User>
   getUserByUsername(username: string): Promise<UserM>;
-  updateLastLogin(username: string): Promise<void>;
-  updateRefreshToken(username: string, refreshToken: string): Promise<void>;
 }

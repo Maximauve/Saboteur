@@ -2,12 +2,14 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { FastifyRequest } from 'fastify';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { LoggerService } from '../../logger/logger.service';
+
+import { LoggerService } from '@/infrastructure/logger/logger.service';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   constructor(private readonly logger: LoggerService) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     const httpContext = context.switchToHttp();
@@ -25,13 +27,8 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private getIP(request: FastifyRequest): string {
-    let ip: string;
     const ipAddr = request.headers['x-forwarded-for'];
-    if (ipAddr) {
-      ip = ipAddr[ipAddr.length - 1];
-    } else {
-      ip = request.socket.remoteAddress;
-    }
+    const ip: string = ipAddr ? ipAddr.at(-1) : request.socket.remoteAddress;
     return ip.replace('::ffff:', '');
   }
 }

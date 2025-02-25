@@ -1,10 +1,10 @@
-import { IBcryptService } from '../../../domain/adapters/bcrypt.interface';
-import { IJwtService } from '../../../domain/adapters/jwt.interface';
-import { JWTConfig } from '../../../domain/config/jwt.interface';
-import { IException } from '../../../domain/exceptions/exceptions.interface';
-import { ILogger } from '../../../domain/logger/logger.interface';
-import { UserM } from '../../../domain/model/user';
-import { UserRepository } from '../../../domain/repositories/userRepository.interface';
+import { IBcryptService } from '@/domain/adapters/bcrypt.interface';
+import { IJwtService } from '@/domain/adapters/jwt.interface';
+import { JWTConfig } from '@/domain/config/jwt.interface';
+import { IException } from '@/domain/exceptions/exceptions.interface';
+import { ILogger } from '@/domain/logger/logger.interface';
+import { UserM } from '@/domain/model/user';
+import { UserRepository } from '@/domain/repositories/userRepository.interface';
 import { IsAuthenticatedUseCases } from '../isAuthenticated.usecases';
 import { LoginUseCases } from '../login.usecases';
 import { LogoutUseCases } from '../logout.usecases';

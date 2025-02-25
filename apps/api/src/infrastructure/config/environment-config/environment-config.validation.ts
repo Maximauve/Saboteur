@@ -3,8 +3,8 @@ import { IsBoolean, IsEnum, IsNumber, IsString, validateSync } from 'class-valid
 
 enum Environment {
   Development = 'development',
-  Production = 'production',
   Local = 'local',
+  Production = 'production',
   Test = 'test',
 }
 

@@ -1,10 +1,10 @@
-import { TodoM } from '../../domain/model/todo';
-import { TodoRepository } from '../../domain/repositories/todoRepository.interface';
+import { type TodoM } from '@/domain/model/todo';
+import { type TodoRepository } from '@/domain/repositories/todoRepository.interface';
 
-export class getTodosUseCases {
+export class GetTodosUseCases {
   constructor(private readonly todoRepository: TodoRepository) {}
 
   async execute(): Promise<TodoM[]> {
-    return await this.todoRepository.findAll();
+    return this.todoRepository.findAll();
   }
 }

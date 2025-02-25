@@ -1,8 +1,8 @@
-import { IBcryptService } from '../../domain/adapters/bcrypt.interface';
-import { IJwtService, IJwtServicePayload } from '../../domain/adapters/jwt.interface';
-import { JWTConfig } from '../../domain/config/jwt.interface';
-import { ILogger } from '../../domain/logger/logger.interface';
-import { UserRepository } from '../../domain/repositories/userRepository.interface';
+import { type IBcryptService } from '@/domain/adapters/bcrypt.interface';
+import { type IJwtService, type IJwtServicePayload } from '@/domain/adapters/jwt.interface';
+import { type JWTConfig } from '@/domain/config/jwt.interface';
+import { type ILogger } from '@/domain/logger/logger.interface';
+import { type UserRepository } from '@/domain/repositories/userRepository.interface';
 
 export class LoginUseCases {
   constructor(

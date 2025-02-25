@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UsecasesProxyModule } from '../usecases-proxy/usecases-proxy.module';
-import { AuthController } from './auth/auth.controller';
-import { TodoController } from './todo/todo.controller';
+
+import { AuthController } from '@/infrastructure/controllers/auth/auth.controller';
+import { TodoController } from '@/infrastructure/controllers/todo/todo.controller';
+import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
 
 @Module({
   imports: [UsecasesProxyModule.register()],
