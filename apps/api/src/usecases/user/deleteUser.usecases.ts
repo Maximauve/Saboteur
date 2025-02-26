@@ -6,6 +6,6 @@ export class DeleteUserByIdUseCases {
 
   async execute(id: string): Promise<void> {
     await this.userRepository.deleteById(id);
-    this.logger.log('deleteTodoUseCases execute', `Todo ${id} have been deleted`);
+    this.logger.log('deleteUserByIdUseCases execute', `User ${id} have been deleted`);
   }
 }

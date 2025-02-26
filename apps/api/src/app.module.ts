@@ -10,6 +10,7 @@ import * as path from 'node:path';
 import { ControllersModule } from '@/infrastructure/controllers/controllers.module';
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
 import { JwtStrategy } from '@/infrastructure/services/jwt/jwt.strategy';
+import { RedisModule } from '@/infrastructure/services/redis/redis.module';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
 
@@ -57,6 +58,7 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
     ControllersModule,
     LoggerModule,
     UsecasesProxyModule.register(),
+    RedisModule
   ],
   controllers: [],
   providers: [TranslationService, JwtStrategy],
