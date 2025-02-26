@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 
 import { AppModule } from '@/app.module';
+import { LoggingInterceptor } from '@/infrastructure/common/interceptors/logger.interceptor';
+import { LoggerService } from '@/infrastructure/logger/logger.service';
 
 
 async function bootstrap() {
@@ -30,6 +32,10 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
+
+  // LOGGER
+  app.useGlobalInterceptors(new LoggingInterceptor(new LoggerService()));
+
 
   // I18N
   app.useGlobalPipes(new I18nValidationPipe({

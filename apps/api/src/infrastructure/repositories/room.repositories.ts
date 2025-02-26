@@ -23,11 +23,9 @@ export class DatabaseRoomRepository implements RoomRepository {
       users: [host],
       started: false,
     };
-    let roomKey = `room:${room.code}`;
-    while ((await this.redisService.exists(roomKey)) === 1) {
-      room.code = Math.floor(100_000 + Math.random() * 900_000).toString();
-      roomKey = `room:${room.code}`;
-    }
+
+    room.code = await this.generateUniqueRoomCode();
+    const roomKey = `room:${room.code}`;
     await this.redisService.hset(roomKey, [
       'code',
       room.code.toString(),
@@ -44,4 +42,13 @@ export class DatabaseRoomRepository implements RoomRepository {
     ]);
     return room;
   }
+
+  private generateUniqueRoomCode = async (): Promise<string> => {
+    const code = Math.floor(100_000 + Math.random() * 900_000).toString();
+    const roomKey = `room:${code}`;
+    if (await this.redisService.exists(roomKey) === 1) {
+      return this.generateUniqueRoomCode();
+    }
+    return code;
+  };
 }

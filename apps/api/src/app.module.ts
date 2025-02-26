@@ -7,9 +7,9 @@ import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 // eslint-disable-next-line unicorn/import-style
 import * as path from 'node:path';
 
+import { JwtStrategy } from '@/infrastructure/common/strategies/jwt.strategy';
 import { ControllersModule } from '@/infrastructure/controllers/controllers.module';
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
-import { JwtStrategy } from '@/infrastructure/services/jwt/jwt.strategy';
 import { RedisModule } from '@/infrastructure/services/redis/redis.module';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';

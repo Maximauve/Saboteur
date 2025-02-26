@@ -31,6 +31,7 @@ export class RoomController {
   @ApiOperation({ summary: "Create a room" })
   @ApiOkResponse({ description: "Room created successfully", type: User, isArray: true })
   async createRoom(@CurrentUser() user: UserFromRequest) {
-    await this.createRoomUseCaseProxy.getInstance().execute(user);
+    const room = await this.createRoomUseCaseProxy.getInstance().execute(user);
+    return { code: room.code };
   }
 }
