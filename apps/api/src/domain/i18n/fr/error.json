@@ -5,5 +5,8 @@
   "USER_NOT_ADMIN": "L'utilisateur n'est pas administrateur",
   "PASSWORD_INCORRECT": "Mot de passe incorrect",
   "UNAUTHORIZED": "Tu n'est pas connecté",
-  "ID_INVALID": "L'id est invalide"
+  "ID_INVALID": "L'id est invalide",
+  "ROOM_NOT_FOUND": "La room n'existe pas",
+  "ROOM_ALREADY_STARTED": "La partie a déjà commencé",
+  "ROOM_MAX": "La room est pleine"
 }

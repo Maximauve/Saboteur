@@ -18,10 +18,17 @@ export class UserM extends UserWithoutPassword {
   password: string;
 }
 
+// IN GAME
 export class UserRoom {
   username: string;
   userId: string;
   isHost: boolean;
+}
+
+export class UserSocket extends UserRoom {
+  socketId: string;
+  ready: boolean;
+  gold: number;
 }
 
 

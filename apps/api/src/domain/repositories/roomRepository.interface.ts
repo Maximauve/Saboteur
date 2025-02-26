@@ -1,6 +1,11 @@
 import { type Room } from "@/domain/model/room";
-import { type UserFromRequest } from "@/domain/model/user";
+import { type UserFromRequest, type UserSocket } from "@/domain/model/user";
 
 export interface RoomRepository {
+  addUserToRoom(code: string, user: UserSocket): Promise<void>;
   createRoom(user: UserFromRequest): Promise<Room>;
+  gameIsStarted(code: string): Promise<boolean>;
+  getRoomUsers(code: string): Promise<UserSocket[]>;
+  isHost(code: string, user:UserSocket): Promise<boolean>;
+  removeUserToRoom(code: string, user: UserSocket): Promise<void>;
 }

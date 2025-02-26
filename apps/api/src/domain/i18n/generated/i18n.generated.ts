@@ -13,6 +13,9 @@ export type I18nTranslations = {
         "PASSWORD_INCORRECT": string;
         "UNAUTHORIZED": string;
         "ID_INVALID": string;
+        "ROOM_NOT_FOUND": string;
+        "ROOM_ALREADY_STARTED": string;
+        "ROOM_MAX": string;
     };
     "validation": {
         "NOT_EMPTY": string;

@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { type MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -26,8 +27,8 @@ async function bootstrap() {
 
   // SWAGGER
   const config = new DocumentBuilder()
-    .setTitle('Playpal')
-    .setDescription('The playpal API description')
+    .setTitle('Saboteur')
+    .setDescription('The Saboteur API description')
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
@@ -35,7 +36,7 @@ async function bootstrap() {
 
   // LOGGER
   app.useGlobalInterceptors(new LoggingInterceptor(new LoggerService()));
-
+  app.useGlobalPipes(new ValidationPipe());
 
   // I18N
   app.useGlobalPipes(new I18nValidationPipe({

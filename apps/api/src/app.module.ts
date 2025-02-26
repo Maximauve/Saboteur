@@ -13,6 +13,7 @@ import { LoggerModule } from '@/infrastructure/logger/logger.module';
 import { RedisModule } from '@/infrastructure/services/redis/redis.module';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { WebSocketModule } from '@/infrastructure/websockets/websockets.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
     LoggerModule,
     UsecasesProxyModule.register(),
     RedisModule,
+    WebSocketModule
   ],
   controllers: [],
   providers: [TranslationService, JwtStrategy],
