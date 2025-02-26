@@ -8,8 +8,8 @@ import { AuthService } from '@/infrastructure/services/jwt/jwt.service';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
-import { AddUserUsecaseProxy } from '@/usecases/user/addUser.usecases';
-import { CheckUnknownUserUsecaseProxy } from '@/usecases/user/checkUnknownUser.usecases';
+import { AddUserUseCases } from '@/usecases/user/addUser.usecases';
+import { CheckUnknownUserUseCases } from '@/usecases/user/checkUnknownUser.usecases';
 import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
 
 @ApiTags('auth')
@@ -19,9 +19,9 @@ export class AuthController {
     @Inject(UsecasesProxyModule.GET_USER_BY_EMAIL_USECASES_PROXY)
     private readonly getUserByEmailUsecaseProxy: UseCaseProxy<GetUserByEmailUseCases>,
     @Inject(UsecasesProxyModule.CHECK_UNKNOWN_USER_USESCASES_PROXY)
-    private readonly checkUnknownUserUsecaseProxy: UseCaseProxy<CheckUnknownUserUsecaseProxy>,
+    private readonly checkUnknownUserUsecaseProxy: UseCaseProxy<CheckUnknownUserUseCases>,
     @Inject(UsecasesProxyModule.ADD_USER_USECASES_PROXY)
-    private readonly addUserUsecasesProxy: UseCaseProxy<AddUserUsecaseProxy>,
+    private readonly addUserUsecasesProxy: UseCaseProxy<AddUserUseCases>,
     private readonly translationService: TranslationService,
     private readonly authService: AuthService
   ) {}

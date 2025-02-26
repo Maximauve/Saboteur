@@ -4,10 +4,12 @@ import { ExceptionsModule } from '@/infrastructure/exceptions/exceptions.module'
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
 import { LoggerService } from '@/infrastructure/logger/logger.service';
 import { RepositoriesModule } from '@/infrastructure/repositories/repositories.module';
+import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repositories';
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
-import { AddUserUsecaseProxy } from '@/usecases/user/addUser.usecases';
-import { CheckUnknownUserUsecaseProxy } from '@/usecases/user/checkUnknownUser.usecases';
+import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
+import { AddUserUseCases } from '@/usecases/user/addUser.usecases';
+import { CheckUnknownUserUseCases } from '@/usecases/user/checkUnknownUser.usecases';
 import { DeleteUserByIdUseCases } from '@/usecases/user/deleteUser.usecases';
 import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
 import { GetUserByIdUseCases } from '@/usecases/user/getUserById.usecases';
@@ -24,7 +26,9 @@ export class UsecasesProxyModule {
   static ADD_USER_USECASES_PROXY = 'addUserUsecasesProxy';
   static UPDATE_USER_USECASES_PROXY = "updateUserUsecasesProxy";
   static DELETE_USER_BY_ID_USECASES_PROXY = "deleteUserByIdUsecasesProxy";
-  static CHECK_UNKNOWN_USER_USESCASES_PROXY = "checkUnknownuserUsecasesProxy";
+  static CHECK_UNKNOWN_USER_USESCASES_PROXY = "checkUnknownUserUsecasesProxy";
+
+  static CREATE_ROOM_USECASES_PROXY = "createRoomUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -40,7 +44,7 @@ export class UsecasesProxyModule {
           inject: [LoggerService, DatabaseUserRepository],
           provide: UsecasesProxyModule.ADD_USER_USECASES_PROXY,
           useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
-            new UseCaseProxy(new AddUserUsecaseProxy(logger, userRepository))
+            new UseCaseProxy(new AddUserUseCases(logger, userRepository))
         },
         {
           inject: [LoggerService, DatabaseUserRepository],
@@ -70,7 +74,13 @@ export class UsecasesProxyModule {
           inject: [LoggerService, DatabaseUserRepository],
           provide: UsecasesProxyModule.CHECK_UNKNOWN_USER_USESCASES_PROXY,
           useFactory: (logger: LoggerService, userRepository: DatabaseUserRepository) =>
-            new UseCaseProxy(new CheckUnknownUserUsecaseProxy(logger, userRepository))
+            new UseCaseProxy(new CheckUnknownUserUseCases(logger, userRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.CREATE_ROOM_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new CreateRoomUseCases(logger, roomRepository))
         },
       ],
       exports: [
@@ -81,6 +91,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.UPDATE_USER_USECASES_PROXY,
         UsecasesProxyModule.DELETE_USER_BY_ID_USECASES_PROXY,
         UsecasesProxyModule.CHECK_UNKNOWN_USER_USESCASES_PROXY,
+        UsecasesProxyModule.CREATE_ROOM_USECASES_PROXY,
       ],
     };
   }

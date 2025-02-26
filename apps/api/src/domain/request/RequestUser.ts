@@ -1,5 +1,5 @@
-import { type User } from "@/infrastructure/entities/user.entity";
+import { type UserFromRequest } from "@/domain/model/user";
 
 export interface RequestWithUser extends Request {
-  user?: User
+  user?: UserFromRequest
 }

@@ -3,7 +3,7 @@ import { UserM } from '@/domain/model/user';
 import { type UserRepository } from '@/domain/repositories/userRepository.interface';
 import { type RegisterDto } from '@/infrastructure/controllers/auth/auth-dto';
 
-export class AddUserUsecaseProxy {
+export class AddUserUseCases {
   constructor(private readonly logger: ILogger, private readonly userRepository: UserRepository) {}
 
   async execute(body: RegisterDto): Promise<UserM> {

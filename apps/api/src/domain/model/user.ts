@@ -8,8 +8,20 @@ export class UserWithoutPassword {
   createdDate: Date;
 }
 
+export class UserFromRequest {
+  id: string;
+  username: string;
+  email: string;
+}
+
 export class UserM extends UserWithoutPassword {
   password: string;
+}
+
+export class UserRoom {
+  username: string;
+  userId: string;
+  isHost: boolean;
 }
 
 

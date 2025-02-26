@@ -59,6 +59,7 @@ export class DatabaseUserRepository implements UserRepository {
     if (!user) {
       return null;
     }
+    console.log(user)
     return this.toUser(user);
   }
 

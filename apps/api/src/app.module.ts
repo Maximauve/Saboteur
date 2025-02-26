@@ -58,7 +58,7 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
     ControllersModule,
     LoggerModule,
     UsecasesProxyModule.register(),
-    RedisModule
+    RedisModule,
   ],
   controllers: [],
   providers: [TranslationService, JwtStrategy],

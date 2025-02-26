@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { AuthController } from '@/infrastructure/controllers/auth/auth.controller';
+import { RoomController } from '@/infrastructure/controllers/room/room.controller';
 import { UserController } from '@/infrastructure/controllers/user/user.controller';
 import { AuthService } from '@/infrastructure/services/jwt/jwt.service';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -9,7 +10,7 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
 
 @Module({
   imports: [UsecasesProxyModule.register()],
-  controllers: [AuthController, UserController],
+  controllers: [AuthController, UserController, RoomController],
   providers: [TranslationService, AuthService, JwtService]
 })
 export class ControllersModule {}

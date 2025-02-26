@@ -14,7 +14,7 @@ import { User } from '@/infrastructure/entities/user.entity';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
-import { AddUserUsecaseProxy } from '@/usecases/user/addUser.usecases';
+import { AddUserUseCases } from '@/usecases/user/addUser.usecases';
 import { DeleteUserByIdUseCases } from '@/usecases/user/deleteUser.usecases';
 import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
 import { GetUserByIdUseCases } from '@/usecases/user/getUserById.usecases';
@@ -31,7 +31,7 @@ export class UserController {
     @Inject(UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY)
     private readonly getUserByIdUsecaseProxy: UseCaseProxy<GetUserByIdUseCases>,
     @Inject(UsecasesProxyModule.ADD_USER_USECASES_PROXY)
-    private readonly addUserUsecaseProxy: UseCaseProxy<AddUserUsecaseProxy>,
+    private readonly addUserUsecaseProxy: UseCaseProxy<AddUserUseCases>,
     @Inject(UsecasesProxyModule.GET_USER_BY_EMAIL_USECASES_PROXY)
     private readonly getUserByEmailUsecaseProxy: UseCaseProxy<GetUserByEmailUseCases>,
     @Inject(UsecasesProxyModule.GET_USERS_USESCASES_PROXY)
