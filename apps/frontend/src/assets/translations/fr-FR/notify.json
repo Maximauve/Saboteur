@@ -1,0 +1,10 @@
+{
+  "notify": {
+    "register": {
+      "success": "Votre compte a été créé"
+    },
+    "login": {
+      "success": "Vous êtes connecté"
+    }
+  }
+}

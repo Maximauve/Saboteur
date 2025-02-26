@@ -8,5 +8,6 @@
   "ID_INVALID": "L'id est invalide",
   "ROOM_NOT_FOUND": "La room n'existe pas",
   "ROOM_ALREADY_STARTED": "La partie a déjà commencé",
-  "ROOM_MAX": "La room est pleine"
+  "ROOM_MAX": "La room est pleine",
+  "INVALID_CREDENTIALS": "Les identifiants sont invalides"
 }

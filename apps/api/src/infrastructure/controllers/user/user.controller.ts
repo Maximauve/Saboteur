@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Put, UseGuards } from '@nestjs/common';
 import {
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -20,6 +21,7 @@ import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases'
 import { GetUserByIdUseCases } from '@/usecases/user/getUserById.usecases';
 import { GetUsersUseCases } from '@/usecases/user/getUsers.usecases';
 import { UpdateUserUseCases } from '@/usecases/user/updateUser.usecases';
+import { CurrentUser } from '@/infrastructure/common/decorators/currentUser.decorator';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('users')
@@ -50,6 +52,15 @@ export class UserController {
     const users = await this.getUsersUsecaseProxy.getInstance().execute();
     return users.map(user => new UserPresenter(user));
   }
+
+  @Get('/me')
+  @ApiOperation({ summary: 'Return my user informations' })
+  @ApiOkResponse({ description: "User found successfully", type: User })
+  @ApiNotFoundResponse({ description: "User not found" })
+  getMe(@CurrentUser() user: User): Promise<UserPresenter | null> {
+    return this.getUserByIdUsecaseProxy.getInstance().execute(user.id);
+  }
+
 
   @Get("/:id")
   @ApiOperation({ summary: 'Returns user' })

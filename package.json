@@ -1,7 +1,7 @@
 {
-  "name": "playpal",
+  "name": "saboteur",
   "version": "1.0.0",
-  "repository": "git@github.com:Maximauve/PlayPal.git",
+  "repository": "git@github.com:Maximauve/Saboteur.git",
   "author": "Maximauve <max.mourgues@gmail.com>",
   "license": "MIT",
   "private": true,
@@ -27,9 +27,5 @@
     "lint:api": "cd apps/api && yarn run eslint .",
     "lint:frontend": "cd apps/frontend && eslint .",
     "lint": "yarn lint:api && yarn lint:frontend"
-  },
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "fastify": "^5.2.1"
   }
 }

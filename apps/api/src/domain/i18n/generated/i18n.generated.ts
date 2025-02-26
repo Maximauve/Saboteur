@@ -16,6 +16,7 @@ export type I18nTranslations = {
         "ROOM_NOT_FOUND": string;
         "ROOM_ALREADY_STARTED": string;
         "ROOM_MAX": string;
+        "INVALID_CREDENTIALS": string;
     };
     "validation": {
         "NOT_EMPTY": string;

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Inject, Post } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Inject, Post, Res } from '@nestjs/common';
 import { ApiConflictResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
 
@@ -11,6 +11,9 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
 import { AddUserUseCases } from '@/usecases/user/addUser.usecases';
 import { CheckUnknownUserUseCases } from '@/usecases/user/checkUnknownUser.usecases';
 import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
+import { Response } from 'express';
+
+const expirationTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
 @ApiTags('auth')
 @Controller('auth')
@@ -30,7 +33,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login user' })
   @ApiNotFoundResponse({ description: "User not found" })
   @ApiOkResponse({ type: LoginResponse })
-  async login(@Body() body: LoginDto): Promise<{ accessToken: string }> {
+  async login(@Body() body: LoginDto, @Res() response: Response): Promise<Response<LoginResponse>> {
     const user = await this.getUserByEmailUsecaseProxy.getInstance().execute(body.email);
     if (!user) {
       throw new HttpException(await this.translationService.translate('error.INVALID_CREDENTIALS'), HttpStatus.BAD_REQUEST);
@@ -38,7 +41,12 @@ export class AuthController {
     if (!await comparePassword(body.password, user.password)) {
       throw new HttpException(await this.translationService.translate('error.INVALID_CREDENTIALS'), HttpStatus.BAD_REQUEST); // user does not know if email or password is not valid
     }
-    return this.authService.login(user);
+    const { accessToken } = this.authService.login(user);
+    response.cookie('access_token', accessToken, {
+      expires: expirationTime,
+      httpOnly: true
+    });
+    return response.send({ accessToken });
   }
 
   @Post('/register')
@@ -49,7 +57,7 @@ export class AuthController {
     description: "The user was successfully registered and an access token has been returned", 
     type: LoginResponse 
   })
-  async register(@Body() body: RegisterDto): Promise<{ accessToken: string }> {
+  async register(@Body() body: RegisterDto, @Res() response: Response): Promise<Response<LoginResponse>> {
     if (await this.checkUnknownUserUsecaseProxy.getInstance().execute(body)) {
       throw new HttpException(await this.translationService.translate('error.USER_EXIST'), HttpStatus.CONFLICT);
     }
@@ -58,7 +66,12 @@ export class AuthController {
     if (!user) {
       throw new HttpException(await this.translationService.translate('error.USER_CANT_CREATE'), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return this.authService.login(user);
+    const { accessToken } = this.authService.login(user);
+    response.cookie('access_token', accessToken, {
+      expires: expirationTime,
+      httpOnly: true
+    });
+    return response.send({ accessToken });
   }
 }
 
