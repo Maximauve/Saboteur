@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { type MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import * as cookieParser from 'cookie-parser';
 
 import { AppModule } from '@/app.module';
 import { LoggingInterceptor } from '@/infrastructure/common/interceptors/logger.interceptor';
@@ -51,6 +52,8 @@ async function bootstrap() {
       detailedErrors: false,
     }),
   );
+
+  app.use(cookieParser());
 
   await app.startAllMicroservices();
   await app.listen(process.env.NEST_PORT || 3000);
