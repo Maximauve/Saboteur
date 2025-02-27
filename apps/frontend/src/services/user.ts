@@ -1,4 +1,4 @@
-import { UserWithoutPassword as User } from "@saboteur/api/src/domain/model/user";
+import { type UserWithoutPassword as User } from "@saboteur/api/src/domain/model/user";
 
 import { baseApi } from "@/services/base";
 

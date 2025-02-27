@@ -1,5 +1,5 @@
-import { LoginResponse } from "@saboteur/api/src/domain/adapters/loginResponse";
-import { LoginDto, RegisterDto } from "@saboteur/api/src/infrastructure/controllers/auth/auth-dto";
+import { type LoginResponse } from "@saboteur/api/src/domain/adapters/loginResponse";
+import { type LoginDto, type RegisterDto } from "@saboteur/api/src/infrastructure/controllers/auth/auth-dto";
 
 import { baseApi } from "@/services/base";
 

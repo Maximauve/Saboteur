@@ -1,7 +1,8 @@
 import React, { Fragment } from "react";
+
 import AuthModal from "@/components/modal/auth-modal";
-import useModal from "@/hooks/use-modal";
 import useAuth from "@/hooks/use-auth";
+import useModal from "@/hooks/use-modal";
 
 export default function Navbar(): React.JSX.Element {
   const { user } = useAuth();

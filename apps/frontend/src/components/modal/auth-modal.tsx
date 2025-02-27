@@ -1,14 +1,14 @@
-import { LoginDto, RegisterDto } from "@saboteur/api/src/infrastructure/controllers/auth/auth-dto";
-import { ApiErrorResponse } from "@saboteur/api/src/domain/model/error";
+import { type ApiErrorResponse } from "@saboteur/api/src/domain/model/error";
+import { type LoginDto, type RegisterDto } from "@saboteur/api/src/infrastructure/controllers/auth/auth-dto";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { toast, type ToastContent } from 'react-toastify';
 
 import FullModal from "@/components/modal/full-modal";
-import { type WordingKey } from "@/i18n/i18n-service";
 import useTranslation from "@/hooks/use-translation";
+import { type WordingKey } from "@/i18n/i18n-service";
 import { useLoginMutation, useRegisterMutation } from '@/services/auth';
 
-interface Props {
+interface Properties {
   isVisible: boolean;
   onClose: () => void;
   notClosable?: boolean;
@@ -26,7 +26,7 @@ const registerTexts: Record<string, WordingKey> = {
   submit: "auth.register.submit",
 };
 
-export default function AuthModal({ isVisible, onClose, notClosable = false }: Props): React.JSX.Element {
+export default function AuthModal({ isVisible, onClose, notClosable = false }: Properties): React.JSX.Element {
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
   const [texts, setTexts] = useState<Record<string, WordingKey>>(loginTexts);
   const [invalidMessage, setInvalidMessage] = useState<string>('');
@@ -67,7 +67,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
         username,
         email,
         password,
-      }
+      };
       try {
         const formData = new FormData();
         Object.entries(values).forEach(([key, value]) => {
@@ -91,7 +91,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
       const values: LoginDto = {
         email,
         password,
-      }
+      };
       try {
         await login(values).unwrap();
         closeModal();
@@ -113,7 +113,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
     setUsername('');
     setPassword('');
     setConfirmPassword('');
-    setIsRegisterMode((prev) => !prev);
+    setIsRegisterMode((previous) => !previous);
   };
 
   const closeModal = useCallback(() => {

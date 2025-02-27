@@ -2,17 +2,17 @@ import React, { type PropsWithChildren } from "react";
 import { createPortal } from "react-dom";
 
 import CrossIcon from "@/assets/images/svg/cross.svg?react";
-import { type WordingKey } from "@/i18n/i18n-service";
 import useTranslation from "@/hooks/use-translation";
+import { type WordingKey } from "@/i18n/i18n-service";
 
-interface Props {
+interface Properties {
   isVisible: boolean;
   onClose: () => void;
   notClosable?: boolean;
   title?: WordingKey;
 }
 
-export default function FullModal({ isVisible, onClose, title, children, notClosable = false }: PropsWithChildren<Props>): React.JSX.Element | null {
+export default function FullModal({ isVisible, onClose, title, children, notClosable = false }: PropsWithChildren<Properties>): React.JSX.Element | null {
   const i18n = useTranslation();
 
   if (!isVisible) {

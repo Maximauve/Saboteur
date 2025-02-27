@@ -4,11 +4,12 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
+import AuthProvider from '@/context/auth/auth-provider';
 import I18nProvider from '@/i18n/i18n-provider';
 import router from '@/router/router';
-import AuthProvider from '@/context/auth/auth-provider';
 import { setupStore } from '@/store';
 import "@/assets/styles/index.scss";
+
 import 'react-toastify/dist/ReactToastify.css';
 
 const store = setupStore();
