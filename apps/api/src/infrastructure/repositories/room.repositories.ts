@@ -24,6 +24,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       host: host,
       users: [],
       started: false,
+      currentRound: 0,
     };
 
     room.code = await this.generateUniqueRoomCode();
@@ -37,6 +38,8 @@ export class DatabaseRoomRepository implements RoomRepository {
       JSON.stringify(room.users),
       'started',
       room.started.toString(),
+      'currentRound',
+      room.currentRound.toString(),
     ]);
     await this.redisService.hset(`${roomKey}:0`, [
       'users',
@@ -119,6 +122,11 @@ export class DatabaseRoomRepository implements RoomRepository {
     return room.host.userId === user.userId;
   }
 
+  async getSocketId(code: string, userId: string) {
+    const room = await this.getRoom(code);
+    return room.users.find((user: UserSocket) => user.userId === userId)?.socketId;
+  }
+
   async getRoom(code: string) {
     const roomKey = `room:${code}`;
     if ((await this.redisService.exists(roomKey)) === 0) {
@@ -130,6 +138,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       users: JSON.parse(roomData.users || '[]'),
       host: JSON.parse(roomData.host),
       started: roomData.started === 'true',
+      currentRound: Number.parseInt(roomData.currentRound),
     } as Room;
   }
 

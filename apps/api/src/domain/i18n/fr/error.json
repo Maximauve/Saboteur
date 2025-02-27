@@ -9,5 +9,7 @@
   "ROOM_NOT_FOUND": "La room n'existe pas",
   "ROOM_ALREADY_STARTED": "La partie a déjà commencé",
   "ROOM_MAX": "La room est pleine",
-  "INVALID_CREDENTIALS": "Les identifiants sont invalides"
+  "INVALID_CREDENTIALS": "Les identifiants sont invalides",
+  "NOT_HOST": "Tu n'es pas l'hôte de la partie",
+  "ROOM_MIN": "Il n'y a pas assez de joueurs"
 }

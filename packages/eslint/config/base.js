@@ -9,7 +9,7 @@ export default tseslint.config(js.configs.recommended, {
     },
   },
   rules: {
-    'no-await-in-loop': 1,
+    'no-await-in-loop': 'off',
     'prefer-const': 'error',
     'no-mixed-operators': 'off',
     'no-console': 'off',

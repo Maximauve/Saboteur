@@ -1,6 +1,7 @@
 import { Body, Controller, HttpException, HttpStatus, Inject, Post, Res } from '@nestjs/common';
 import { ApiConflictResponse, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
 
 import { LoginResponse } from '@/domain/adapters/loginResponse';
 import { LoginDto, RegisterDto } from '@/infrastructure/controllers/auth/auth-dto';
@@ -11,7 +12,6 @@ import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-pr
 import { AddUserUseCases } from '@/usecases/user/addUser.usecases';
 import { CheckUnknownUserUseCases } from '@/usecases/user/checkUnknownUser.usecases';
 import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases';
-import { Response } from 'express';
 
 const expirationTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 

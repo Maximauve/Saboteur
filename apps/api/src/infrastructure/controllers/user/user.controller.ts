@@ -7,6 +7,7 @@ import {
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 
+import { CurrentUser } from '@/infrastructure/common/decorators/currentUser.decorator';
 import { UserRequest } from '@/infrastructure/common/decorators/user.decorator';
 import { JwtAuthGuard } from '@/infrastructure/common/guards/jwtAuth.guard';
 import { UpdatedUserDto } from '@/infrastructure/controllers/user/user.dto';
@@ -21,7 +22,6 @@ import { GetUserByEmailUseCases } from '@/usecases/user/getUserByEmail.usecases'
 import { GetUserByIdUseCases } from '@/usecases/user/getUserById.usecases';
 import { GetUsersUseCases } from '@/usecases/user/getUsers.usecases';
 import { UpdateUserUseCases } from '@/usecases/user/updateUser.usecases';
-import { CurrentUser } from '@/infrastructure/common/decorators/currentUser.decorator';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('users')

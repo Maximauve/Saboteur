@@ -10,15 +10,17 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from "socket.io";
 
-import { UserSocket } from '@/domain/model/user';
+import { UserGame, UserSocket } from '@/domain/model/user';
 import { Message, WebsocketEvent } from '@/domain/model/websocket';
 import { RedisService } from '@/infrastructure/services/redis/service/redis.service';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
+import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
 import { RemoveUserToRoomUseCases } from '@/usecases/room/removeUserToRoom.usecases';
 
@@ -36,6 +38,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly gameIsStartedUseCase: UseCaseProxy<GameIsStartedUseCases>,
     @Inject(UsecasesProxyModule.GET_ROOM_USERS_USECASES_PROXY)
     private readonly getRoomUsersUseCase: UseCaseProxy<GetRoomUsersUseCases>,
+    @Inject(UsecasesProxyModule.GET_SOCKET_ID_USECASES_PROXY)
+    private readonly getSocketIdUseCase: UseCaseProxy<GetSocketIdUseCases>,
+    @Inject(UsecasesProxyModule.START_GAME_USECASES_PROXY)
+    private readonly startGameUseCases: UseCaseProxy<StartGameUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -96,10 +102,27 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   async startGame(@ConnectedSocket() client: Socket): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
       if (!(await this.isHostUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket))) {
-        return {
-          error: "Tu n'est pas l'hôte de la partie"
-        };
+        throw new Error(await this.translationService.translate("error.NOT_HOST"));
       }
+      const users: UserGame[] = await this.startGameUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      for (const user of users) {
+        this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.CARDS, user.cards);
+      }
+      await this.server.to(client.data.code).emit(WebsocketEvent.GAME_IS_STARTED, true);
+      await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
+    });
+  }
+
+  @SubscribeMessage(WebsocketEvent.REMOVE_USER)
+  kickUser(@ConnectedSocket() client: Socket, @MessageBody() user: UserSocket) {
+    return this.handleAction(client.data.code as string, async () => {
+      if (!(await this.isHostUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket))) {
+        throw new Error(await this.translationService.translate("error.NOT_HOST"));
+      }
+      await this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.REMOVE_USER); // envoie de l'evenement "REMOVE USER" à tout le monde
+      await this.removeUserToRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string)); // envoie la liste des membres mise à jour
+      return;
     });
   }
 
@@ -123,3 +146,29 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
 // function delay(ms: number) {
 //   return new Promise( resolve => setTimeout(resolve, ms) );
 // }
+
+
+// room : 
+
+// host: UserRoom;
+// users: UserSocket[];
+// code: string;
+// started: boolean;
+// currentRound: number;
+
+// round : 
+
+// users: UserGame[];
+// hasToPlay: UserGame;
+// board: object[][]; -> à voir
+// deck: Card[];
+
+// UserGamePublic (pour envoyer les members à tout le monde) extends UserSocket
+
+// malus: Malus[];
+
+// UserGame extends UserGamePublic : 
+
+// cards: Card[];
+// role: Role; (saboteur ou non)
+

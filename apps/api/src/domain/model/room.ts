@@ -5,4 +5,5 @@ export class Room {
   users: UserSocket[];
   code: string;
   started: boolean;
+  currentRound: number;
 }

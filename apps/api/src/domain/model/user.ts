@@ -1,3 +1,4 @@
+import { type Card, type ObjectiveCard } from "@/domain/model/card";
 import { type Role } from "@/domain/model/role";
 
 export class UserWithoutPassword {
@@ -29,6 +30,17 @@ export class UserSocket extends UserRoom {
   socketId: string;
   ready: boolean;
   gold: number;
+}
+
+export class UserGamePublic extends UserSocket {
+  malus: string[]; // a changer
+  hasToPlay: boolean;
+}
+
+export class UserGame extends UserGamePublic {
+  cards: Card[];
+  isSaboteur: boolean;
+  cardsRevealed: ObjectiveCard[]; // objectif que le user a déjà révélées
 }
 
 

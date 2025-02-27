@@ -1,10 +1,12 @@
 export enum WebsocketEvent {
+  CARDS = "cards",
   CHAT = "chat",
   GAME_IS_STARTED = "game",
   JOIN_ROOM = "joinRoom",
   LEAVE_ROOM = "leaveRoom",
   MEMBERS = "members",
-  START_GAME = "startGame"
+  REMOVE_USER = "removeUser",
+  START_GAME = "startGame",
 }
 
 export class Message {
