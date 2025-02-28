@@ -24,7 +24,7 @@ import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
 import { RemoveUserToRoomUseCases } from '@/usecases/room/removeUserToRoom.usecases';
 
-@WebSocketGateway({ cors: '*', namespace: 'room' })
+@WebSocketGateway({ cors: { origin: '*', credentials: true }, namespace: 'room' })
 export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(

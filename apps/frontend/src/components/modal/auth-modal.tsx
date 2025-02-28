@@ -135,19 +135,19 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
             <Fragment>
               <label className="flex flex-col gap-2" key={"username"}>
                 {i18n.t("auth.username")}
-                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="text" onChange={(e) => setUsername(e.target.value)} />
+                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="text" onChange={(error) => setUsername(error.target.value)} />
               </label>
               <label className="flex flex-col gap-2" key={"email"}>
                 {i18n.t("auth.email")}
-                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="email" onChange={(e) => setEmail(e.target.value)} />
+                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="email" onChange={(error) => setEmail(error.target.value)} />
               </label>
               <label className="flex flex-col gap-2" key={"register.password"}>
                 {i18n.t("auth.password")}
-                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="password" onChange={(e) => setPassword(e.target.value)}/>
+                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="password" onChange={(error) => setPassword(error.target.value)}/>
               </label>
               <label className="flex flex-col gap-2" key={"confirmPassword"}>
                 {i18n.t("auth.confirmPassword")}
-                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="password" onChange={(e) => setConfirmPassword(e.target.value)} />
+                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="password" onChange={(error) => setConfirmPassword(error.target.value)} />
               </label>
               {invalidMessage && <p className="text-red-500 text-xs">{invalidMessage}</p>}
             </Fragment>
@@ -155,11 +155,11 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
             <Fragment>
               <label className="flex flex-col gap-2" key={"email"}>
                 {i18n.t("auth.email")}
-                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="email" onChange={(e) => setEmail(e.target.value)}/>
+                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="email" onChange={(error) => setEmail(error.target.value)}/>
               </label>
               <label className="flex flex-col gap-2" key={"login.password"}>
                 {i18n.t("auth.password")}
-                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="password" onChange={(e) => setPassword(e.target.value)}/>
+                <input className="border border-gray-400 rounded-sm pl-4 py-2" type="password" onChange={(error) => setPassword(error.target.value)}/>
               </label>
             </Fragment>
           )}

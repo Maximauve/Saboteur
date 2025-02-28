@@ -114,6 +114,7 @@ export class DatabaseRoomRepository implements RoomRepository {
   async getRoomUsers(code: string) {
     const room = await this.getRoom(code);
     // Si on met en place le round => il faut merger les deux
+    console.log("getRoomUsers", room);
     return room.users;
   }
 

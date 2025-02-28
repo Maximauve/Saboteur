@@ -9,6 +9,7 @@ import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repos
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
+import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
 import { GetRoomUseCases } from '@/usecases/room/getRoom.usecases';
@@ -103,7 +104,7 @@ export class UsecasesProxyModule {
           inject: [LoggerService, DatabaseRoomRepository],
           provide: UsecasesProxyModule.ADD_USER_TO_ROOM_USECASES_PROXY,
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
-            new UseCaseProxy(new CreateRoomUseCases(logger, roomRepository))
+            new UseCaseProxy(new AddUserToRoomUseCases(logger, roomRepository))
         },
         {
           inject: [LoggerService, DatabaseRoomRepository],

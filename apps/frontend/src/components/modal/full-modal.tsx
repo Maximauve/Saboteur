@@ -22,7 +22,7 @@ export default function FullModal({ isVisible, onClose, title, children, notClos
   return createPortal((
     <div className="absolute z-50 w-screen h-screen bg-black/40 backdrop-blur-sm flex justify-center overflow-auto" onClick={onClose}>
       <div className="flex justify-center items-center">
-        <div className="w-[40vw] max-w-[40vw] max-h-[70vh] h-fit bg-white text-black flex flex-col items-center relative py-2 rounded-md transition-all duration-150 shadow-md overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="w-[40vw] max-w-[40vw] max-h-[70vh] h-fit bg-white text-black flex flex-col items-center relative py-2 rounded-md transition-all duration-150 shadow-md overflow-y-auto" onClick={(event) => event.stopPropagation()}>
           {title && <p className="text-lg font-semibold mb-3 px-10">{i18n.t(title)}</p>}
           {!notClosable && (
             <button className="absolute cursor-pointer right-2 top-3 flex items-center justify-center" onClick={onClose}>
@@ -33,5 +33,6 @@ export default function FullModal({ isVisible, onClose, title, children, notClos
         </div>
       </div>
     </div>
+  // eslint-disable-next-line no-undef
   ), document.querySelector("#modal-root")!);
 }
