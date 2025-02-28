@@ -160,6 +160,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.ADD_USER_TO_ROOM_USECASES_PROXY,
         UsecasesProxyModule.REMOVE_USER_TO_ROOM_USECASES_PROXY,
         UsecasesProxyModule.GAME_IS_STARTED_USECASES_PROXY,
+        UsecasesProxyModule.GET_SOCKET_ID_USECASES_PROXY,
         UsecasesProxyModule.GET_ROOM_USERS_USECASES_PROXY,
         UsecasesProxyModule.IS_HOST_USECASES_PROXY,
         UsecasesProxyModule.GET_ROOM_USECASES_PROXY,

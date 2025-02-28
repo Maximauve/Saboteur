@@ -98,6 +98,19 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     return;
   }
 
+  @SubscribeMessage(WebsocketEvent.REMOVE_USER)
+  kickUser(@ConnectedSocket() client: Socket, @MessageBody() user: UserSocket) {
+    return this.handleAction(client.data.code as string, async () => {
+      if (!(await this.isHostUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket))) {
+        throw new Error(await this.translationService.translate("error.NOT_HOST"));
+      }
+      await this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.REMOVE_USER); // envoie de l'evenement "REMOVE USER" à tout le monde
+      await this.removeUserToRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string)); // envoie la liste des membres mise à jour
+      return;
+    });
+  }
+
   @SubscribeMessage(WebsocketEvent.START_GAME)
   async startGame(@ConnectedSocket() client: Socket): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
@@ -110,19 +123,6 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.GAME_IS_STARTED, true);
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
-    });
-  }
-
-  @SubscribeMessage(WebsocketEvent.REMOVE_USER)
-  kickUser(@ConnectedSocket() client: Socket, @MessageBody() user: UserSocket) {
-    return this.handleAction(client.data.code as string, async () => {
-      if (!(await this.isHostUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket))) {
-        throw new Error(await this.translationService.translate("error.NOT_HOST"));
-      }
-      await this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.REMOVE_USER); // envoie de l'evenement "REMOVE USER" à tout le monde
-      await this.removeUserToRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
-      await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string)); // envoie la liste des membres mise à jour
-      return;
     });
   }
 

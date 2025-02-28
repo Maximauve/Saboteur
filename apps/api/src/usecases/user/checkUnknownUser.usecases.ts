@@ -6,7 +6,6 @@ export class CheckUnknownUserUseCases {
   constructor(private readonly logger: ILogger, private readonly userRepository: UserRepository) {}
 
   async execute(user: RegisterDto): Promise<boolean> {
-    console.log(user);
     return this.userRepository.checkUnknownUser(user);
   }
 }

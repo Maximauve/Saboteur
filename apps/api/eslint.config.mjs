@@ -1,4 +1,4 @@
-import config from '@playpal/eslint/nest.js';
+import config from '@saboteur/eslint/nest.js';
 import path from 'node:path';
 
 export default [...config, {

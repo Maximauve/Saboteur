@@ -58,7 +58,6 @@ export class UserController {
   @ApiOkResponse({ description: "User found successfully", type: User })
   @ApiNotFoundResponse({ description: "User not found" })
   async getMe(@CurrentUser() user: User): Promise<UserPresenter | null> {
-    console.log('coucouuuuu');
     const myUser = await this.getUserByIdUsecaseProxy.getInstance().execute(user.id);
     if (!myUser) {
       throw new HttpException(await this.translationService.translate('error.USER_NOT_FOUND'), HttpStatus.NOT_FOUND);

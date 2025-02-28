@@ -1,4 +1,4 @@
-import config from '@playpal/eslint/base.js';
+import config from '@saboteur/eslint/base.js';
 import path from 'node:path';
 
 export default [...config, {
