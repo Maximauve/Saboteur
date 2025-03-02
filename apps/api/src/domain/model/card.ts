@@ -7,6 +7,7 @@ export class Card {
   y: number;
   type: CardType;
   connections: Connection[];
+  tools: Tool[];
 }
 
 export enum CardType {
@@ -25,4 +26,10 @@ export enum Connection {
   LEFT = "LEFT",
   RIGHT = "RIGHT",
   TOP = "TOP"
+}
+
+export enum Tool {
+  CART = "CART",
+  LANTERN = "LANTERN",
+  PICKAXE = "PICKAXE"
 }

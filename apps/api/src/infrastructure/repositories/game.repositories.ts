@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import { Board } from "@/domain/model/board";
 import { Card, CardType, Connection, ObjectiveCard } from "@/domain/model/card";
+import { Deck } from "@/domain/model/deck";
 import { RoleGame } from "@/domain/model/role";
 import { UserGame, UserSocket } from "@/domain/model/user";
 import { GameRepository } from "@/domain/repositories/gameRepositories";
@@ -104,7 +105,8 @@ export class DatabaseGameRepository implements GameRepository {
   }
 
   private prepareActionCards(): Card[] {
-    return []; // à faire
+    const deck = new Deck().getDeck();
+    return deck;
   }
 
   private prepareObjectiveCards(): [ObjectiveCard[], number] {
@@ -137,7 +139,7 @@ export class DatabaseGameRepository implements GameRepository {
   private initializeGameBoard(): Board {    
     return {
       grid: Array.from({ length: 9 }).fill(null).map(() => Array.from({ length: 13 }).fill(null)), // Exemple de grille 9x13 à confirmer
-      startCard: { x: 2, y: 4, type: CardType.START, connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM] },
+      startCard: { x: 2, y: 4, type: CardType.START, connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM], tools: [] },
       objectivePositions: [
         { x: 10, y: 2 },
         { x: 10, y: 4 },
