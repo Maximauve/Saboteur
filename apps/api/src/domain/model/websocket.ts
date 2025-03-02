@@ -1,3 +1,4 @@
+
 export enum WebsocketEvent {
   CARDS = "cards",
   CHAT = "chat",
@@ -12,4 +13,9 @@ export enum WebsocketEvent {
 export class Message {
   timeSent: string;
   text: string;
+}
+
+export class ChatMessage extends Message {
+  username: string;
+  userId: string;
 }

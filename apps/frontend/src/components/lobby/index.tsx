@@ -2,6 +2,7 @@ import { type UserSocket } from "@saboteur/api/src/domain/model/user";
 import React from "react";
 import { useParams } from "react-router-dom";
 
+import Chatlist from "@/components/common/Chatlist";
 import { useGame } from "@/context/game/game-provider";
 
 
@@ -16,10 +17,12 @@ export default function Lobby(): React.JSX.Element {
 
       <div className="flex justify-center items-center flex-col">
         <h2 className="mt-6">Room members</h2>
-        {members?.map((element: UserSocket) => (
-          <p>{element.username}</p>
+        {members?.map((element: UserSocket, index: number) => (
+          <p key={index}>{element.username}</p>
         ))}
       </div>
+
+      <Chatlist />
     </div>
   );
 }

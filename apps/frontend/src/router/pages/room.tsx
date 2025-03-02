@@ -1,5 +1,5 @@
 import { type UserSocket } from "@saboteur/api/src/domain/model/user";
-import { WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
+import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-  const { setMembers, gameIsStarted, setGameIsStarted } = useGame();
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage } = useGame();
 
   useEffect(() => {
     if (!socket) {
@@ -28,7 +28,11 @@ export default function Room(): React.JSX.Element {
 
     socket?.on(WebsocketEvent.GAME_IS_STARTED, (started: boolean) => {
       setGameIsStarted(started);
-    }); 
+    });
+
+    socket?.on(WebsocketEvent.CHAT, (message: Message, user: UserSocket) => {
+      addChatMessage({ ...message, username: user.username, userId: user.userId });
+    });
 
     return () => {
       socket.off(WebsocketEvent.MEMBERS);
@@ -37,5 +41,5 @@ export default function Room(): React.JSX.Element {
     };
   }, [socket]);
 
-  return gameIsStarted ? <Lobby /> : <Game />;
+  return gameIsStarted ? <Game /> : <Lobby />;
 }
