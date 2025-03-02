@@ -60,7 +60,7 @@ import { WebSocketModule } from '@/infrastructure/websockets/websockets.module';
     LoggerModule,
     UsecasesProxyModule.register(),
     RedisModule,
-    WebSocketModule
+    WebSocketModule,
   ],
   controllers: [],
   providers: [TranslationService, JwtStrategy],

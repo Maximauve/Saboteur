@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, forwardRef, Module } from '@nestjs/common';
 
 import { ExceptionsModule } from '@/infrastructure/exceptions/exceptions.module';
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
@@ -26,7 +26,7 @@ import { GetUsersUseCases } from '@/usecases/user/getUsers.usecases';
 import { UpdateUserUseCases } from '@/usecases/user/updateUser.usecases';
 
 @Module({
-  imports: [LoggerModule, RepositoriesModule, ExceptionsModule],
+  imports: [LoggerModule, forwardRef(() => RepositoriesModule), ExceptionsModule],
 })
 export class UsecasesProxyModule {
   static GET_USER_BY_ID_USECASES_PROXY = 'getUserByIdUsecasesProxy';
@@ -143,7 +143,7 @@ export class UsecasesProxyModule {
             new UseCaseProxy(new GetRoomUseCases(logger, roomRepository))
         },
         {
-          inject: [LoggerService, DatabaseRoomRepository],
+          inject: [LoggerService, DatabaseGameRepository],
           provide: UsecasesProxyModule.START_GAME_USECASES_PROXY,
           useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
             new UseCaseProxy(new StartGameUseCases(logger, gameRepository))

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import { Board } from "@/domain/model/board";
 import { Card, CardType, Connection, ObjectiveCard } from "@/domain/model/card";
@@ -14,7 +14,7 @@ import { GetRoomUseCases } from "@/usecases/room/getRoom.usecases";
 @Injectable()
 export class DatabaseGameRepository implements GameRepository {
   constructor(
-    @Inject(UsecasesProxyModule.ADD_USER_TO_ROOM_USECASES_PROXY)
+    @Inject(forwardRef(() => UsecasesProxyModule.GET_ROOM_USECASES_PROXY))
     private readonly getRoomUseCase: UseCaseProxy<GetRoomUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
@@ -22,16 +22,21 @@ export class DatabaseGameRepository implements GameRepository {
 
   async startGame(code: string, user: UserSocket): Promise<UserGame[]> {
     const room = await this.getRoomUseCase.getInstance().execute(code);
+    console.log("start game");
     if (room.host.userId !== user.userId) {
       throw new Error(await this.translationService.translate("error.NOT_HOST"));
     }
+    console.log("start game");
     if (room.started) {
       throw new Error(await this.translationService.translate("error.ROOM_ALREADY_STARTED"));
     }
+    console.log("start game");
     if (room.users.length < 3) {
       throw new Error(await this.translationService.translate("error.ROOM_MIN"));
     }
+    console.log("start game");
     const users = await this.newRound(code);
+    console.log("start game");
     await this.redisService.hset(`room:${code}`, ['started', 'true']);
     return users;
   }

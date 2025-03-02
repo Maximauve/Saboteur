@@ -53,7 +53,7 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
     myUser,
     messagesChat,
     addChatMessage
-  }), [members, messagesChat]);
+  }), [members, messagesChat, myUser, gameIsStarted]);
 
   return (
     <GameContext.Provider value={values}>{children}</GameContext.Provider>

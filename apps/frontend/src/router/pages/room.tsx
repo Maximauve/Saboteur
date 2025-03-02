@@ -2,6 +2,7 @@ import { type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast, type ToastContent } from "react-toastify";
 
 import Game from "@/components/game";
 import Lobby from "@/components/lobby";
@@ -19,7 +20,17 @@ export default function Room(): React.JSX.Element {
     }
 
     socket?.on('connect', () => {
-      socket?.emitWithAck(WebsocketEvent.JOIN_ROOM, code);
+      socket?.emitWithAck(WebsocketEvent.JOIN_ROOM, code)
+        .then((response) => {
+          if (response && response.error) {
+            toast.error(response.error as ToastContent<string>);
+            return false;
+          }
+          return true;
+        })
+        .catch((error: Error) => {
+          console.error(error);
+        });
     });
 
     socket?.on(WebsocketEvent.MEMBERS, (newMembers: UserSocket[]) => {

@@ -66,7 +66,9 @@ export class DatabaseRoomRepository implements RoomRepository {
       const host = room.users.find((element: UserSocket) => element.userId === user.userId);
       if (host) {
         host.socketId = user.socketId;
+        host.isHost = true;
       } else {
+        user.isHost = true;
         room.users.push(user);
       }
       await this.redisService.hset(`room:${code}`, [
