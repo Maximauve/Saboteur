@@ -6,8 +6,10 @@ import Navbar from "@/components/_layout/navbar";
 export default function MainLayout(): React.JSX.Element {
   return (
     <Fragment>
-      <Navbar />
-      <Outlet />
+      <div className="flex flex-col h-screen px-10">
+        <Navbar />
+        <Outlet />
+      </div>
     </Fragment>
   );
 }
