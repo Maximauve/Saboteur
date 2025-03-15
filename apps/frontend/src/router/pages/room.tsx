@@ -1,3 +1,4 @@
+import { type Board } from "@saboteur/api/src/domain/model/board";
 import { type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React, { useEffect } from 'react';
@@ -12,7 +13,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage } = useGame();
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard } = useGame();
 
   useEffect(() => {
     if (!socket) {
@@ -34,6 +35,7 @@ export default function Room(): React.JSX.Element {
     });
 
     socket?.on(WebsocketEvent.MEMBERS, (newMembers: UserSocket[]) => {
+      console.log(newMembers);
       setMembers(newMembers);
     });
 
@@ -43,6 +45,11 @@ export default function Room(): React.JSX.Element {
 
     socket?.on(WebsocketEvent.CHAT, (message: Message, user: UserSocket) => {
       addChatMessage({ ...message, username: user.username, userId: user.userId });
+    });
+
+    socket?.on(WebsocketEvent.BOARD, (board: Board) => {
+      console.log("board", board);
+      setBoard(board);
     });
 
     return () => {

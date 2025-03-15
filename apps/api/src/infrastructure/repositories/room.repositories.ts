@@ -1,14 +1,19 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 
 import { Room } from "@/domain/model/room";
-import { UserFromRequest, UserRoom, UserSocket } from "@/domain/model/user";
+import { UserFromRequest, UserGamePublic, UserRoom, UserSocket } from "@/domain/model/user";
 import { RoomRepository } from "@/domain/repositories/roomRepository.interface";
 import { RedisService } from "@/infrastructure/services/redis/service/redis.service";
 import { TranslationService } from "@/infrastructure/services/translation/translation.service";
+import { UseCaseProxy } from "@/infrastructure/usecases-proxy/usecases-proxy";
+import { UsecasesProxyModule } from "@/infrastructure/usecases-proxy/usecases-proxy.module";
+import { GetRoundUseCases } from "@/usecases/game/getRound.usecases";
 
 @Injectable()
 export class DatabaseRoomRepository implements RoomRepository {
   constructor(
+    @Inject(forwardRef(() => UsecasesProxyModule.GET_ROUND_USECASES_PROXY))
+    private readonly getRoundUseCases: UseCaseProxy<GetRoundUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -115,8 +120,36 @@ export class DatabaseRoomRepository implements RoomRepository {
 
   async getRoomUsers(code: string) {
     const room = await this.getRoom(code);
-    // Si on met en place le round => il faut merger les deux
-    return room.users;
+    const round = await this.getRoundUseCases.getInstance().execute(code);
+    if (!round) {
+      return room.users.map(user => ({
+        ...user,
+        malus: [],
+        hasToPlay: false
+      }));
+    }
+    return room.users.map(roomUser => {
+      const roundUser = round.users.find(u => u.userId === roomUser.userId);
+      
+      if (roundUser) {
+        return {
+          username: roomUser.username,
+          userId: roomUser.userId,
+          isHost: roomUser.isHost,
+          socketId: roomUser.socketId,
+          ready: roomUser.ready,
+          gold: roomUser.gold,
+          malus: roundUser.malus || [],
+          hasToPlay: roundUser.hasToPlay || false
+        } as UserGamePublic;
+      }
+      
+      return {
+        ...roomUser,
+        malus: [],
+        hasToPlay: false
+      } as UserGamePublic;
+    });
   }
 
   async isHost(code: string, user: UserSocket) {

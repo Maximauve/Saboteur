@@ -1,7 +1,7 @@
 import { type Card } from "@/domain/model/card";
 
 export class Board {
-  grid: unknown[][];
+  grid: (Card | null)[][];
   startCard: Card;
   objectivePositions: { x: number, y:number }[];
 }

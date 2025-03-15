@@ -4,6 +4,7 @@ import { Board } from "@/domain/model/board";
 import { Card, CardType, Connection, ObjectiveCard } from "@/domain/model/card";
 import { Deck } from "@/domain/model/deck";
 import { RoleGame } from "@/domain/model/role";
+import { Round } from "@/domain/model/round";
 import { UserGame, UserSocket } from "@/domain/model/user";
 import { GameRepository } from "@/domain/repositories/gameRepositories";
 import { RedisService } from "@/infrastructure/services/redis/service/redis.service";
@@ -23,21 +24,16 @@ export class DatabaseGameRepository implements GameRepository {
 
   async startGame(code: string, user: UserSocket): Promise<UserGame[]> {
     const room = await this.getRoomUseCase.getInstance().execute(code);
-    console.log("start game");
     if (room.host.userId !== user.userId) {
       throw new Error(await this.translationService.translate("error.NOT_HOST"));
     }
-    console.log("start game");
     if (room.started) {
       throw new Error(await this.translationService.translate("error.ROOM_ALREADY_STARTED"));
     }
-    console.log("start game");
     if (room.users.length < 3) {
       throw new Error(await this.translationService.translate("error.ROOM_MIN"));
     }
-    console.log("start game");
     const users = await this.newRound(code);
-    console.log("start game");
     await this.redisService.hset(`room:${code}`, ['started', 'true']);
     return users;
   }
@@ -75,12 +71,37 @@ export class DatabaseGameRepository implements GameRepository {
       'deck',
       JSON.stringify(actionCards),
       'board',
-      JSON.stringify(this.initializeGameBoard()),
+      JSON.stringify(this.initializeGameBoard(objectiveCards)),
       'currentTurn',
       '0',
     ]);
 
     return users;
+  }
+
+  async getRound(code: string, roundNumber?: number) {
+    if (!roundNumber) {
+      const room = await this.getRoomUseCase.getInstance().execute(code);
+      roundNumber = room.currentRound;
+    }
+    if ((await this.redisService.exists(`room:${code}:${roundNumber}`)) === 0) {
+      throw new Error(`La room ${code} n'existe pas`);
+    }
+    const roundData = await this.redisService.hgetall(`room:${code}:${roundNumber}`);
+    return {
+      users: JSON.parse(roundData.users || '[]'),
+      objectiveCards: JSON.parse(roundData.objectiveCards || '[]'),
+      treasurePosition: Number.parseInt(roundData.treasurePosition),
+      deck: JSON.parse(roundData.deck || '[]'),
+      board: JSON.parse(roundData.board || '[]'),
+      currentTurn: Number.parseInt(roundData.currentTurn),
+    } as Round;
+  }
+
+  async getBoard(code: string) {
+    const round = await this.getRound(code);
+    console.log(round.board);
+    return round.board;
   }
 
   private distributeRoles(playerCount: number): RoleGame[] {
@@ -136,10 +157,37 @@ export class DatabaseGameRepository implements GameRepository {
     return 3;
   }
 
-  private initializeGameBoard(): Board {    
+  private initializeGameBoard(objectiveCards: ObjectiveCard[]): Board {    
+    const grid: (Card | null)[][] = Array.from({ length: 9 }, () => Array.from({ length: 13 }, () => null as Card | null));
+    const startCard: Card = {
+      type: CardType.START,
+      connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM],
+      tools: [],
+      x: 2,
+      y: 4,
+      imageUrl: "path_start.png"
+    };
+    grid[startCard.y][startCard.x] = startCard;
+    const objectivePositions = [
+      { x: 10, y: 2 },
+      { x: 10, y: 4 },
+      { x: 10, y: 6 }
+    ];
+    objectivePositions.forEach((pos, index) => {
+      if (index < objectiveCards.length) {
+        grid[pos.y][pos.x] = {
+          type: CardType.END_HIDDEN,
+          connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP],
+          x: pos.x,
+          y: pos.y,
+          tools: [],
+          imageUrl: "back_end.png"
+        };
+      }
+    });
     return {
-      grid: Array.from({ length: 9 }).fill(null).map(() => Array.from({ length: 13 }).fill(null)), // Exemple de grille 9x13 à confirmer
-      startCard: { x: 2, y: 4, type: CardType.START, connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM], tools: [] },
+      grid: grid,
+      startCard: startCard,
       objectivePositions: [
         { x: 10, y: 2 },
         { x: 10, y: 4 },

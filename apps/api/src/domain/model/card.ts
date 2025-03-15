@@ -15,11 +15,12 @@ export enum CardType {
   BROKEN_TOOL = "BROKEN_TOOL",
   COLLAPSE = "COLLAPSE",
   DEADEND = "DEADEND",
+  END_HIDDEN = "END_HIDDEN",
   INSPECT = "INSPECT",
   PATH = "PATH",
   REPAIR_DOUBLE = "REPAIR_DOUBLE",
   REPAIR_TOOL = "REPAIR_TOOL",
-  START = "START"
+  START = "START",
 }
 
 export enum Connection {

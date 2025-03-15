@@ -1,3 +1,4 @@
+import { type Board } from "@saboteur/api/src/domain/model/board";
 import { type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { type ChatMessage } from "@saboteur/api/src/domain/model/websocket";
 import React, { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
@@ -9,8 +10,10 @@ interface GameContextType {
   gameIsStarted: boolean;
   members: UserSocket[];
   messagesChat: ChatMessage[];
+  setBoard: (newBoard: Board) => void;
   setGameIsStarted: (started: boolean) => void;
   setMembers: (users: UserSocket[]) => void;
+  board?: Board;
   myUser?: UserSocket;
 }
 
@@ -34,6 +37,7 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const [gameIsStarted, setGameIsStarted] = useState<boolean>(false);
   const [myUser, setMyUser] = useState<UserSocket | undefined>(undefined);
   const [messagesChat, setMessagesChat] = useState<ChatMessage[]>([]);
+  const [board, setBoard] = useState<Board>();
 
   const addChatMessage = (message: ChatMessage) => {
     setMessagesChat((previousChat: ChatMessage[]) => [...previousChat, message]);
@@ -52,8 +56,10 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
     setGameIsStarted,
     myUser,
     messagesChat,
-    addChatMessage
-  }), [members, messagesChat, myUser, gameIsStarted]);
+    addChatMessage,
+    board,
+    setBoard
+  }), [members, messagesChat, myUser, gameIsStarted, board]);
 
   return (
     <GameContext.Provider value={values}>{children}</GameContext.Provider>

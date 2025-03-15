@@ -8,6 +8,8 @@ import { RepositoriesModule } from '@/infrastructure/repositories/repositories.m
 import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repositories';
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
+import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
@@ -47,6 +49,8 @@ export class UsecasesProxyModule {
   static GET_ROOM_USECASES_PROXY = "getRoomUseCasesProxy";
 
   static START_GAME_USECASES_PROXY = "startGameUseCasesProxy";
+  static GET_ROUND_USECASES_PROXY = "getRoundUseCasesProxy";
+  static GET_BOARD_USECASES_PROXY = "getBoardUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -148,6 +152,18 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
             new UseCaseProxy(new StartGameUseCases(logger, gameRepository))
         },
+        {
+          inject: [LoggerService, DatabaseGameRepository],
+          provide: UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
+          useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
+            new UseCaseProxy(new GetRoundUseCases(logger, gameRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseGameRepository],
+          provide: UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
+            new UseCaseProxy(new GetBoardUseCases(logger, gameRepository))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -166,6 +182,8 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.IS_HOST_USECASES_PROXY,
         UsecasesProxyModule.GET_ROOM_USECASES_PROXY,
         UsecasesProxyModule.START_GAME_USECASES_PROXY,
+        UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
+        UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
       ],
     };
   }
