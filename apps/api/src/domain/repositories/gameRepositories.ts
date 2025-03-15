@@ -6,5 +6,6 @@ export interface GameRepository {
   getBoard(code: string): Promise<Board>;
   getRound(code: string, roundNumber?: number): Promise<Round>;
   newRound(code: string): Promise<UserGame[]>;
+  play(code: string, user: UserSocket): Promise<void>
   startGame(code: string, user: UserSocket): Promise<UserGame[]>;
 }

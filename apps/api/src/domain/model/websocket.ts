@@ -7,8 +7,9 @@ export enum WebsocketEvent {
   JOIN_ROOM = "joinRoom",
   LEAVE_ROOM = "leaveRoom",
   MEMBERS = "members",
+  PLAY = "play",
   REMOVE_USER = "removeUser",
-  START_GAME = "startGame",
+  START_GAME = "startGame"
 }
 
 export class Message {

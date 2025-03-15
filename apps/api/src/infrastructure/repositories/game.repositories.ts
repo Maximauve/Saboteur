@@ -100,8 +100,13 @@ export class DatabaseGameRepository implements GameRepository {
 
   async getBoard(code: string) {
     const round = await this.getRound(code);
-    console.log(round.board);
     return round.board;
+  }
+
+  async play(code: string, user: UserSocket) {
+    const room = await this.getRoomUseCase.getInstance().execute(code);
+    console.log(room, user);
+    // la partie play à faire ici
   }
 
   private distributeRoles(playerCount: number): RoleGame[] {

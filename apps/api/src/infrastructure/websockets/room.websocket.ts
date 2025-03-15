@@ -17,6 +17,7 @@ import { TranslationService } from '@/infrastructure/services/translation/transl
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
+import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
@@ -45,6 +46,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly startGameUseCases: UseCaseProxy<StartGameUseCases>,
     @Inject(UsecasesProxyModule.GET_BOARD_USECASES_PROXY)
     private readonly getBoardUseCases: UseCaseProxy<GetBoardUseCases>,
+    @Inject(UsecasesProxyModule.PLAY_USECASES_PROXY)
+    private readonly playUseCases: UseCaseProxy<PlayUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -131,6 +134,23 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     });
   }
 
+  @SubscribeMessage(WebsocketEvent.PLAY)
+  async play(@ConnectedSocket() client: Socket): Promise<unknown> {
+    return this.handleAction(client.data.code as string, async () => {
+      await this.playUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      // voir usecases/game/play.usecases.ts et /infrastructure/repositories/game.repositories
+      // ajout de la fonction play qui gère le tour d'un joueur
+      // à mon sens il faut envoyer le move que l'utilisateur fait depuis le front et renvoyer le board à tout le monde (mais à voir si pas meilleur moyen)
+      // il faut : check si le user a bien le hasToPlay sinon erreur pas son tour
+      // check si il a vraiment la card dans sa main
+      // check si son move est correct (bien connecté au chemin du start)
+      // si tout est bon -> jouer la carte : mettre à jour le board, l'enlever de sa main, le refaire piocher (enlever la card dans le deck et ajouter à sa main)
+
+      await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
+      await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
+    });
+  }
+
   async handleAction(code: string, callback: () => Promise<unknown>): Promise<unknown> {
     try {
       if (await this.redisService.exists(`room:${code}`)) {
@@ -151,29 +171,3 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
 // function delay(ms: number) {
 //   return new Promise( resolve => setTimeout(resolve, ms) );
 // }
-
-
-// room : 
-
-// host: UserRoom;
-// users: UserSocket[];
-// code: string;
-// started: boolean;
-// currentRound: number;
-
-// round : 
-
-// users: UserGame[];
-// hasToPlay: UserGame;
-// board: object[][]; -> à voir
-// deck: Card[];
-
-// UserGamePublic (pour envoyer les members à tout le monde) extends UserSocket
-
-// malus: Malus[];
-
-// UserGame extends UserGamePublic : 
-
-// cards: Card[];
-// role: Role; (saboteur ou non)
-
