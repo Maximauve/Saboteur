@@ -8,6 +8,7 @@ export class Card {
   type: CardType;
   connections: Connection[];
   tools: Tool[];
+  imageUrl: string;
 }
 
 export enum CardType {
