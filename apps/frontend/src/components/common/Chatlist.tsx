@@ -24,16 +24,18 @@ export default function Chatlist(): React.JSX.Element {
 
   return (
     <div className="border-green-400 min-h-52">
-      <div className="overflow-y-auto max-h-40 mb-4">
-        {messagesChat?.map((messageChat: ChatMessage, index: number) => (
-          <div key={index} className="mb-2 p-2 rounded">
-            <span className="text-gray-500 text-xs mr-2">{formatTime(messageChat.timeSent)}</span>
-            {messageChat.username && (
-              <span className="font-bold mr-2">{messageChat.username}:</span>
-            )}
-            <span>{messageChat.text}</span>
-          </div>
-        ))}
+      <div className="overflow-y-auto max-h-40 mb-4 flex flex-col-reverse">
+        <div className="flex flex-col">
+          {messagesChat?.map((messageChat: ChatMessage, index: number) => (
+            <div key={index} className="mb-2 p-2 rounded">
+              <span className="text-gray-500 text-xs mr-2">{formatTime(messageChat.timeSent)}</span>
+              {messageChat.username && (
+                <span className="font-bold mr-2">{messageChat.username}:</span>
+              )}
+              <span>{messageChat.text}</span>
+            </div>
+          ))}
+        </div>
       </div>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input

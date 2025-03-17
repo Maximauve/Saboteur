@@ -1,116 +1,24 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
+import { Board } from "@/domain/model/board";
 import { Room } from "@/domain/model/room";
-import { UserFromRequest, UserGamePublic, UserRoom, UserSocket } from "@/domain/model/user";
+import { Round } from "@/domain/model/round";
+import { UserGamePublic, UserSocket } from "@/domain/model/user";
 import { RoomRepository } from "@/domain/repositories/roomRepository.interface";
 import { RedisService } from "@/infrastructure/services/redis/service/redis.service";
-import { TranslationService } from "@/infrastructure/services/translation/translation.service";
-import { UseCaseProxy } from "@/infrastructure/usecases-proxy/usecases-proxy";
-import { UsecasesProxyModule } from "@/infrastructure/usecases-proxy/usecases-proxy.module";
-import { GetRoundUseCases } from "@/usecases/game/getRound.usecases";
 
 @Injectable()
 export class DatabaseRoomRepository implements RoomRepository {
   constructor(
-    @Inject(forwardRef(() => UsecasesProxyModule.GET_ROUND_USECASES_PROXY))
-    private readonly getRoundUseCases: UseCaseProxy<GetRoundUseCases>,
     private readonly redisService: RedisService,
-    private readonly translationService: TranslationService
   ) {}
 
-  async createRoom(user: UserFromRequest) {
-    const host: UserRoom = {
-      username: user.username,
-      userId: user.id,
-      isHost: true
-    };
-    const room: Room = {
-      code: Math.floor(100_000 + Math.random() * 900_000).toString(),
-      host: host,
-      users: [],
-      started: false,
-      currentRound: 0,
-    };
-
-    room.code = await this.generateUniqueRoomCode();
-    const roomKey = `room:${room.code}`;
-    await this.redisService.hset(roomKey, [
-      'code',
-      room.code.toString(),
-      'host',
-      JSON.stringify(host),
-      'users',
-      JSON.stringify(room.users),
-      'started',
-      room.started.toString(),
-      'currentRound',
-      room.currentRound.toString(),
-    ]);
-    await this.redisService.hset(`${roomKey}:0`, [
-      'users',
-      JSON.stringify([host]),
-    ]);
-    return room;
+  async setRoom(code: string, values: string[]): Promise<void> {
+    await this.redisService.hset(`room:${code}`, values);
   }
 
-  async addUserToRoom(code: string, user: UserSocket) {
-    const room = await this.getRoom(code);
-    if (
-      room.started === true &&
-      !room.users.some((element: UserSocket) => user.userId === element.userId)
-    ) {
-      throw new Error(await this.translationService.translate("error.ROOM_ALREADY_STARTED"));
-    }
-    if (
-      room.users.length >= 10 &&
-      !room.users.some((element: UserSocket) => user.userId === element.userId)
-    ) {
-      throw new Error(await this.translationService.translate("error.ROOM_MAX"));
-    }
-    if (room.host.userId === user.userId) {
-      const host = room.users.find((element: UserSocket) => element.userId === user.userId);
-      if (host) {
-        host.socketId = user.socketId;
-        host.isHost = true;
-      } else {
-        user.isHost = true;
-        room.users.push(user);
-      }
-      await this.redisService.hset(`room:${code}`, [
-        'host', JSON.stringify(user),
-        'users', JSON.stringify(room.users)
-      ]);
-    } else if (
-      room.users.some((element: UserSocket) => element.userId === user.userId)
-    ) {
-      const existingUser = room.users.find((element: UserSocket) => element.userId === user.userId);
-      if (existingUser) {
-        existingUser.socketId = user.socketId;
-      }
-      await this.redisService.hset(`room:${code}`, [
-        'users', JSON.stringify(room.users)
-      ]);
-    } else {
-      await this.redisService.hset(`room:${code}`, [
-        'users', JSON.stringify([...room.users, user]),
-      ]);
-    }
-    return;
-  }
-
-  async removeUserToRoom(code: string, user: UserSocket): Promise<void> {
-    const room = await this.getRoom(code);
-    if (room.started) {
-      return;
-    }
-    const users = room.users.filter(
-      (element: UserSocket) => element.userId !== user.userId,
-    );
-    await this.redisService.hset(`room:${code}`, [
-      'users',
-      JSON.stringify(users),
-    ]);
-    return;
+  async setRound(code: string, nbRound: number, values: string[]): Promise<void> {
+    await this.redisService.hset(`room:${code}:${nbRound}`, values);
   }
 
   async gameIsStarted(code: string) {
@@ -118,9 +26,28 @@ export class DatabaseRoomRepository implements RoomRepository {
     return room.started;
   }
 
+  async getRound(code: string, roundNumber?: number): Promise<Round> {
+    if (!roundNumber) {
+      const room = await this.getRoom(code);
+      roundNumber = room.currentRound;
+    }
+    if ((await this.redisService.exists(`room:${code}:${roundNumber}`)) === 0) {
+      throw new Error(`La room ${code} n'existe pas`);
+    }
+    const roundData = await this.redisService.hgetall(`room:${code}:${roundNumber}`);
+    return {
+      users: JSON.parse(roundData.users || '[]'),
+      objectiveCards: JSON.parse(roundData.objectiveCards || '[]'),
+      treasurePosition: Number.parseInt(roundData.treasurePosition),
+      deck: JSON.parse(roundData.deck || '[]'),
+      board: JSON.parse(roundData.board || '[]'),
+      currentTurn: Number.parseInt(roundData.currentTurn),
+    } as Round;
+  }
+
   async getRoomUsers(code: string) {
     const room = await this.getRoom(code);
-    const round = await this.getRoundUseCases.getInstance().execute(code);
+    const round = await this.getRound(code);
     if (!round) {
       return room.users.map(user => ({
         ...user,
@@ -152,6 +79,11 @@ export class DatabaseRoomRepository implements RoomRepository {
     });
   }
 
+  async getBoard(code: string): Promise<Board> {
+    const round = await this.getRound(code);
+    return round.board;
+  }
+
   async isHost(code: string, user: UserSocket) {
     const room = await this.getRoom(code);
     return room.host.userId === user.userId;
@@ -164,7 +96,7 @@ export class DatabaseRoomRepository implements RoomRepository {
 
   async getRoom(code: string) {
     const roomKey = `room:${code}`;
-    if ((await this.redisService.exists(roomKey)) === 0) {
+    if ((!this.doesRoomExists(code))) {
       throw new Error(`La room ${code} n'existe pas`);
     }
     const roomData = await this.redisService.hgetall(roomKey);
@@ -177,12 +109,8 @@ export class DatabaseRoomRepository implements RoomRepository {
     } as Room;
   }
 
-  private generateUniqueRoomCode = async (): Promise<string> => {
-    const code = Math.floor(100_000 + Math.random() * 900_000).toString();
-    const roomKey = `room:${code}`;
-    if (await this.redisService.exists(roomKey) === 1) {
-      return this.generateUniqueRoomCode();
-    }
-    return code;
-  };
+  async doesRoomExists(code: string): Promise<boolean> {
+    const exists = await this.redisService.exists(`room:${code}`);
+    return exists === 1; 
+  }
 }

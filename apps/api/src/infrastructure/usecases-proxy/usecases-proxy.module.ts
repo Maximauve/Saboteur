@@ -3,13 +3,14 @@ import { DynamicModule, forwardRef, Module } from '@nestjs/common';
 import { ExceptionsModule } from '@/infrastructure/exceptions/exceptions.module';
 import { LoggerModule } from '@/infrastructure/logger/logger.module';
 import { LoggerService } from '@/infrastructure/logger/logger.service';
-import { DatabaseGameRepository } from '@/infrastructure/repositories/game.repositories';
 import { RepositoriesModule } from '@/infrastructure/repositories/repositories.module';
 import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repositories';
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
+import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
+import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
@@ -19,7 +20,7 @@ import { GetRoomUseCases } from '@/usecases/room/getRoom.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
-import { RemoveUserToRoomUseCases } from '@/usecases/room/removeUserToRoom.usecases';
+import { RemoveUserFromRoomUseCases } from '@/usecases/room/removeUserFromRoom.usecases';
 import { AddUserUseCases } from '@/usecases/user/addUser.usecases';
 import { CheckUnknownUserUseCases } from '@/usecases/user/checkUnknownUser.usecases';
 import { DeleteUserByIdUseCases } from '@/usecases/user/deleteUser.usecases';
@@ -42,12 +43,13 @@ export class UsecasesProxyModule {
 
   static CREATE_ROOM_USECASES_PROXY = "createRoomUseCasesProxy";
   static ADD_USER_TO_ROOM_USECASES_PROXY = "addUserToRoomUseCasesProxy";
-  static REMOVE_USER_TO_ROOM_USECASES_PROXY = "removeUserToRoomUseCasesProxy";
+  static REMOVE_USER_FROM_ROOM_USECASES_PROXY = "removeUserFromRoomUseCasesProxy";
   static GAME_IS_STARTED_USECASES_PROXY = "gameIsStartedUseCasesProxy";
   static GET_ROOM_USERS_USECASES_PROXY = "getRoomUsersUseCasesProxy";
   static IS_HOST_USECASES_PROXY = "isHostUseCasesProxy";
   static GET_SOCKET_ID_USECASES_PROXY = "getSocketIdUseCasesProxy";
   static GET_ROOM_USECASES_PROXY = "getRoomUseCasesProxy";
+  static NEW_ROUND_USECASES_PROXY = "newRoundUseCasesProxy";
 
   static START_GAME_USECASES_PROXY = "startGameUseCasesProxy";
   static GET_ROUND_USECASES_PROXY = "getRoundUseCasesProxy";
@@ -109,14 +111,14 @@ export class UsecasesProxyModule {
         {
           inject: [LoggerService, DatabaseRoomRepository],
           provide: UsecasesProxyModule.ADD_USER_TO_ROOM_USECASES_PROXY,
-          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
-            new UseCaseProxy(new AddUserToRoomUseCases(logger, roomRepository))
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new AddUserToRoomUseCases(logger, roomRepository, translationService))
         },
         {
           inject: [LoggerService, DatabaseRoomRepository],
-          provide: UsecasesProxyModule.REMOVE_USER_TO_ROOM_USECASES_PROXY,
+          provide: UsecasesProxyModule.REMOVE_USER_FROM_ROOM_USECASES_PROXY,
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
-            new UseCaseProxy(new RemoveUserToRoomUseCases(logger, roomRepository))
+            new UseCaseProxy(new RemoveUserFromRoomUseCases(logger, roomRepository))
         },
         {
           inject: [LoggerService, DatabaseRoomRepository],
@@ -149,28 +151,34 @@ export class UsecasesProxyModule {
             new UseCaseProxy(new GetRoomUseCases(logger, roomRepository))
         },
         {
-          inject: [LoggerService, DatabaseGameRepository],
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.NEW_ROUND_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new NewRoundUseCases(logger, roomRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, UsecasesProxyModule],
           provide: UsecasesProxyModule.START_GAME_USECASES_PROXY,
-          useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
-            new UseCaseProxy(new StartGameUseCases(logger, gameRepository))
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService, newRoundUseCases: UseCaseProxy<NewRoundUseCases>) =>
+            new UseCaseProxy(new StartGameUseCases(logger, roomRepository, translationService, newRoundUseCases))
         },
         {
-          inject: [LoggerService, DatabaseGameRepository],
+          inject: [LoggerService, DatabaseRoomRepository],
           provide: UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
-          useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
-            new UseCaseProxy(new GetRoundUseCases(logger, gameRepository))
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new GetRoundUseCases(logger, roomRepository))
         },
         {
-          inject: [LoggerService, DatabaseGameRepository],
+          inject: [LoggerService, DatabaseRoomRepository],
           provide: UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
-          useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
-            new UseCaseProxy(new GetBoardUseCases(logger, gameRepository))
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new GetBoardUseCases(logger, roomRepository))
         },
         {
-          inject: [LoggerService, DatabaseGameRepository],
+          inject: [LoggerService, DatabaseRoomRepository],
           provide: UsecasesProxyModule.PLAY_USECASES_PROXY,
-          useFactory: (logger: LoggerService, gameRepository: DatabaseGameRepository) =>
-            new UseCaseProxy(new PlayUseCases(logger, gameRepository))
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new PlayUseCases(logger, roomRepository, translationService))
         },
       ],
       exports: [
@@ -183,7 +191,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.CHECK_UNKNOWN_USER_USESCASES_PROXY,
         UsecasesProxyModule.CREATE_ROOM_USECASES_PROXY,
         UsecasesProxyModule.ADD_USER_TO_ROOM_USECASES_PROXY,
-        UsecasesProxyModule.REMOVE_USER_TO_ROOM_USECASES_PROXY,
+        UsecasesProxyModule.REMOVE_USER_FROM_ROOM_USECASES_PROXY,
         UsecasesProxyModule.GAME_IS_STARTED_USECASES_PROXY,
         UsecasesProxyModule.GET_SOCKET_ID_USECASES_PROXY,
         UsecasesProxyModule.GET_ROOM_USERS_USECASES_PROXY,
@@ -193,6 +201,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
         UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
         UsecasesProxyModule.PLAY_USECASES_PROXY,
+        UsecasesProxyModule.NEW_ROUND_USECASES_PROXY,
       ],
     };
   }

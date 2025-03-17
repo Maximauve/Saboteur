@@ -18,6 +18,7 @@ import { TranslationService } from '@/infrastructure/services/translation/transl
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
+import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
@@ -25,7 +26,7 @@ import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
-import { RemoveUserToRoomUseCases } from '@/usecases/room/removeUserToRoom.usecases';
+import { RemoveUserFromRoomUseCases } from '@/usecases/room/removeUserFromRoom.usecases';
 
 @WebSocketGateway({ cors: { origin: '*', credentials: true }, namespace: 'room' })
 export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -35,8 +36,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly addUserToRoomUseCase: UseCaseProxy<AddUserToRoomUseCases>,
     @Inject(UsecasesProxyModule.IS_HOST_USECASES_PROXY)
     private readonly isHostUseCase: UseCaseProxy<IsHostUseCases>,
-    @Inject(UsecasesProxyModule.REMOVE_USER_TO_ROOM_USECASES_PROXY)
-    private readonly removeUserToRoomUseCase: UseCaseProxy<RemoveUserToRoomUseCases>,
+    @Inject(UsecasesProxyModule.REMOVE_USER_FROM_ROOM_USECASES_PROXY)
+    private readonly removeUserFromRoomUseCase: UseCaseProxy<RemoveUserFromRoomUseCases>,
     @Inject(UsecasesProxyModule.GAME_IS_STARTED_USECASES_PROXY)
     private readonly gameIsStartedUseCase: UseCaseProxy<GameIsStartedUseCases>,
     @Inject(UsecasesProxyModule.GET_ROOM_USERS_USECASES_PROXY)
@@ -49,6 +50,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly getBoardUseCases: UseCaseProxy<GetBoardUseCases>,
     @Inject(UsecasesProxyModule.PLAY_USECASES_PROXY)
     private readonly playUseCases: UseCaseProxy<PlayUseCases>,
+    @Inject(UsecasesProxyModule.NEW_ROUND_USECASES_PROXY)
+    private readonly newsRoundUseCases: UseCaseProxy<NewRoundUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -95,7 +98,7 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   @SubscribeMessage(WebsocketEvent.LEAVE_ROOM)
   async leaveRoom(@ConnectedSocket() client: Socket): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
-      await this.removeUserToRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      await this.removeUserFromRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
     });
   }
@@ -113,7 +116,7 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
         throw new Error(await this.translationService.translate("error.NOT_HOST"));
       }
       await this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.REMOVE_USER); // envoie de l'evenement "REMOVE USER" à tout le monde
-      await this.removeUserToRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      await this.removeUserFromRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string)); // envoie la liste des membres mise à jour
       return;
     });
@@ -125,7 +128,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       if (!(await this.isHostUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket))) {
         throw new Error(await this.translationService.translate("error.NOT_HOST"));
       }
-      const users: UserGame[] = await this.startGameUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      await this.startGameUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      const users = await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
       for (const user of users) {
         this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.CARDS, user.cards);
       }
