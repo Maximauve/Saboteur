@@ -201,6 +201,101 @@ export class DatabaseGameRepository implements GameRepository {
     };
   }
 
+  private cardIsValid(card: Card, board: Board, user: UserGame, userReceiver?: UserGame) {
+    switch (card.type) {
+      case CardType.BROKEN_TOOL: {
+        return this.isBrokenToolValid(card, userReceiver);
+      }
+      case CardType.COLLAPSE: {
+        return this.isCollapseValid(card, board);
+      }
+      case CardType.PATH: {
+        return this.isPathValid(card, board);
+      }
+      case CardType.REPAIR_TOOL: {
+        return this.isRepairToolValid(card, user);
+      }
+      default: {
+        return false;
+      }
+    }
+  }
+
+  private isPathValid(card: Card, board: Board): boolean {
+    const x = card.x;
+    const y = card.y;
+    const connections = card.connections;
+  
+    // Vérifie que la carte est connectée à une autre carte sur le plateau
+    if (connections.includes(Connection.TOP) && y > 0 && board.grid[y - 1][x] !== null) {
+      const topCard = board.grid[y - 1][x];
+      if (!topCard?.connections.includes(Connection.BOTTOM)) {
+        return false;
+      }
+    }
+    if (connections.includes(Connection.BOTTOM) && y < board.grid.length - 1 && board.grid[y + 1][x] !== null) {
+      const bottomCard = board.grid[y + 1][x];
+      if (!bottomCard?.connections.includes(Connection.TOP)) {
+        return false;
+      }
+    }
+    if (connections.includes(Connection.LEFT) && x > 0 && board.grid[y][x - 1] !== null) {
+      const leftCard = board.grid[y][x - 1];
+      if (!leftCard?.connections.includes(Connection.RIGHT)) {
+        return false;
+      }
+    }
+    if (connections.includes(Connection.RIGHT) && x < board.grid[0].length - 1 && board.grid[y][x + 1] !== null) {
+      const rightCard = board.grid[y][x + 1];
+      if (!rightCard?.connections.includes(Connection.LEFT)) {
+        return false;
+      }
+    }
+  
+    // vérifie que la carte ne coupe pas un chemin existant
+    const existingPath = this.getExistingPath(board, x, y);
+    if (existingPath !== null && !connections.includes(existingPath)) {
+      return false;
+    }
+  
+    return true;
+  }
+
+  private getExistingPath(board: Board, x: number, y: number): Connection | null {
+    const card = board.grid[y][x];
+    if (card === null) {
+      return null;
+    }
+  
+    if (card.connections.includes(Connection.TOP) && y > 0 && board.grid[y - 1][x] !== null) {
+      return Connection.TOP;
+    }
+    if (card.connections.includes(Connection.BOTTOM) && y < board.grid.length - 1 && board.grid[y + 1][x] !== null) {
+      return Connection.BOTTOM;
+    }
+    if (card.connections.includes(Connection.LEFT) && x > 0 && board.grid[y][x - 1] !== null) {
+      return Connection.LEFT;
+    }
+    if (card.connections.includes(Connection.RIGHT) && x < board.grid[0].length - 1 && board.grid[y][x + 1] !== null) {
+      return Connection.RIGHT;
+    }
+  
+    return null;
+  }
+
+  private isBrokenToolValid(card: Card, userReceiver?: UserGame) {
+    return userReceiver?.malus.some(malus => !card.tools.includes(malus));
+  }
+
+  private isCollapseValid(card: Card, board: Board): boolean {
+    const existingPath = this.getExistingPath(board, card.x, card.y);
+    return existingPath !== null;
+  }
+
+  private isRepairToolValid(card: Card, user: UserGame) {
+    return user.malus.some(malus => card.tools.includes(malus));
+  }
+
   private shuffleArray<T>(array: T[]): T[] {
     const shuffled = [...array];
     for (let index = shuffled.length - 1; index > 0; index--) {
