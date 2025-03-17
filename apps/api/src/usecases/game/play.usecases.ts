@@ -1,5 +1,6 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
-import { type Card, CardType } from '@/domain/model/card';
+import { type Board } from '@/domain/model/board';
+import { type Card, CardType, Connection } from '@/domain/model/card';
 import { type UserGame } from '@/domain/model/user';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
 import { type TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -23,14 +24,78 @@ export class PlayUseCases {
     if (user.cards.includes(card) === false) {
       throw new Error(await this.translationService.translate("error.CARD_NOT_IN_HAND"));
     }
-    if (card.type === CardType.PATH && board.grid[x][y] !== null) {
-      throw new Error(await this.translationService.translate("error.CARD_ALREADY_PLACED"));
+    if (card.type === CardType.PATH && this.isCardPlacementValid(board, card)) {
+      throw new Error(await this.translationService.translate("error.CARD_CANNOT_BE_PLACED"));
     }
     // check if card is an action card
       
     
     //play card
     board.grid[x][y] = card;
+  }
+
+  private isCardPlacementValid(board: Board, card: Card) : boolean {
+    const position = {
+      x: card.x,
+      y: card.y
+    };
+    if (board.grid[position.x][position.y] !== null) {
+      // Il y a déjà une carte posée à cet emplacement
+      return false;
+    }
+
+    const adjascentCards: Record<string, Card|null> = {
+      top: board.grid[position.y + 1][position.x],
+      bottom: board.grid[position.y - 1][position.x],
+      left: board.grid[position.y][position.x - 1],
+      right: board.grid[position.y][position.x + 1],
+    };
+
+    for (const place in adjascentCards) {
+      if (adjascentCards[place] === undefined || adjascentCards === null) {
+        delete adjascentCards[place];
+      }
+    }
+
+    if (Object.values(adjascentCards).length === 0) {
+      // pas possible de poser une carte au milieu de rien
+      return false;
+    }
+
+    // il faut que soit les deux ne se lient pas, soit les deux se lient
+    if (adjascentCards.left !== null) {
+      if (card.connections.includes(Connection.LEFT) && !adjascentCards.left.connections.includes(Connection.RIGHT)) {
+        return false;
+      }
+      if (!card.connections.includes(Connection.LEFT) && adjascentCards.left.connections.includes(Connection.RIGHT)) {
+        return false;
+      }
+    }
+    if (adjascentCards.right !== null) {
+      if (card.connections.includes(Connection.RIGHT) && !adjascentCards.right.connections.includes(Connection.LEFT)) {
+        return false;
+      }
+      if (!card.connections.includes(Connection.RIGHT) && adjascentCards.right.connections.includes(Connection.LEFT)) {
+        return false;
+      }
+    }
+    if (adjascentCards.top !== null) {
+      if (card.connections.includes(Connection.TOP) && !adjascentCards.top.connections.includes(Connection.BOTTOM)) {
+        return false;
+      }
+      if (!card.connections.includes(Connection.TOP) && adjascentCards.top.connections.includes(Connection.BOTTOM)) {
+        return false;
+      }
+    }
+    if (adjascentCards.bottom !== null) {
+      if (card.connections.includes(Connection.BOTTOM) && !adjascentCards.bottom.connections.includes(Connection.TOP)) {
+        return false;
+      }
+      if (!card.connections.includes(Connection.BOTTOM) && adjascentCards.bottom.connections.includes(Connection.TOP)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
@@ -146,67 +211,7 @@ private distributeRoles(playerCount: number): RoleGame[] {
     }
   }
 
-  private isPathValid(card: Card, board: Board): boolean {
-    const x = card.x;
-    const y = card.y;
-    const connections = card.connections;
-  
-    // Vérifie que la carte est connectée à une autre carte sur le plateau
-    if (connections.includes(Connection.TOP) && y > 0 && board.grid[y - 1][x] !== null) {
-      const topCard = board.grid[y - 1][x];
-      if (!topCard?.connections.includes(Connection.BOTTOM)) {
-        return false;
-      }
-    }
-    if (connections.includes(Connection.BOTTOM) && y < board.grid.length - 1 && board.grid[y + 1][x] !== null) {
-      const bottomCard = board.grid[y + 1][x];
-      if (!bottomCard?.connections.includes(Connection.TOP)) {
-        return false;
-      }
-    }
-    if (connections.includes(Connection.LEFT) && x > 0 && board.grid[y][x - 1] !== null) {
-      const leftCard = board.grid[y][x - 1];
-      if (!leftCard?.connections.includes(Connection.RIGHT)) {
-        return false;
-      }
-    }
-    if (connections.includes(Connection.RIGHT) && x < board.grid[0].length - 1 && board.grid[y][x + 1] !== null) {
-      const rightCard = board.grid[y][x + 1];
-      if (!rightCard?.connections.includes(Connection.LEFT)) {
-        return false;
-      }
-    }
-  
-    // vérifie que la carte ne coupe pas un chemin existant
-    const existingPath = this.getExistingPath(board, x, y);
-    if (existingPath !== null && !connections.includes(existingPath)) {
-      return false;
-    }
-  
-    return true;
-  }
 
-  private getExistingPath(board: Board, x: number, y: number): Connection | null {
-    const card = board.grid[y][x];
-    if (card === null) {
-      return null;
-    }
-  
-    if (card.connections.includes(Connection.TOP) && y > 0 && board.grid[y - 1][x] !== null) {
-      return Connection.TOP;
-    }
-    if (card.connections.includes(Connection.BOTTOM) && y < board.grid.length - 1 && board.grid[y + 1][x] !== null) {
-      return Connection.BOTTOM;
-    }
-    if (card.connections.includes(Connection.LEFT) && x > 0 && board.grid[y][x - 1] !== null) {
-      return Connection.LEFT;
-    }
-    if (card.connections.includes(Connection.RIGHT) && x < board.grid[0].length - 1 && board.grid[y][x + 1] !== null) {
-      return Connection.RIGHT;
-    }
-  
-    return null;
-  }
 
   private isBrokenToolValid(card: Card, userReceiver?: UserGame) {
     return userReceiver?.malus.some(malus => !card.tools.includes(malus));
