@@ -110,11 +110,9 @@ export class DatabaseGameRepository implements GameRepository {
   }
 
   private distributeRoles(playerCount: number): RoleGame[] {
-    const saboteurMap: number[] = [0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3];
+    const saboteurMap: number[] = [0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 4];
     
-    const saboteurCount: number = playerCount < saboteurMap.length 
-      ? saboteurMap[playerCount] 
-      : Math.max(1, Math.floor(playerCount / 3));
+    const saboteurCount: number = saboteurMap[playerCount];
     
     const roles: RoleGame[] = [];
     
@@ -122,7 +120,7 @@ export class DatabaseGameRepository implements GameRepository {
       roles.push(RoleGame.Saboteur);
     }
     
-    const nainCount = playerCount - saboteurCount;
+    const nainCount = playerCount - saboteurCount + 1;
     for (let index = 0; index < nainCount; index++) {
       roles.push(RoleGame.Nain);
     }
@@ -132,7 +130,8 @@ export class DatabaseGameRepository implements GameRepository {
 
   private prepareActionCards(): Card[] {
     const deck = new Deck().getDeck();
-    return deck;
+
+    return this.shuffleArray(deck);
   }
 
   private prepareObjectiveCards(): [ObjectiveCard[], number] {
@@ -150,23 +149,20 @@ export class DatabaseGameRepository implements GameRepository {
   }
 
   private getCardsPerPlayer(playerCount: number): number {
-    if (playerCount <= 3) {
+    if (playerCount <= 5) {
       return 6;
     }
-    if (playerCount <= 5) {
+    if (playerCount <= 7) {
       return 5;
     }
-    if (playerCount <= 7) {
-      return 4;
-    }
-    return 3;
+    return 4;
   }
 
   private initializeGameBoard(objectiveCards: ObjectiveCard[]): Board {    
     const grid: (Card | null)[][] = Array.from({ length: 9 }, () => Array.from({ length: 13 }, () => null as Card | null));
     const startCard: Card = {
       type: CardType.START,
-      connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM],
+      connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM, Connection.LEFT],
       tools: [],
       x: 2,
       y: 4,
