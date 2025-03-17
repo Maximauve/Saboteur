@@ -1,4 +1,5 @@
 import { type Board } from "@/domain/model/board";
+import { type Card } from "@/domain/model/card";
 import { type Round } from "@/domain/model/round";
 import { type UserGame, type UserSocket } from "@/domain/model/user";
 
@@ -6,6 +7,6 @@ export interface GameRepository {
   getBoard(code: string): Promise<Board>;
   getRound(code: string, roundNumber?: number): Promise<Round>;
   newRound(code: string): Promise<UserGame[]>;
-  play(code: string, user: UserSocket): Promise<void>
+  play(code: string, user: UserGame, card: Card, x:number,y:number): Promise<void>
   startGame(code: string, user: UserSocket): Promise<UserGame[]>;
 }

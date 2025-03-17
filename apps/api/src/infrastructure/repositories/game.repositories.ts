@@ -103,10 +103,31 @@ export class DatabaseGameRepository implements GameRepository {
     return round.board;
   }
 
-  async play(code: string, user: UserSocket) {
+  async play(code: string, user: UserGame, card: Card, x: number, y: number) {
     const room = await this.getRoomUseCase.getInstance().execute(code);
+    const round = await this.getRound(code);
+    const board = round.board;
     console.log(room, user);
     // la partie play à faire ici
+    if (user.hasToPlay === false) {
+      throw new Error(await this.translationService.translate("error.NOT_YOUR_TURN"));
+    }
+    if (card === undefined) {
+      throw new Error(await this.translationService.translate("error.CARD_NOT_FOUND"));
+    }
+    if (user.cards.includes(card) === false) {
+      throw new Error(await this.translationService.translate("error.CARD_NOT_IN_HAND"));
+    }
+    if (card.type === CardType.PATH && board.grid[x][y] !== null) {
+      throw new Error(await this.translationService.translate("error.CARD_ALREADY_PLACED"));
+    }
+    // check if card is an action card
+  
+
+    //play card
+    board.grid[x][y] = card;
+
+
   }
 
   private distributeRoles(playerCount: number): RoleGame[] {
