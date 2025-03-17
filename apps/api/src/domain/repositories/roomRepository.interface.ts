@@ -1,13 +1,17 @@
+import { type Board } from "@/domain/model/board";
 import { type Room } from "@/domain/model/room";
-import { type UserFromRequest, type UserGamePublic, type UserSocket } from "@/domain/model/user";
+import { type Round } from "@/domain/model/round";
+import { type UserGamePublic, type UserSocket } from "@/domain/model/user";
 
 export interface RoomRepository {
-  addUserToRoom(code: string, user: UserSocket): Promise<void>;
-  createRoom(user: UserFromRequest): Promise<Room>;
+  doesRoomExists(code: string): Promise<boolean>
   gameIsStarted(code: string): Promise<boolean>;
-  getRoom(code: string): Promise<Room>
+  getBoard(code: string): Promise<Board>;
+  getRoom(code: string): Promise<Room>;
   getRoomUsers(code: string): Promise<UserGamePublic[]>;
+  getRound(code: string, roundNumber?: number): Promise<Round>;
   getSocketId(code: string, userId: string): Promise<string | undefined>;
   isHost(code: string, user:UserSocket): Promise<boolean>;
-  removeUserToRoom(code: string, user: UserSocket): Promise<void>;
+  setRoom(code: string, values: string[]): Promise<void>;
+  setRound(code: string, nbRound: number, values: string[]): Promise<void>;
 }

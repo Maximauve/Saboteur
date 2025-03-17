@@ -38,7 +38,7 @@ export class AuthController {
     if (!user) {
       throw new HttpException(await this.translationService.translate('error.INVALID_CREDENTIALS'), HttpStatus.BAD_REQUEST);
     }
-    if (!await comparePassword(body.password, user.password)) {
+    if (await comparePassword(body.password, user.password)) {
       throw new HttpException(await this.translationService.translate('error.INVALID_CREDENTIALS'), HttpStatus.BAD_REQUEST); // user does not know if email or password is not valid
     }
     const { accessToken } = this.authService.login(user);
