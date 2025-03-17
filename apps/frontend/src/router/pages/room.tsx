@@ -1,4 +1,5 @@
 import { type Board } from "@saboteur/api/src/domain/model/board";
+import { type Card } from "@saboteur/api/src/domain/model/card";
 import { type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React, { useEffect } from 'react';
@@ -13,7 +14,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard } = useGame();
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setCards } = useGame();
 
   useEffect(() => {
     if (!socket) {
@@ -50,9 +51,16 @@ export default function Room(): React.JSX.Element {
       setBoard(board);
     });
 
+    socket?.on(WebsocketEvent.CARDS, (cards: Card[]) => {
+      setCards(cards);
+    });
+
     return () => {
       socket.off(WebsocketEvent.MEMBERS);
       socket.off(WebsocketEvent.GAME_IS_STARTED);
+      socket.off(WebsocketEvent.CHAT);
+      socket.off(WebsocketEvent.BOARD);
+      socket.off(WebsocketEvent.CARDS);
       socket.off('connect');
     };
   }, [socket]);
