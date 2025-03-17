@@ -180,20 +180,20 @@ export class DatabaseGameRepository implements GameRepository {
   }
 
   private initializeGameBoard(objectiveCards: ObjectiveCard[]): Board {    
-    const grid: (Card | null)[][] = Array.from({ length: 9 }, () => Array.from({ length: 13 }, () => null as Card | null));
+    const grid: (Card | null)[][] = Array.from({ length: 7 }, () => Array.from({ length: 11 }, () => null as Card | null));
     const startCard: Card = {
       type: CardType.START,
       connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM, Connection.LEFT],
       tools: [],
-      x: 2,
-      y: 4,
+      x: 1,
+      y: 3,
       imageUrl: "path_start.png"
     };
     grid[startCard.y][startCard.x] = startCard;
     const objectivePositions = [
-      { x: 10, y: 2 },
-      { x: 10, y: 4 },
-      { x: 10, y: 6 }
+      { x: 9, y: 1 },
+      { x: 9, y: 3 },
+      { x: 9, y: 5 }
     ];
     objectivePositions.forEach((pos, index) => {
       if (index < objectiveCards.length) {

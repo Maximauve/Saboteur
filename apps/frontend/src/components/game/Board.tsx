@@ -20,7 +20,7 @@ export default function GameBoard(): React.JSX.Element {
               {row.map((cell: Card, colIndex: number) => (
                 <div 
                   key={`cell-${rowIndex}-${colIndex}`} 
-                  className={`w-12 h-20 flex justify-center items-center cursor-pointer transition-colors duration-200`}
+                  className={`w-12 h-20 flex justify-center items-center cursor-pointer transition-colors duration-200 rounded-sm`}
                   onClick={() => handleCellClick(rowIndex, colIndex)}
                   title={`Position (${rowIndex}, ${colIndex})`}
                 >
@@ -45,6 +45,6 @@ function renderCellContent(cell: Card) {
   }
 
   return (
-    <img src={`/images/cards/${cell.imageUrl}`} className="w-full h-full object-contain"/>
+    <img src={`/images/cards/${cell.imageUrl}`} className="w-full h-full rounded-sm"/>
   );
 }
