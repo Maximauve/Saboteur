@@ -35,7 +35,6 @@ export default function Room(): React.JSX.Element {
     });
 
     socket?.on(WebsocketEvent.MEMBERS, (newMembers: UserSocket[]) => {
-      console.log(newMembers);
       setMembers(newMembers);
     });
 
@@ -48,7 +47,6 @@ export default function Room(): React.JSX.Element {
     });
 
     socket?.on(WebsocketEvent.BOARD, (board: Board) => {
-      console.log("board", board);
       setBoard(board);
     });
 
