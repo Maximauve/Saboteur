@@ -1,6 +1,6 @@
 import { type Board } from "@saboteur/api/src/domain/model/board";
 import { type Card } from "@saboteur/api/src/domain/model/card";
-import { type UserSocket } from "@saboteur/api/src/domain/model/user";
+import { type UserGamePublic, type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -35,7 +35,7 @@ export default function Room(): React.JSX.Element {
         });
     });
 
-    socket?.on(WebsocketEvent.MEMBERS, (newMembers: UserSocket[]) => {
+    socket?.on(WebsocketEvent.MEMBERS, (newMembers: UserGamePublic[]) => {
       setMembers(newMembers);
     });
 
