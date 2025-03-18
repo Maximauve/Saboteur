@@ -51,7 +51,7 @@ export class PlayUseCases {
       case CardType.BROKEN_TOOL: {
         if (move.userReceiver) {
           const receiver = round.users.find(roundUser => roundUser.userId === move.userReceiver?.userId);
-          receiver?.malus.push(move.card.tools[0]);
+          receiver?.malus.push(move.card);
         } else {
           throw new Error(await this.translationService.translate('error.USER_NOT_FOUND'));
         }
@@ -84,7 +84,20 @@ export class PlayUseCases {
       }
       case CardType.REPAIR_DOUBLE:
       case CardType.REPAIR_TOOL: {
-        user.malus.filter(malus => !move.card.tools.includes(malus));
+        if (move.userReceiver) {
+          const receiver = round.users.find(roundUser => roundUser.userId === move.userReceiver?.userId);
+          if (!receiver) {
+            throw new Error(await this.translationService.translate('error.USER_NOT_FOUND'));
+          }
+    
+          const toolsToRepair = move.card.tools;
+    
+          receiver.malus = receiver.malus.filter(malusCard => {
+            return !malusCard.tools.some(tool => toolsToRepair.includes(tool));
+          });
+        } else {
+          throw new Error(await this.translationService.translate('error.USER_NOT_FOUND'));
+        }
         break;
       }
     }
@@ -203,17 +216,33 @@ export class PlayUseCases {
     }
   }
 
-  private isBrokenToolValid(card: Card, userReceiver?: UserGame) {
-    return userReceiver?.malus.some(malus => !card.tools.includes(malus));
+  private isBrokenToolValid(card: Card, userReceiver?: UserGame): boolean {
+    if (!userReceiver) {
+      return false;
+    }
+
+    const alreadyBrokenTools = new Set(userReceiver.malus
+      .flatMap(malusCard => malusCard.tools)
+      .filter(Boolean));
+  
+    const isToolAlreadyBroken = card.tools.some(tool => 
+      alreadyBrokenTools.has(tool)
+    );
+  
+    return !isToolAlreadyBroken;
   }
+  
 
   private isCollapseValid(move: Move, board: Board): boolean {
     return !!board.grid[move.y][move.x];
   }
 
-  private isRepairToolValid(card: Card, user: UserGame) {
-    return user.malus.some(malus => card.tools.includes(malus));
+  private isRepairToolValid(card: Card, user: UserGame): boolean {
+    return user.malus.some(malusCard => 
+      malusCard.tools.some(tool => card.tools.includes(tool))
+    );
   }
+  
 
   private isInspectValid(board: Board, move: Move, user: UserGame) {    
     const hasAlreadyRevealed = user.cardsRevealed.some(

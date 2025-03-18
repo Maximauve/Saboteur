@@ -8,7 +8,7 @@ import { useGame } from "@/context/game/game-provider";
 import { useSocket } from "@/context/socket/socket-provider";
 
 export default function GameBoard(): React.JSX.Element {
-  const { board, setBoard } = useGame();
+  const { board } = useGame();
   const socket = useSocket();
 
   if (!board || !board.grid) {
@@ -23,10 +23,14 @@ export default function GameBoard(): React.JSX.Element {
     }
 
     if (card.type === CardType.COLLAPSE && (board.grid[rowIndex][colIndex].type === CardType.PATH || board.grid[rowIndex][colIndex].type === CardType.DEADEND) && board.grid[rowIndex][colIndex] !== null) {
-      console.log("Effondrement");
-      const newBoard = { ...board };
-      newBoard.grid[rowIndex][colIndex] = null;
-      setBoard(newBoard);
+      socket?.emitWithAck(WebsocketEvent.PLAY, { card: card, x: rowIndex, y: colIndex })
+        .then(response => {
+          if (response && response.error) {
+            toast.error(response.error as ToastContent<string>);
+            return true;
+          }
+          return false;
+        });
     }
 
     if ((card.type === CardType.PATH || card.type === CardType.DEADEND) && board.grid[rowIndex][colIndex] === null) {

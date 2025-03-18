@@ -1,24 +1,33 @@
 import { type Card, CardType } from '@saboteur/api/src/domain/model/card';
 import { type UserGamePublic } from '@saboteur/api/src/domain/model/user';
+import { WebsocketEvent } from '@saboteur/api/src/domain/model/websocket';
 import React from 'react';
 import { useDrop } from 'react-dnd';
+import { toast, type ToastContent } from 'react-toastify';
 
 import goldenNuggetImage from "@/assets/images/gold-nugget.png";
 import MalusCard from "@/components/game/MalusCard";
+import { useSocket } from '@/context/socket/socket-provider';
 
 interface Properties {
   member: UserGamePublic
 }
 
 export default function MemberRow({ member }: Properties): React.JSX.Element {
+  const socket = useSocket();
 
   const [{ isOver }, dropReference] = useDrop<{ card: Card }, void, { isOver: boolean }>(() => ({
     accept: "CARD",
     canDrop: (item) => item.card.type === CardType.BROKEN_TOOL,
     drop: (item) => {
-
-      // TODO Mattéo : envoyer au WS action d'attaque
-  
+      socket?.emitWithAck(WebsocketEvent.PLAY, { card: item.card, userReceiver: member })
+        .then(response => {
+          if (response && response.error) {
+            toast.error(response.error as ToastContent<string>);
+            return true;
+          }
+          return false;
+        });
       console.log(`Carte ${item.card.imageUrl} placée sur ${member.userId} à l'emplacement XXX`);
     },
     collect: (monitor) => ({

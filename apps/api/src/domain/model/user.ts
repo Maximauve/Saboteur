@@ -1,4 +1,4 @@
-import { type Card, type ObjectiveCard, type Tool } from "@/domain/model/card";
+import { type Card, type ObjectiveCard } from "@/domain/model/card";
 import { type Role } from "@/domain/model/role";
 
 export class UserWithoutPassword {
@@ -33,7 +33,7 @@ export class UserSocket extends UserRoom {
 }
 
 export class UserGamePublic extends UserSocket {
-  malus: Tool[];
+  malus: Card[];
   hasToPlay: boolean;
 }
 
