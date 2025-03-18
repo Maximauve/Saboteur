@@ -33,6 +33,7 @@ import { UpdateUserUseCases } from '@/usecases/user/updateUser.usecases';
 
 @Module({
   imports: [LoggerModule, forwardRef(() => RepositoriesModule), ExceptionsModule],
+  providers: [TranslationService],
 })
 export class UsecasesProxyModule {
   static GET_USER_BY_ID_USECASES_PROXY = 'getUserByIdUsecasesProxy';
@@ -185,7 +186,7 @@ export class UsecasesProxyModule {
             new UseCaseProxy(new GetCurrentRoundUserUseCases(logger, roomRepository))
         },
         {
-          inject: [LoggerService, DatabaseRoomRepository],
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
           provide: UsecasesProxyModule.PLAY_USECASES_PROXY,
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
             new UseCaseProxy(new PlayUseCases(logger, roomRepository, translationService))

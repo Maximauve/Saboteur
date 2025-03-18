@@ -11,5 +11,10 @@
   "ROOM_MAX": "La room est pleine",
   "INVALID_CREDENTIALS": "Les identifiants sont invalides",
   "NOT_HOST": "Tu n'es pas l'hôte de la partie",
-  "ROOM_MIN": "Il n'y a pas assez de joueurs"
+  "ROOM_MIN": "Il n'y a pas assez de joueurs",
+  "NOT_YOUR_TURN": "Ce n'est pas ton tour",
+  "CARD_NOT_FOUND": "La carte n'existe pas",
+  "CARD_NOT_IN_HAND": "Tu n'as pas cette carte",
+  "CARD_CANNOT_BE_PLACED": "La carte ne peut pas être placée ici",
+  "NO_OBJECTIVE_CARD_AT_POSITION": "La carte ne corresponds pas à une carte d'objectif"
 }

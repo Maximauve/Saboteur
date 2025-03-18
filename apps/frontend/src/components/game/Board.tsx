@@ -1,11 +1,15 @@
 import { type Card, CardType } from "@saboteur/api/src/domain/model/card";
+import { WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React from "react";
+import { toast, type ToastContent } from "react-toastify";
 
 import DroppableCell from "@/components/game/DroppableCell";
 import { useGame } from "@/context/game/game-provider";
+import { useSocket } from "@/context/socket/socket-provider";
 
 export default function GameBoard(): React.JSX.Element {
   const { board, setBoard } = useGame();
+  const socket = useSocket();
 
   if (!board || !board.grid) {
     return <div className="p-4 text-gray-700">Chargement du plateau...</div>;
@@ -26,12 +30,14 @@ export default function GameBoard(): React.JSX.Element {
     }
 
     if ((card.type === CardType.PATH || card.type === CardType.DEADEND) && board.grid[rowIndex][colIndex] === null) {
-      const newBoard = { ...board };
-      newBoard.grid[rowIndex][colIndex] = {
-        ...card,  
-      };
-      setBoard(newBoard);
-
+      socket?.emitWithAck(WebsocketEvent.PLAY, { card: card, x: rowIndex, y: colIndex })
+        .then(response => {
+          if (response && response.error) {
+            toast.error(response.error as ToastContent<string>);
+            return true;
+          }
+          return false;
+        });
       console.log(`Carte ${card.imageUrl} ${card.type} placée sur la cellule (${rowIndex}, ${colIndex}) avec rotation : ${card.isFlipped}`);
     } else {
       console.log(`Carte ${card.imageUrl} ${card.type} non valide pour cette position.`);

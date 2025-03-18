@@ -19,6 +19,11 @@ export type I18nTranslations = {
         "INVALID_CREDENTIALS": string;
         "NOT_HOST": string;
         "ROOM_MIN": string;
+        "NOT_YOUR_TURN": string;
+        "CARD_NOT_FOUND": string;
+        "CARD_NOT_IN_HAND": string;
+        "CARD_CANNOT_BE_PLACED": string;
+        "NO_OBJECTIVE_CARD_AT_POSITION": string;
     };
     "validation": {
         "NOT_EMPTY": string;

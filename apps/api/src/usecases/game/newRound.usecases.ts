@@ -81,17 +81,23 @@ export class NewRoundUseCases {
   }
 	
   private prepareObjectiveCards(): [ObjectiveCard[], number] {
-    const cards: ObjectiveCard[] = [
-      { type: 'TREASURE' },
-      { type: 'STONE' },
-      { type: 'STONE' }
+    const objectivePositions = [
+      { x: 10, y: 2 },
+      { x: 10, y: 4 },
+      { x: 10, y: 6 }
     ];
-			
+  
+    const cards: ObjectiveCard[] = [
+      { type: 'TREASURE', ...objectivePositions[0] },
+      { type: 'STONE', ...objectivePositions[1] },
+      { type: 'STONE', ...objectivePositions[2] }
+    ];
+    
     const shuffledCards = this.shuffleArray([...cards]);
-			
-    const treasurePosition = shuffledCards.findIndex(card => card.type === 'TREASURE');
-			
-    return [shuffledCards, treasurePosition];
+    
+    const treasureIndex = shuffledCards.findIndex(card => card.type === 'TREASURE');
+    
+    return [shuffledCards, treasureIndex];
   }
 	
   private getCardsPerPlayer(playerCount: number): number {
@@ -114,14 +120,9 @@ export class NewRoundUseCases {
       imageUrl: "path_start.png"
     };
     grid[4][2] = startCard;
-    const objectivePositions = [
-      { x: 10, y: 2 },
-      { x: 10, y: 4 },
-      { x: 10, y: 6 }
-    ];
-    objectivePositions.forEach((pos, index) => {
+    objectiveCards.forEach((card, index) => {
       if (index < objectiveCards.length) {
-        grid[pos.y][pos.x] = {
+        grid[card.y][card.x] = {
           id: crypto.randomUUID(),
           type: CardType.END_HIDDEN,
           connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP],
@@ -133,11 +134,7 @@ export class NewRoundUseCases {
     return {
       grid: grid,
       startCard: startCard,
-      objectivePositions: [
-        { x: 10, y: 2 },
-        { x: 10, y: 4 },
-        { x: 10, y: 6 }
-      ],
+      objectivePositions: objectiveCards,
     };
   }
 

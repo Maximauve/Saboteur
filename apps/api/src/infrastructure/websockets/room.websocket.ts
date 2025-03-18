@@ -92,8 +92,6 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
         if (currentUser !== null) {
           this.server.to(client.data.user.socketId).emit(WebsocketEvent.CARDS, currentUser.cards);
         }
-        // Si la game est commencé -> renvoyer les cards au user
-        // this.server.to(client.data.user.socketId).emit('cards', await this.gameService.getDeck(client.data.code, client.data.user));
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
       return {
@@ -150,14 +148,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   async play(@ConnectedSocket() client: Socket, @MessageBody() move: Move): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
       await this.playUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
-      // voir usecases/game/play.usecases.ts et /infrastructure/repositories/game.repositories
-      // ajout de la fonction play qui gère le tour d'un joueur
-      // à mon sens il faut envoyer le move que l'utilisateur fait depuis le front et renvoyer le board à tout le monde (mais à voir si pas meilleur moyen)
-      // il faut : check si le user a bien le hasToPlay sinon erreur pas son tour
-      // check si il a vraiment la card dans sa main
-      // check si son move est correct (bien connecté au chemin du start)
-      // si tout est bon -> jouer la carte : mettre à jour le board, l'enlever de sa main, le refaire piocher (enlever la card dans le deck et ajouter à sa main)
-
+      const currentUser = await this.getCurrentRoundUserUseCases.getInstance().execute(client.data.code as string, client.data.user.userId as string);
+      if (currentUser !== null) {
+        this.server.to(client.data.user.socketId).emit(WebsocketEvent.CARDS, currentUser.cards);
+      }
       await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
     });

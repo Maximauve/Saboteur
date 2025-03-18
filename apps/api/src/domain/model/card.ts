@@ -1,5 +1,7 @@
 export class ObjectiveCard {
   type: "STONE" | "TREASURE";
+  x: number;
+  y: number;
 }
 
 export class Card {

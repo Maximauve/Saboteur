@@ -48,10 +48,12 @@ export default function Room(): React.JSX.Element {
     });
 
     socket?.on(WebsocketEvent.BOARD, (board: Board) => {
+      console.log("BOARD", board);
       setBoard(board);
     });
 
     socket?.on(WebsocketEvent.CARDS, (cards: Card[]) => {
+      console.log("CARDS", cards);
       setCards(cards);
     });
 
