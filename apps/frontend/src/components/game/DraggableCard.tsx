@@ -34,7 +34,7 @@ export default function DraggableCard({ card, index, canRotate }: Properties): R
 
   return (
     <Fragment>
-      <div ref={dragReference} {...collected} className="relative cursor-grab" onClick={toggleFlip}>
+      <div ref={dragReference} {...collected} className="relative cursor-grab h-min w-min" onClick={toggleFlip}>
         <motion.div
           animate={{ rotate: rotation }} 
           className="flex flex-col w-12 h-20 mx-1 border border-gray-300 rounded-sm shadow-md bg-white relative"

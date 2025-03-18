@@ -8,7 +8,7 @@ export default function PlayerHand(): React.JSX.Element {
   const { cards } = useGame();
 
   return (
-    <div className="flex flex-row h-full place-content-center">
+    <div className="flex flex-row h-full place-content-center items-center">
       {cards.map((card: Card, index) => (
         <DraggableCard
           key={index}

@@ -23,8 +23,8 @@ export default function Chatlist(): React.JSX.Element {
   };
 
   return (
-    <div className="border-green-400 min-h-52">
-      <div className="overflow-y-auto max-h-40 mb-4 flex flex-col-reverse">
+    <div className="content-end h-full p-4">
+      <div className="overflow-y-auto max-h-[90%] mb-4 flex flex-col-reverse">
         <div className="flex flex-col">
           {messagesChat?.map((messageChat: ChatMessage, index: number) => (
             <div key={index} className="mb-2 p-2 rounded">

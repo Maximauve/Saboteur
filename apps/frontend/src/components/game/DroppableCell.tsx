@@ -23,7 +23,7 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
   return (
     <div
       ref={dropReference}
-      className={`w-12 h-20 flex justify-center items-center cursor-pointer transition-colors duration-200 rounded-sm ${
+      className={`w-12 h-20 flex justify-center items-center cursor-pointer transition-colors duration-200 rounded-sm p-px ${
         isOver ? "bg-green-300" : ""
       }`}
       title={`Position (${rowIndex}, ${colIndex})`}

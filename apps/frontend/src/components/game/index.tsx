@@ -11,15 +11,17 @@ export default function Game(): React.JSX.Element {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="w-full h-full grid grid-cols-4 grid-rows-5 gap-4">
-        <div className="col-span-1 row-span-4">
+        <div className="col-span-1 row-span-5">
           <GameMembersList />
-          <Chatlist />
         </div>
-        <div className="col-span-3 row-span-4">
+        <div className="col-span-2 row-span-4">
           <GameBoard />
         </div>
-        <div className="col-span-4 row-span-1">
+        <div className="col-start-2 col-span-2 row-start-5">
           <PlayerHand />  
+        </div>
+        <div className="col-start-4 row-span-4">
+          <Chatlist />
         </div>
       </div>
     </DndProvider>

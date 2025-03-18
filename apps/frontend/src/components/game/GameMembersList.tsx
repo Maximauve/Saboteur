@@ -26,12 +26,14 @@ function DroppableMember({
   setMembers: (members: UserGamePublic[] | ((members: UserGamePublic[]) => UserGamePublic[])) => void;
 }) {
   return (
-    <div className="w-full flex justify-between items-center h-20 p-2 bg-gray-100 rounded-md shadow-md">
+    <div className={`w-full flex justify-between items-center h-20 p-2 ${member.hasToPlay === true ? "bg-green-600" : "bg-gray-100" }  rounded-md shadow-md`}>
       <p className="font-bold">{member.username}</p>
-      <MemberCardSlots userId={member.userId} setMembers={setMembers} />
-      <div className="flex items-center">
-        <p>{member.gold}</p>
-        <img src={goldenNuggetImage} alt="Golden Nugget" className="w-12" />
+      <div className="flex gap-4">
+        <MemberCardSlots userId={member.userId} setMembers={setMembers} />
+        <div className="flex items-center">
+          <p>{member.gold}</p>
+          <img src={goldenNuggetImage} alt="Golden Nugget" className="w-12" />
+        </div>
       </div>
     </div>
   );
