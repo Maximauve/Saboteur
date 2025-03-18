@@ -1,4 +1,4 @@
-import { type Card } from "@saboteur/api/src/domain/model/card";
+import { type Card, CardType } from "@saboteur/api/src/domain/model/card";
 import { useDrop } from "react-dnd";
 
 import { useGame } from "@/context/game/game-provider";
@@ -17,7 +17,13 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
   const [{ isOver, canBeDropped }, dropReference] = useDrop(() => ({
     accept: "CARD",
     canDrop: (item: {card: Card}) => {
-      return isCardPlacementValid(item.card, board!, { x: rowIndex, y: colIndex });
+      if ([CardType.DEADEND, CardType.PATH].includes(item.card.type)) { 
+        return isCardPlacementValid(item.card, board!, { x: rowIndex, y: colIndex });
+      }
+      if (item.card.type === CardType.INSPECT && card !== null && card.type === CardType.END_HIDDEN) {
+        return true;
+      }  
+      return false;
     },
     drop: (item: { card: Card }) => {
       handleDrop({ card: item.card, rowIndex, colIndex });
