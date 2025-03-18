@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { Board } from "@/domain/model/board";
 import { Room } from "@/domain/model/room";
 import { Round } from "@/domain/model/round";
-import { UserGamePublic, UserSocket } from "@/domain/model/user";
+import { UserGame, UserGamePublic, UserSocket } from "@/domain/model/user";
 import { RoomRepository } from "@/domain/repositories/roomRepository.interface";
 import { RedisService } from "@/infrastructure/services/redis/service/redis.service";
 
@@ -77,6 +77,20 @@ export class DatabaseRoomRepository implements RoomRepository {
         hasToPlay: false
       } as UserGamePublic;
     });
+  }
+
+  async getCurrentRoundUser(code: string, userId: string): Promise<UserGame|null> {
+    let round: Round;
+    try {
+      round = await this.getRound(code);
+    } catch {
+      return null;
+    }
+    const user = round.users.find(u => u.userId === userId);
+    if (user === undefined) {
+      return null;
+    }
+    return user; 
   }
 
   async getBoard(code: string): Promise<Board> {

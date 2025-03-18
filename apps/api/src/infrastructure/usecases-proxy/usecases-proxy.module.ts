@@ -16,6 +16,7 @@ import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
+import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
 import { GetRoomUseCases } from '@/usecases/room/getRoom.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
@@ -50,6 +51,7 @@ export class UsecasesProxyModule {
   static GET_SOCKET_ID_USECASES_PROXY = "getSocketIdUseCasesProxy";
   static GET_ROOM_USECASES_PROXY = "getRoomUseCasesProxy";
   static NEW_ROUND_USECASES_PROXY = "newRoundUseCasesProxy";
+  static GET_CURRENT_ROUND_USER = "getCurrentRoundUserUseCases";
 
   static START_GAME_USECASES_PROXY = "startGameUseCasesProxy";
   static GET_ROUND_USECASES_PROXY = "getRoundUseCasesProxy";
@@ -176,6 +178,12 @@ export class UsecasesProxyModule {
         },
         {
           inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.GET_CURRENT_ROUND_USER,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new GetCurrentRoundUserUseCases(logger, roomRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
           provide: UsecasesProxyModule.PLAY_USECASES_PROXY,
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
             new UseCaseProxy(new PlayUseCases(logger, roomRepository, translationService))
@@ -202,6 +210,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
         UsecasesProxyModule.PLAY_USECASES_PROXY,
         UsecasesProxyModule.NEW_ROUND_USECASES_PROXY,
+        UsecasesProxyModule.GET_CURRENT_ROUND_USER,
       ],
     };
   }

@@ -9,7 +9,7 @@ export class Card {
   connections: Connection[];
   tools: Tool[];
   imageUrl: string;
-  rotation?: boolean;
+  isFlipped?: boolean;
 }
 
 export enum CardType {
