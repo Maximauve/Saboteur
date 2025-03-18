@@ -18,23 +18,20 @@ export default function DraggableCard({ card, index, canRotate }: Properties): R
     }
   };
    
-  const [collected, dragReference] = useDrag(() => ({
+  const [, dragReference] = useDrag(() => ({
     type: "CARD",
     item: { 
       id: index, 
       card: { 
         ...card,
         isFlipped: (rotation % 360) !== 0,
-      } 
+      }
     },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
   }), [rotation]);
 
   return (
     <Fragment>
-      <div ref={dragReference} {...collected} className="relative cursor-grab h-min w-min" onClick={toggleFlip}>
+      <div ref={dragReference} className="relative cursor-grab h-min w-min" onClick={toggleFlip}>
         <motion.div
           animate={{ rotate: rotation }} 
           className="flex flex-col w-12 h-20 mx-1 border border-gray-300 rounded-sm shadow-md bg-white relative"

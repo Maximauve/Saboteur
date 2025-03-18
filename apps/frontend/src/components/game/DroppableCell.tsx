@@ -1,6 +1,9 @@
 import { type Card } from "@saboteur/api/src/domain/model/card";
 import { useDrop } from "react-dnd";
 
+import { useGame } from "@/context/game/game-provider";
+import { isCardPlacementValid } from "@/services/card-functions";
+
 interface Properties {
   card: Card;
   colIndex: number;
@@ -9,22 +12,27 @@ interface Properties {
 }
 
 export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: Properties) {
-  const [{ isOver }, dropReference] = useDrop(() => ({
+  const { board } = useGame();
+
+  const [{ isOver, canBeDropped }, dropReference] = useDrop(() => ({
     accept: "CARD",
+    canDrop: (item: {card: Card}) => {
+      return isCardPlacementValid(item.card, board!, { x: rowIndex, y: colIndex });
+    },
     drop: (item: { card: Card }) => {
-      // Lors du drop, nous vérifions la rotation de la carte avant de la déposer
-      handleDrop({ card: { ...item.card, isFlipped: item.card.isFlipped }, rowIndex, colIndex });
+      handleDrop({ card: item.card, rowIndex, colIndex });
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver(),
+      isOver: monitor.canDrop() && monitor.isOver(),
+      canBeDropped: monitor.canDrop(),
     }),
-  }));
+  }), [card]);
 
   return (
     <div
       ref={dropReference}
       className={`w-12 h-20 flex justify-center items-center cursor-pointer transition-colors duration-200 rounded-sm p-px ${
-        isOver ? "bg-green-300" : ""
+        isOver ? "bg-green-300" : (canBeDropped ? "bg-yellow-400" : "")
       }`}
       title={`Position (${rowIndex}, ${colIndex})`}
     >
