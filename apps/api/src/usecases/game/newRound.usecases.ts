@@ -107,14 +107,13 @@ export class NewRoundUseCases {
   private initializeGameBoard(objectiveCards: ObjectiveCard[]): Board {    
     const grid: (Card | null)[][] = Array.from({ length: 9 }, () => Array.from({ length: 13 }, () => null as Card | null));
     const startCard: Card = {
+      id: crypto.randomUUID(),
       type: CardType.START,
       connections: [Connection.RIGHT, Connection.TOP, Connection.BOTTOM, Connection.LEFT],
       tools: [],
-      x: 2,
-      y: 4,
       imageUrl: "path_start.png"
     };
-    grid[startCard.y][startCard.x] = startCard;
+    grid[4][2] = startCard;
     const objectivePositions = [
       { x: 10, y: 2 },
       { x: 10, y: 4 },
@@ -123,10 +122,9 @@ export class NewRoundUseCases {
     objectivePositions.forEach((pos, index) => {
       if (index < objectiveCards.length) {
         grid[pos.y][pos.x] = {
+          id: crypto.randomUUID(),
           type: CardType.END_HIDDEN,
           connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP],
-          x: pos.x,
-          y: pos.y,
           tools: [],
           imageUrl: "back_end.png"
         };

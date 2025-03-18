@@ -42,7 +42,7 @@ export class Deck {
 
   private addCards(type: CardType, count: number, connections: Connection[], imageUrl: string): void {
     for (let index = 0; index < count; index++) {
-      this.cards.push({ x: 0, y: 0, type, connections, tools: [], imageUrl });
+      this.cards.push({ id: crypto.randomUUID(), type, connections, tools: [], imageUrl });
     }
   }
 
@@ -56,19 +56,19 @@ export class Deck {
 
   private addBrokenToolCards(count: number, tool: Tool, imageUrl: string): void {
     for (let index = 0; index < count; index++) {
-      this.cards.push({ x: 0, y: 0, type: CardType.BROKEN_TOOL, connections: [], tools: [tool], imageUrl });
+      this.cards.push({ id: crypto.randomUUID(), type: CardType.BROKEN_TOOL, connections: [], tools: [tool], imageUrl });
     }
   }
 
   private addRepairToolCards(count: number, tool: Tool, imageUrl: string): void {
     for (let index = 0; index < count; index++) {
-      this.cards.push({ x: 0, y: 0, type: CardType.REPAIR_TOOL, connections: [], tools: [tool], imageUrl });
+      this.cards.push({ id: crypto.randomUUID(), type: CardType.REPAIR_TOOL, connections: [], tools: [tool], imageUrl });
     }
   }
 
   private addRepairDoubleCards(count: number, tools: Tool[], imageUrl: string): void {
     for (let index = 0; index < count; index++) {
-      this.cards.push({ x: 0, y: 0, type: CardType.REPAIR_DOUBLE, connections: [], tools, imageUrl });
+      this.cards.push({ id: crypto.randomUUID(), type: CardType.REPAIR_DOUBLE, connections: [], tools, imageUrl });
     }
   }
 

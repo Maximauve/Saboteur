@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from "socket.io";
 
-import { Card } from '@/domain/model/card';
+import { Move } from '@/domain/model/move';
 import { UserGame, UserSocket } from '@/domain/model/user';
 import { Message, WebsocketEvent } from '@/domain/model/websocket';
 import { RedisService } from '@/infrastructure/services/redis/service/redis.service';
@@ -140,9 +140,9 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   }
 
   @SubscribeMessage(WebsocketEvent.PLAY)
-  async play(@ConnectedSocket() client: Socket): Promise<unknown> {
+  async play(@ConnectedSocket() client: Socket, @MessageBody() move: Move): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
-      await this.playUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, client.data.card as Card, client.data.x as number, client.data.y as number);
+      await this.playUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       // voir usecases/game/play.usecases.ts et /infrastructure/repositories/game.repositories
       // ajout de la fonction play qui gère le tour d'un joueur
       // à mon sens il faut envoyer le move que l'utilisateur fait depuis le front et renvoyer le board à tout le monde (mais à voir si pas meilleur moyen)

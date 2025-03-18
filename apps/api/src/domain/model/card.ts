@@ -3,8 +3,7 @@ export class ObjectiveCard {
 }
 
 export class Card {
-  x: number;
-  y: number;
+  id: string;
   type: CardType;
   connections: Connection[];
   tools: Tool[];

@@ -10,6 +10,7 @@ import { TranslationService } from '@/infrastructure/services/translation/transl
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
+import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
@@ -54,6 +55,7 @@ export class UsecasesProxyModule {
   static START_GAME_USECASES_PROXY = "startGameUseCasesProxy";
   static GET_ROUND_USECASES_PROXY = "getRoundUseCasesProxy";
   static GET_BOARD_USECASES_PROXY = "getBoardUseCasesProxy";
+  static GET_USER_GAME_USECASES_PROXY = "getUserGameUseCasesProxy";
   static PLAY_USECASES_PROXY = "playUseCasesProxy";
 
   static register(): DynamicModule {
@@ -180,6 +182,12 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
             new UseCaseProxy(new PlayUseCases(logger, roomRepository, translationService))
         },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.GET_USER_GAME_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new GetUserGameUseCases(logger, roomRepository))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -200,6 +208,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.START_GAME_USECASES_PROXY,
         UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
         UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
+        UsecasesProxyModule.GET_USER_GAME_USECASES_PROXY,
         UsecasesProxyModule.PLAY_USECASES_PROXY,
         UsecasesProxyModule.NEW_ROUND_USECASES_PROXY,
       ],

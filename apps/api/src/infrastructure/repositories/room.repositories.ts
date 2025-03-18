@@ -3,14 +3,16 @@ import { Injectable } from "@nestjs/common";
 import { Board } from "@/domain/model/board";
 import { Room } from "@/domain/model/room";
 import { Round } from "@/domain/model/round";
-import { UserGamePublic, UserSocket } from "@/domain/model/user";
+import { UserGame, UserGamePublic, UserSocket } from "@/domain/model/user";
 import { RoomRepository } from "@/domain/repositories/roomRepository.interface";
 import { RedisService } from "@/infrastructure/services/redis/service/redis.service";
+import { TranslationService } from "@/infrastructure/services/translation/translation.service";
 
 @Injectable()
 export class DatabaseRoomRepository implements RoomRepository {
   constructor(
     private readonly redisService: RedisService,
+    private readonly translationService: TranslationService
   ) {}
 
   async setRoom(code: string, values: string[]): Promise<void> {
@@ -107,6 +109,15 @@ export class DatabaseRoomRepository implements RoomRepository {
       started: roomData.started === 'true',
       currentRound: Number.parseInt(roomData.currentRound),
     } as Room;
+  }
+
+  async getUserGame(code: string, userId: string): Promise<UserGame> {
+    const round = await this.getRound(code);
+    const user = round.users.find(userGame => userGame.userId === userId);
+    if (!user) {
+      throw new Error(await this.translationService.translate('USER_NOT_FOUND'));
+    }
+    return user;
   }
 
   async doesRoomExists(code: string): Promise<boolean> {
