@@ -24,7 +24,7 @@ export class Deck {
     this.addPathCards(5, [Connection.TOP, Connection.LEFT], "path_tl.png");
     this.addPathCards(5, [Connection.TOP, Connection.RIGHT, Connection.BOTTOM, Connection.LEFT], "path_all.png");
     this.addPathCards(3, [Connection.TOP, Connection.BOTTOM], "path_tb.png");
-    this.addPathCards(5, [Connection.RIGHT, Connection.BOTTOM, Connection.LEFT], "path_rbl.png");
+    this.addPathCards(5, [Connection.TOP, Connection.BOTTOM, Connection.LEFT], "path_tbl.png");
     this.addPathCards(4, [Connection.RIGHT, Connection.LEFT], "path_rl.png");
     this.addPathCards(5, [Connection.TOP, Connection.RIGHT, Connection.LEFT], "path_trl.png");
 
