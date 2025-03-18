@@ -7,6 +7,7 @@ import { toast, type ToastContent } from 'react-toastify';
 
 import goldenNuggetImage from "@/assets/images/gold-nugget.png";
 import MalusCard from "@/components/game/MalusCard";
+import { useGame } from '@/context/game/game-provider';
 import { useSocket } from '@/context/socket/socket-provider';
 
 interface Properties {
@@ -15,10 +16,11 @@ interface Properties {
 
 export default function MemberRow({ member }: Properties): React.JSX.Element {
   const socket = useSocket();
+  const { myUser } = useGame();
 
   const [{ isOver }, dropReference] = useDrop<{ card: Card }, void, { isOver: boolean }>(() => ({
     accept: "CARD",
-    canDrop: (item) => item.card.type === CardType.BROKEN_TOOL,
+    canDrop: (item) => (myUser?.userId !== member.userId) && (item.card.type === CardType.BROKEN_TOOL),
     drop: (item) => {
       socket?.emitWithAck(WebsocketEvent.PLAY, { card: item.card, userReceiver: member })
         .then(response => {
@@ -31,7 +33,7 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
       console.log(`Carte ${item.card.imageUrl} placée sur ${member.userId} à l'emplacement XXX`);
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver(),
+      isOver: monitor.canDrop() && monitor.isOver(),
     }),
   }));
 
@@ -39,7 +41,7 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
   return (
     <div ref={dropReference} className={`w-full flex justify-between items-center h-20 p-2
 				${ member.hasToPlay === true ? "bg-green-600" : "bg-gray-100" }
-				${ isOver ? 'border border-dotted border-red-600' : '' }
+				${ isOver ? 'border-2 border-dashed border-red-600' : '' }
 			rounded-md shadow-md`}>
       <p className="font-bold">{member.username}</p>
       <div className="flex gap-4">
