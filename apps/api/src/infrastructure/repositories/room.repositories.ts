@@ -81,6 +81,20 @@ export class DatabaseRoomRepository implements RoomRepository {
     });
   }
 
+  async getCurrentRoundUser(code: string, userId: string): Promise<UserGame|null> {
+    let round: Round;
+    try {
+      round = await this.getRound(code);
+    } catch {
+      return null;
+    }
+    const user = round.users.find(u => u.userId === userId);
+    if (user === undefined) {
+      return null;
+    }
+    return user; 
+  }
+
   async getBoard(code: string): Promise<Board> {
     const round = await this.getRound(code);
     return round.board;

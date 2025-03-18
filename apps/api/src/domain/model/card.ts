@@ -8,6 +8,7 @@ export class Card {
   connections: Connection[];
   tools: Tool[];
   imageUrl: string;
+  isFlipped?: boolean;
 }
 
 export enum CardType {

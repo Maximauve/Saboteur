@@ -1,6 +1,7 @@
 import { type Board } from "@saboteur/api/src/domain/model/board";
 import { type Card } from "@saboteur/api/src/domain/model/card";
-import { type UserSocket } from "@saboteur/api/src/domain/model/user";
+import { type UserGame } from "@saboteur/api/src/domain/model/user"; // Utiliser UserGame pour myUser
+import { type UserGamePublic } from "@saboteur/api/src/domain/model/user"; // Utiliser UserGamePublic pour les membres
 import { type ChatMessage } from "@saboteur/api/src/domain/model/websocket";
 import React, { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
 
@@ -10,14 +11,14 @@ interface GameContextType {
   addChatMessage: (message: ChatMessage) => void;
   cards: Card[];
   gameIsStarted: boolean;
-  members: UserSocket[];
+  members: UserGamePublic[]; // Membres sont de type UserGamePublic pour ne pas exposer les cartes
   messagesChat: ChatMessage[];
   setBoard: (newBoard: Board) => void;
   setCards: (cards: Card[]) => void;
   setGameIsStarted: (started: boolean) => void;
-  setMembers: (users: UserSocket[]) => void;
+  setMembers: (users: UserGamePublic[] | ((users: UserGamePublic[]) => UserGamePublic[])) => void; // setMembers pour UserGamePublic[]
   board?: Board;
-  myUser?: UserSocket;
+  myUser?: UserGame; // myUser est de type UserGame pour inclure les cartes et informations détaillées
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -36,9 +37,9 @@ interface GameProviderProperties {
 
 export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => {
   const { user } = useAuth();
-  const [members, setMembers] = useState<UserSocket[]>([]);
+  const [members, setMembers] = useState<UserGamePublic[]>([]); // Membres en UserGamePublic
   const [gameIsStarted, setGameIsStarted] = useState<boolean>(false);
-  const [myUser, setMyUser] = useState<UserSocket | undefined>(undefined);
+  const [myUser, setMyUser] = useState<UserGame | undefined>(undefined); // myUser en UserGame pour inclure les cartes
   const [messagesChat, setMessagesChat] = useState<ChatMessage[]>([]);
   const [board, setBoard] = useState<Board>();
   const [cards, setCards] = useState<Card[]>([]);
@@ -48,10 +49,11 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   };
 
   useEffect(() => {
-    if (members) {
-      setMyUser(members.find((member: UserSocket) => member.userId === user?.id));
+    if (members && user) {
+      // Trouver myUser parmi les membres en utilisant UserGame, qui inclut les cartes
+      setMyUser(members.find((member: UserGamePublic) => member.userId === user?.id) as UserGame);
     }
-  }, [members]);
+  }, [members, user]);
 
   const values = useMemo(() => ({
     members,

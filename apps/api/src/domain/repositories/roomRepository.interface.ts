@@ -7,6 +7,7 @@ export interface RoomRepository {
   doesRoomExists(code: string): Promise<boolean>
   gameIsStarted(code: string): Promise<boolean>;
   getBoard(code: string): Promise<Board>;
+  getCurrentRoundUser(code: string, userId: string): Promise<UserGame|null>;
   getRoom(code: string): Promise<Room>;
   getRoomUsers(code: string): Promise<UserGamePublic[]>;
   getRound(code: string, roundNumber?: number): Promise<Round>;

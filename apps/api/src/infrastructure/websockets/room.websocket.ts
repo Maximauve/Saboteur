@@ -23,6 +23,7 @@ import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
+import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
@@ -52,6 +53,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly playUseCases: UseCaseProxy<PlayUseCases>,
     @Inject(UsecasesProxyModule.NEW_ROUND_USECASES_PROXY)
     private readonly newsRoundUseCases: UseCaseProxy<NewRoundUseCases>,
+    @Inject(UsecasesProxyModule.GET_CURRENT_ROUND_USER)
+    private readonly getCurrentRoundUserUseCases: UseCaseProxy<GetCurrentRoundUserUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -85,6 +88,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       if (await this.gameIsStartedUseCase.getInstance().execute(client.data.code as string)) {
         this.server.to(client.data.user.socketId).emit(WebsocketEvent.GAME_IS_STARTED, true);
         this.server.to(client.data.user.socketId).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
+        const currentUser = await this.getCurrentRoundUserUseCases.getInstance().execute(client.data.code as string, client.data.user.userId as string);
+        if (currentUser !== null) {
+          this.server.to(client.data.user.socketId).emit(WebsocketEvent.CARDS, currentUser.cards);
+        }
         // Si la game est commencé -> renvoyer les cards au user
         // this.server.to(client.data.user.socketId).emit('cards', await this.gameService.getDeck(client.data.code, client.data.user));
       }
