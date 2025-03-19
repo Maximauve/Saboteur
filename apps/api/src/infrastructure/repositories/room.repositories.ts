@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { Board } from "@/domain/model/board";
+import { Card } from "@/domain/model/card";
 import { Room } from "@/domain/model/room";
 import { Round } from "@/domain/model/round";
 import { UserGame, UserGamePublic, UserSocket } from "@/domain/model/user";
@@ -137,5 +138,10 @@ export class DatabaseRoomRepository implements RoomRepository {
   async doesRoomExists(code: string): Promise<boolean> {
     const exists = await this.redisService.exists(`room:${code}`);
     return exists === 1; 
+  }
+
+  async getDeck(code: string): Promise<Card[]> {
+    const round = await this.getRound(code);
+    return round.deck;
   }
 }

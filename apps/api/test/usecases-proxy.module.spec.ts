@@ -23,7 +23,6 @@ import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
-import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
 import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repositories';

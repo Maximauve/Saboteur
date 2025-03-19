@@ -14,7 +14,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setCards } = useGame();
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setCards, setDeckLength } = useGame();
 
   useEffect(() => {
     if (!socket) {
@@ -48,13 +48,15 @@ export default function Room(): React.JSX.Element {
     });
 
     socket?.on(WebsocketEvent.BOARD, (board: Board) => {
-      console.log("BOARD", board);
       setBoard(board);
     });
 
     socket?.on(WebsocketEvent.CARDS, (cards: Card[]) => {
-      console.log("CARDS", cards);
       setCards(cards);
+    });
+
+    socket?.on(WebsocketEvent.DECK, (deckLength: number) => {
+      setDeckLength(deckLength);
     });
 
     return () => {
@@ -63,6 +65,7 @@ export default function Room(): React.JSX.Element {
       socket.off(WebsocketEvent.CHAT);
       socket.off(WebsocketEvent.BOARD);
       socket.off(WebsocketEvent.CARDS);
+      socket.off(WebsocketEvent.DECK);
       socket.off('connect');
     };
   }, [socket]);

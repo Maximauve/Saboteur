@@ -14,6 +14,7 @@ import { DestroyCardUseCases } from '@/usecases/game/destroyCard.usecases';
 import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
 import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
+import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
@@ -76,6 +77,7 @@ export class UsecasesProxyModule {
   static PLACE_CARD_USECASES_PROXY = "PlaceCardUseCasesProxy";
   static REPAIR_PLAYER_USECASES_PROXY = "RepairPlayerUseCasesProxy";
   static REVEAL_OBJECTIVE_CARD_USECASES_PROXY = "RevealObjectiveCardUseCasesProxy";
+  static GET_DECK_LENGTH_USECASES_PROXY = "getDeckUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -261,6 +263,12 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
             new UseCaseProxy(new GetUserGameUseCases(logger, roomRepository))
         },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.GET_DECK_LENGTH_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new GetDeckLengthUseCases(logger, roomRepository))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -293,6 +301,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.PLACE_CARD_USECASES_PROXY,
         UsecasesProxyModule.REPAIR_PLAYER_USECASES_PROXY,
         UsecasesProxyModule.REVEAL_OBJECTIVE_CARD_USECASES_PROXY,
+        UsecasesProxyModule.GET_DECK_LENGTH_USECASES_PROXY,
       ],
     };
   }
