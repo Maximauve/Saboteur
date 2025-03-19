@@ -33,6 +33,8 @@ export class CreateRoomUseCases {
       room.started.toString(),
       'currentRound',
       room.currentRound.toString(),
+      'goldDeck',
+      JSON.stringify(room.goldDeck || '[]'),
     ];
 
     await this.roomRepository.setRoom(room.code, values);

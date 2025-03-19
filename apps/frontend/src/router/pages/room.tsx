@@ -23,6 +23,7 @@ export default function Room(): React.JSX.Element {
     socket?.on('connect', () => {
       socket?.emitWithAck(WebsocketEvent.JOIN_ROOM, code)
         .then((response) => {
+          console.log(response.error);
           if (response && response.error) {
             toast.error(response.error as ToastContent<string>);
             return false;

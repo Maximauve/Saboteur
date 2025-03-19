@@ -45,7 +45,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       treasurePosition: Number.parseInt(roundData.treasurePosition),
       deck: JSON.parse(roundData.deck || '[]'),
       board: JSON.parse(roundData.board || '[]'),
-      goldList: JSON.parse(roundData.goldList),
+      goldList: JSON.parse(roundData.goldList || '[]'),
     } as Round;
   }
 
