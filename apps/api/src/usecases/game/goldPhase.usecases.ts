@@ -21,7 +21,10 @@ export class GoldPhaseUseCases {
     }
 
     if (isSaboteurWin) {
-      round.users?.filter(roundUser => roundUser.isSaboteur).map(saboteurUser => saboteurUser.gold += this.saboteurCountGold(round?.users?.length));
+      round.users = round.users?.filter(roundUser => roundUser.isSaboteur).map(saboteurUser => {
+        saboteurUser.gold += this.saboteurCountGold(round?.users?.length);
+        return saboteurUser;
+      });
     }  else {
       const numberPlayers = round.users.length;
         

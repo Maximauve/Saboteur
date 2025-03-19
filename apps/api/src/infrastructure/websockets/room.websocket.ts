@@ -210,21 +210,14 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const revealedCards = await this.getCardsToRevealUseCases.getInstance().execute(client.data.code as string);
-      if (this.isNainWinUseCases.getInstance().execute(revealedCards)) {        
+      if (this.isNainWinUseCases.getInstance().execute(revealedCards)) {
         await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, false);
-        await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
-        await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
-        await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
-        return;
       } else if (await this.isSaboteurWinUseCases.getInstance().execute(client.data.code as string)) {
         await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, true);
-        await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
-        await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
-        await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
         await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
-        return;
+      } else {
+        await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       }
-      await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const round = await this.getRoundUseCases.getInstance().execute(client.data.code as string);
       if (round) {
         round.users.forEach((member) => {

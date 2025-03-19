@@ -25,6 +25,7 @@ export default function Room(): React.JSX.Element {
         .then((response) => {
           console.log(response.error);
           if (response && response.error) {
+            console.error(response.error);
             toast.error(response.error as ToastContent<string>);
             return false;
           }

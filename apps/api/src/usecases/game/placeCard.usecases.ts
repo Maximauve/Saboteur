@@ -60,7 +60,7 @@ export class PlaceCardUseCases {
       // pas possible de poser une carte au milieu de rien
       return false;
     }
-  
+    let directLink = false;
     // il faut que soit les deux ne se lient pas, soit les deux se lient
     if (adjascentCards.left) {
       if (move.card.connections.includes(Connection.LEFT) && !adjascentCards.left.connections.includes(Connection.RIGHT)) {
@@ -68,6 +68,9 @@ export class PlaceCardUseCases {
       }
       if (!move.card.connections.includes(Connection.LEFT) && adjascentCards.left.connections.includes(Connection.RIGHT)) {
         return false;
+      }
+      if (move.card.connections.includes(Connection.LEFT) && adjascentCards.left.connections.includes(Connection.RIGHT)) {
+        directLink = true;
       }
     }
     if (adjascentCards.right) {
@@ -77,6 +80,9 @@ export class PlaceCardUseCases {
       if (!move.card.connections.includes(Connection.RIGHT) && adjascentCards.right.connections.includes(Connection.LEFT)) {
         return false;
       }
+      if (move.card.connections.includes(Connection.RIGHT) && adjascentCards.right.connections.includes(Connection.LEFT)) {
+        directLink = true;
+      }
     }
     if (adjascentCards.top) {
       if (move.card.connections.includes(Connection.TOP) && !adjascentCards.top.connections.includes(Connection.BOTTOM)) {
@@ -84,6 +90,9 @@ export class PlaceCardUseCases {
       }
       if (!move.card.connections.includes(Connection.TOP) && adjascentCards.top.connections.includes(Connection.BOTTOM)) {
         return false;
+      }
+      if (move.card.connections.includes(Connection.TOP) && adjascentCards.top.connections.includes(Connection.BOTTOM)) {
+        directLink = true;
       }
     }
     if (adjascentCards.bottom) {
@@ -93,8 +102,11 @@ export class PlaceCardUseCases {
       if (!move.card.connections.includes(Connection.BOTTOM) && adjascentCards.bottom.connections.includes(Connection.TOP)) {
         return false;
       }
+      if (move.card.connections.includes(Connection.BOTTOM) && adjascentCards.bottom.connections.includes(Connection.TOP)) {
+        directLink = true;
+      }
     }
-    return true;
+    return directLink;
   }
 
   private getFlippedConnections(connections: Connection[]): Connection[] {

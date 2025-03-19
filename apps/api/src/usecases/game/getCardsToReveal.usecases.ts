@@ -37,8 +37,9 @@ export class GetCardsToRevealUseCases {
       if (card.type === 'COAL') {
         suffix = '_' + card.connections[1].toLowerCase();
       }
+      card = this.handleCardRotation(round.board.grid, card);
       round.revealedCards.push(card);
-      round.board.grid[card.y][card.x] = {
+      round.board.grid[card.x][card.y] = {
         ...card,
         type: CardType.END_REVEALED,
         imageUrl: `path_${card.type.toLowerCase()}${suffix}.png`,
@@ -144,4 +145,44 @@ export class GetCardsToRevealUseCases {
     return toCard.connections.includes(oppositeDirection);
   }
 
+  private handleCardRotation(grid: (Card | null)[][], card: ObjectiveCard): ObjectiveCard {
+    if (card.x > 0 && grid[card.x - 1][card.y] !== null) { // top
+      if (!card.connections.includes(Connection.TOP)) {
+        card.connections = this.getFlippedConnections(card.connections);
+      }
+    } else if (card.x < grid.length && grid[card.x + 1][card.y] !== null) { // bottom
+      if (!card.connections.includes(Connection.BOTTOM)) {
+        card.connections = this.getFlippedConnections(card.connections);
+      }
+    } else if (card.y > 0 && grid[card.x][card.y - 1] !== null) { // left
+      if (!card.connections.includes(Connection.LEFT)) {
+        card.connections = this.getFlippedConnections(card.connections);
+      }
+    } else if (card.y < grid[0].length && grid[card.x][card.y + 1] !== null && // right
+      !card.connections.includes(Connection.RIGHT)) {
+      card.connections = this.getFlippedConnections(card.connections);
+    }
+
+    return card;
+
+  }
+
+  private getFlippedConnections(connections: Connection[]): Connection[] {
+    return connections.map(connection => {
+      switch (connection) {
+        case Connection.BOTTOM: {
+          return Connection.TOP;
+        }
+        case Connection.LEFT: {
+          return Connection.RIGHT;
+        }
+        case Connection.RIGHT: {
+          return Connection.LEFT;
+        }
+        case Connection.TOP: {
+          return Connection.BOTTOM;
+        }
+      }
+    });
+  }
 }

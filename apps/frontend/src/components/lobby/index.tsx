@@ -47,9 +47,9 @@ export default function Lobby(): React.JSX.Element {
         <div className="col-span-1 row-span-5">
           <div className="ml-4 mt-4 flex flex-col gap-2 items-center">
             <h2 className="my-8 it">Liste des Joueurs</h2>
-            {members?.map((element: UserSocket, index: number) => (
-              <div className="w-full flex justify-between items-center h-20 p-5 bg-gray-100 rounded-md shadow-md">
-                <p className="font-bold" key={index}>{element.username}</p>
+            {members?.map((element: UserSocket) => (
+              <div key={element.userId} className="w-full flex justify-between items-center h-20 p-5 bg-gray-100 rounded-md shadow-md">
+                <p className="font-bold">{element.username}</p>
               </div>
             ))}
           </div>
