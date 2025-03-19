@@ -184,6 +184,7 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.GAME_IS_STARTED, true);
+      await this.server.to(client.data.code).emit(WebsocketEvent.SHOW_ROLE);
     });
   }
 

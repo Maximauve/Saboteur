@@ -4,13 +4,18 @@ import { type UserGamePublic } from "@saboteur/api/src/domain/model/user"; // Ut
 import { type ChatMessage } from "@saboteur/api/src/domain/model/websocket";
 import React, { createContext, type ReactNode, useContext, useMemo, useState } from "react";
 
+import useModal from "@/hooks/use-modal";
+
 
 interface GameContextType {
   addChatMessage: (message: ChatMessage) => void;
+  closeRoleModal: () => void;
   deckLength: number;
   gameIsStarted: boolean;
+  isRoleModalOpen: boolean;
   members: UserGamePublic[]; // Membres sont de type UserGamePublic pour ne pas exposer les cartes
   messagesChat: ChatMessage[];
+  openRoleModal: () => void;
   setBoard: (newBoard: Board) => void;
   setDeckLength: (nb: number) => void;
   setGameIsStarted: (started: boolean) => void;
@@ -41,6 +46,7 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const [messagesChat, setMessagesChat] = useState<ChatMessage[]>([]);
   const [board, setBoard] = useState<Board>();
   const [deckLength, setDeckLength] = useState<number>(0);
+  const { isOpen: isRoleModalOpen, openModal: openRoleModal, closeModal: closeRoleModal } = useModal();
 
   const addChatMessage = (message: ChatMessage) => {
     setMessagesChat((previousChat: ChatMessage[]) => [...previousChat, message]);
@@ -59,7 +65,10 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
     setMyUser,
     deckLength,
     setDeckLength,
-  }), [members, messagesChat, myUser, gameIsStarted, board, deckLength]);
+    isRoleModalOpen,
+    openRoleModal,
+    closeRoleModal
+  }), [members, messagesChat, myUser, gameIsStarted, board, deckLength, isRoleModalOpen]);
 
   return (
     <GameContext.Provider value={values}>{children}</GameContext.Provider>

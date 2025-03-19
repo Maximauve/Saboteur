@@ -1,4 +1,3 @@
- 
 import FR from '@/assets/translations/fr-FR';
 
 const translations = {

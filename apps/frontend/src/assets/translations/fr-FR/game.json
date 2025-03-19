@@ -1,0 +1,10 @@
+{
+	"game": {
+		"yourRole": "Votre rôle :",
+		"clickToDisplay": "Cliquez pour révéler votre rôle",
+		"role": {
+			"saboteur": "Saboteur",
+			"miner": "Mineur"
+		}
+	}
+}
