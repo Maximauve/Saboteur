@@ -23,7 +23,7 @@ export class CanUserPlayUseCases {
     if (!this.cardIsInDeck(move, realUser)) {
       return { result: false, error: await this.translationService.translate('error.CARD_NOT_IN_HAND') };
     }
-    if ([CardType.DEADEND, CardType.PATH].includes(move.card.type) && realUser.malus.length > 0) {
+    if (!move.discard && [CardType.DEADEND, CardType.PATH].includes(move.card.type) && realUser.malus.length > 0) {
       return { result: false, error: await this.translationService.translate('error.USER_CANT_PLACE_CARD') };
     }
     return { result: true, error: '' };

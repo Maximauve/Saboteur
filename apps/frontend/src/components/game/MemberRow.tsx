@@ -48,7 +48,9 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
 				${ member.hasToPlay === true ? "bg-green-600" : "bg-gray-100" }
 				${ isOver ? 'border-2 border-dashed border-red-600' : '' }
 			rounded-md shadow-md`}>
-      <p className="font-bold">{member.username}</p>
+      <p className={`font-bold ${member.userId === myUser?.userId ? ( myUser.isSaboteur ? "underline decoration-red-700" : "underline") : ""}`}>
+        {member.username}
+      </p>
       <div className="flex gap-4">
         <div className="flex gap-2">
           {member.malus.map((malus, slotIndex) => (

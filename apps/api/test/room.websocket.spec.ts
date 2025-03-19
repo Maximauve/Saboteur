@@ -261,7 +261,6 @@ describe('RoomWebsocketGateway', () => {
       expect(mockServer.to).toHaveBeenCalledWith(mockUser.socketId);
       expect(mockServer.emit).toHaveBeenNthCalledWith(1, WebsocketEvent.GAME_IS_STARTED, true);
       expect(mockServer.emit).toHaveBeenNthCalledWith(2, WebsocketEvent.BOARD, { board: 'mock-board' });
-      expect(mockServer.emit).toHaveBeenNthCalledWith(3, WebsocketEvent.CARDS, ['card1', 'card2']);
     });
     
     it('should handle room not found error', async () => {
@@ -328,7 +327,6 @@ describe('RoomWebsocketGateway', () => {
       expect(mockNewsRoundUseCases.getInstance && mockNewsRoundUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
       
       expect(mockGetSocketIdUseCase.getInstance && mockGetSocketIdUseCase.getInstance().execute).toHaveBeenCalledTimes(2);
-      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.CARDS, ['card1', 'card2']);
       
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.BOARD, { board: 'mock-board' });
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
@@ -355,7 +353,6 @@ describe('RoomWebsocketGateway', () => {
       await gateway.play(mockSocket as Socket, move);
       
       expect(mockGetCurrentRoundUserUseCases.getInstance && mockGetCurrentRoundUserUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser.userId);
-      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.CARDS, ['card1', 'card2']);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.BOARD, { board: 'mock-board' });
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
     });

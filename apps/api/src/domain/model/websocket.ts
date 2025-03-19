@@ -9,6 +9,7 @@ export enum WebsocketEvent {
   MEMBERS = "members",
   PLAY = "play",
   REMOVE_USER = "removeUser",
+  SHOW_ROLE = "showRole",
   START_GAME = "startGame",
   USER = "user"
 }

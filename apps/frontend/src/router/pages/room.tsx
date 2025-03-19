@@ -13,7 +13,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser, setDeckLength } = useGame();
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser, setDeckLength, openRoleModal } = useGame();
 
   useEffect(() => {
     if (!socket) {
@@ -58,6 +58,10 @@ export default function Room(): React.JSX.Element {
       setDeckLength(deckLength);
     });
 
+    socket?.on(WebsocketEvent.SHOW_ROLE, () => {
+      openRoleModal();
+    });
+
     return () => {
       socket.off(WebsocketEvent.MEMBERS);
       socket.off(WebsocketEvent.GAME_IS_STARTED);
@@ -65,6 +69,7 @@ export default function Room(): React.JSX.Element {
       socket.off(WebsocketEvent.BOARD);
       socket.off(WebsocketEvent.DECK);
       socket.off(WebsocketEvent.USER);
+      socket.off(WebsocketEvent.SHOW_ROLE);
       socket.off('connect');
     };
   }, [socket]);
