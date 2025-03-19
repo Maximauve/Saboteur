@@ -16,3 +16,4 @@ dist/
 *.local
 .env
 data/
+/apps/coverage/
