@@ -30,7 +30,9 @@ export class NewRoundUseCases {
         cardsRevealed: [],
       });
     }
+    
     const roundNumber = room.currentRound + 1;
+
     await this.roomRepository.setRoom(code, [
       'currentRound', roundNumber.toString(),
     ]);

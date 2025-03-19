@@ -156,13 +156,6 @@ describe('UsecasesProxyModule', () => {
           useFactory: () => new UseCaseProxy(new GetCurrentRoundUserUseCases(mockLoggerService as any, mockDatabaseRoomRepository as any))
         },
         {
-          provide: UsecasesProxyModule.START_GAME_USECASES_PROXY,
-          useFactory: () => {
-            const newRoundUseCases = new UseCaseProxy(new NewRoundUseCases(mockLoggerService as any, mockDatabaseRoomRepository as any));
-            return new UseCaseProxy(new StartGameUseCases(mockLoggerService as any, mockDatabaseRoomRepository as any, mockTranslationService as any, newRoundUseCases as any));
-          }
-        },
-        {
           provide: UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
           useFactory: () => new UseCaseProxy(new GetRoundUseCases(mockLoggerService as any, mockDatabaseRoomRepository as any))
         },

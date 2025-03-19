@@ -17,6 +17,8 @@ import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
+import { IsNainWinUseCases } from '@/usecases/game/isNainWin.usecases';
+import { IsSaboteurWinUseCases } from '@/usecases/game/isSaboteurWin.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { NextUserUseCases } from '@/usecases/game/nextUser.usecases';
 import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
@@ -78,6 +80,8 @@ export class UsecasesProxyModule {
   static REPAIR_PLAYER_USECASES_PROXY = "RepairPlayerUseCasesProxy";
   static REVEAL_OBJECTIVE_CARD_USECASES_PROXY = "RevealObjectiveCardUseCasesProxy";
   static GET_DECK_LENGTH_USECASES_PROXY = "getDeckUseCasesProxy";
+  static IS_SABOTEUR_WIN_USECASES_PROXY = "isSaboteurWinUseCasesProxy";
+  static IS_NAIN_WIN_USECASES_PROXY = "isNainWinUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -269,6 +273,18 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
             new UseCaseProxy(new GetDeckLengthUseCases(logger, roomRepository))
         },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.IS_SABOTEUR_WIN_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new IsSaboteurWinUseCases(logger, roomRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new IsNainWinUseCases(logger, roomRepository))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -302,6 +318,8 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.REPAIR_PLAYER_USECASES_PROXY,
         UsecasesProxyModule.REVEAL_OBJECTIVE_CARD_USECASES_PROXY,
         UsecasesProxyModule.GET_DECK_LENGTH_USECASES_PROXY,
+        UsecasesProxyModule.IS_SABOTEUR_WIN_USECASES_PROXY,
+        UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY,
       ],
     };
   }

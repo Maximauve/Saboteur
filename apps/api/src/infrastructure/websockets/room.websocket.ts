@@ -26,6 +26,8 @@ import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
+import { IsNainWinUseCases } from '@/usecases/game/isNainWin.usecases';
+import { IsSaboteurWinUseCases } from '@/usecases/game/isSaboteurWin.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { NextUserUseCases } from '@/usecases/game/nextUser.usecases';
 import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
@@ -86,6 +88,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly getDeckLengthUseCases: UseCaseProxy<GetDeckLengthUseCases>,
     @Inject(UsecasesProxyModule.GET_ROUND_USECASES_PROXY)
     private readonly getRoundUseCases: UseCaseProxy<GetRoundUseCases>,
+    @Inject(UsecasesProxyModule.IS_SABOTEUR_WIN_USECASES_PROXY)
+    private readonly isSaboteurWinUseCases: UseCaseProxy<IsSaboteurWinUseCases>,
+    @Inject(UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY)
+    private readonly isNainWinUseCases: UseCaseProxy<IsNainWinUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -194,6 +200,17 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       }
       await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      if (await this.isSaboteurWinUseCases.getInstance().execute(client.data.code as string)) {        
+        // donner les pépites
+        await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
+        return;
+      } else if (await this.isNainWinUseCases.getInstance().execute(client.data.code as string)) {
+        // donner les pépites
+        await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
+        return;
+      }
+      await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
+      await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
       await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const round = await this.getRoundUseCases.getInstance().execute(client.data.code as string);
       if (round) {
@@ -201,8 +218,6 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
           this.server.to(member.socketId).emit(WebsocketEvent.USER, member);
         });
       }
-      await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
-      await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
     });
   }
