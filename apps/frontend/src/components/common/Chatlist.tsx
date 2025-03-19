@@ -41,6 +41,7 @@ export default function Chatlist(): React.JSX.Element {
         <input
           type="text"
           name="sendMessage"
+          autoComplete="off"
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           className="flex-grow p-2 border rounded"

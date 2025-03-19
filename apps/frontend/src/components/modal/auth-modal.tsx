@@ -129,7 +129,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
       <div className="w-[25vw] px-3 flex flex-row justify-end">
         <button onClick={handleModeChange} className="text-gray-500 underline text-xs">{i18n.t(texts.button)}</button>
       </div>
-      <div className="px-4 w-3/4 pb-8">
+      <form onSubmit={handleSubmit} className="px-4 w-3/4 pb-8">
         <div className="flex flex-col gap-4">
           { isRegisterMode ? (
             <Fragment>
@@ -168,12 +168,11 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
           <button className="rounded-md bg-blue-600 py-1 px-3 text-white hover:scale-105 active:scale-100 disabled:bg-gray-500 flex flex-row gap-2"
             disabled={invalidMessage !== ''}
             type="button"
-            onClick={handleSubmit}
           >
             {i18n.t(texts.submit)}
           </button>
         </div>
-      </div>
+      </form>
     </FullModal>
   );
 }
