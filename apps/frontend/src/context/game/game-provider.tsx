@@ -10,11 +10,13 @@ import useAuth from "@/hooks/use-auth";
 interface GameContextType {
   addChatMessage: (message: ChatMessage) => void;
   cards: Card[];
+  deckLength: number;
   gameIsStarted: boolean;
   members: UserGamePublic[]; // Membres sont de type UserGamePublic pour ne pas exposer les cartes
   messagesChat: ChatMessage[];
   setBoard: (newBoard: Board) => void;
   setCards: (cards: Card[]) => void;
+  setDeckLength: (nb: number) => void;
   setGameIsStarted: (started: boolean) => void;
   setMembers: (users: UserGamePublic[] | ((users: UserGamePublic[]) => UserGamePublic[])) => void; // setMembers pour UserGamePublic[]
   board?: Board;
@@ -43,6 +45,7 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const [messagesChat, setMessagesChat] = useState<ChatMessage[]>([]);
   const [board, setBoard] = useState<Board>();
   const [cards, setCards] = useState<Card[]>([]);
+  const [deckLength, setDeckLength] = useState<number>(0);
 
   const addChatMessage = (message: ChatMessage) => {
     setMessagesChat((previousChat: ChatMessage[]) => [...previousChat, message]);
@@ -66,8 +69,10 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
     board,
     setBoard,
     cards,
-    setCards
-  }), [members, messagesChat, myUser, gameIsStarted, board]);
+    setCards,
+    deckLength,
+    setDeckLength,
+  }), [members, messagesChat, myUser, gameIsStarted, board, deckLength]);
 
   return (
     <GameContext.Provider value={values}>{children}</GameContext.Provider>

@@ -25,7 +25,7 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
       }
       if (item.card.type === CardType.INSPECT && card !== null && card.type === CardType.END_HIDDEN) {
         return true;
-      }  
+      }
       return false;
     },
     drop: (item: { card: Card }) => {

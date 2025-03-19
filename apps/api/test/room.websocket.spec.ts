@@ -14,7 +14,6 @@ import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
-import { PlayUseCases } from '@/usecases/game/play.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
 import { UserSocket, UserGame } from '@/domain/model/user';
@@ -36,7 +35,6 @@ describe('RoomWebsocketGateway', () => {
   let mockGetSocketIdUseCase: Partial<UseCaseProxy<GetSocketIdUseCases>>;
   let mockStartGameUseCases: Partial<UseCaseProxy<StartGameUseCases>>;
   let mockGetBoardUseCases: Partial<UseCaseProxy<GetBoardUseCases>>;
-  let mockPlayUseCases: Partial<UseCaseProxy<PlayUseCases>>;
   let mockNewsRoundUseCases: Partial<UseCaseProxy<NewRoundUseCases>>;
   let mockGetCurrentRoundUserUseCases: Partial<UseCaseProxy<GetCurrentRoundUserUseCases>>;
   
@@ -99,12 +97,6 @@ describe('RoomWebsocketGateway', () => {
     mockGetBoardUseCases = {
       getInstance: jest.fn().mockReturnValue({
         execute: jest.fn().mockResolvedValue({ board: 'mock-board' })
-      })
-    };
-    
-    mockPlayUseCases = {
-      getInstance: jest.fn().mockReturnValue({
-        execute: jest.fn().mockResolvedValue(undefined)
       })
     };
     
@@ -362,7 +354,6 @@ describe('RoomWebsocketGateway', () => {
       
       await gateway.play(mockSocket as Socket, move);
       
-      expect(mockPlayUseCases.getInstance && mockPlayUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser as UserGame, move);
       expect(mockGetCurrentRoundUserUseCases.getInstance && mockGetCurrentRoundUserUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser.userId);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.CARDS, ['card1', 'card2']);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.BOARD, { board: 'mock-board' });
