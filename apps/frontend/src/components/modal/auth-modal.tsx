@@ -61,7 +61,8 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
     }
   }, [isRegisterMode, password, confirmPassword]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (isRegisterMode) {
       const values: RegisterDto = {
         username,
@@ -167,7 +168,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
         <div className="w-full flex justify-center items-center mt-4">
           <button className="rounded-md bg-blue-600 py-1 px-3 text-white hover:scale-105 active:scale-100 disabled:bg-gray-500 flex flex-row gap-2"
             disabled={invalidMessage !== ''}
-            type="button"
+            type="submit"
           >
             {i18n.t(texts.submit)}
           </button>

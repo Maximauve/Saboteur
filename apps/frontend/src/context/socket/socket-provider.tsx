@@ -24,7 +24,7 @@ export const SocketProvider: React.FC<SocketProviderProperties> = ({ children })
   // const NAMESPACE = "room";
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000/room", {
+    const newSocket = io(`${import.meta.env.VITE_API_BASE_URL}room`, {
       query: {
         userId: user?.id,
         username: user?.username,
