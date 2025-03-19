@@ -27,6 +27,7 @@ export class RepairlayerUseCases {
       throw new Error(await this.translationService.translate('error.TOOL_NOT_BROKEN'));
     }
 
+
     const toolToRepair = move.targettedMalusCard.tools[0];
     if (!move.card.tools.includes(toolToRepair)) {
       throw new Error(await this.translationService.translate('error.CARD_CANT_REPAIR_THIS_TOOL'));

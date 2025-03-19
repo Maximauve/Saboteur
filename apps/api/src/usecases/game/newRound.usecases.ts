@@ -83,14 +83,15 @@ export class NewRoundUseCases {
       { x: 4, y: 10 },
       { x: 6, y: 10 }
     ];
+    const randNumber = this.shuffleArray([0, 1, 2]);
   
     const cards: ObjectiveCard[] = [
-      { type: 'TREASURE', ...objectivePositions[0] },
-      { type: 'COAL', ...objectivePositions[1] },
-      { type: 'COAL', ...objectivePositions[2] }
+      { type: 'TREASURE', ...objectivePositions[randNumber.pop()!] },
+      { type: 'COAL', ...objectivePositions[randNumber.pop()!] },
+      { type: 'COAL', ...objectivePositions[randNumber.pop()!] }
     ];
     
-    const shuffledCards = this.shuffleArray([...cards]);
+    const shuffledCards = this.shuffleArray(cards);
     
     const treasureIndex = shuffledCards.findIndex(card => card.type === 'TREASURE');
     
