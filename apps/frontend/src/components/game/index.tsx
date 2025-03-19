@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -20,24 +20,29 @@ export default function Game(): React.JSX.Element {
   return (
     <DndProvider backend={HTML5Backend}>
       <FullModal isVisible={isRoleModalOpen} onClose={closeRoleModal} notClosable={!isReveal} title="game.yourRole">
-        {myUser ?(
-          <Fragment>
+        {myUser ? (
+          <div className="flex flex-col items-center">
             <p>{i18n.t('game.clickToDisplay')}</p>
-            <div
-              className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg transition-all duration-[1.5s] cursor-pointer
-                ${isReveal ? "filter blur-none bg-transparent" : "filter blur-md bg-neutral-700"}  
-              `}
+            <div 
+              className="relative w-40 h-60 cursor-pointer" 
               onClick={() => setIsReveal(true)}
             >
-              <p 
-                className={`transition-all duration-[1.5s]
-                  ${isReveal ? ( myUser.isSaboteur ? "text-red-700" : "text-green-700") : ""}
-                `}
+              <div 
+                className={`absolute inset-0 w-full h-full transition-transform duration-700 transform ${isReveal ? 'rotate-y-180' : ''}`}
               >
-                {myUser.isSaboteur ? i18n.t('game.role.saboteur') : i18n.t('game.role.miner')}
-              </p>
+                {/* Face cachée */}
+                <img 
+                  src="/images/cards/back.png" 
+                  className={`absolute w-full h-full backface-hidden ${isReveal ? 'hidden' : 'block'}`}
+                />
+                {/* Face révélée */}
+                <img 
+                  src={`/images/cards/${myUser.isSaboteur ? "saboteur" : "nain" }.png`}
+                  className={`absolute w-full h-full backface-hidden ${isReveal ? 'block' : 'hidden'}`}
+                />
+              </div>
             </div>
-          </Fragment>
+          </div>
         ) : null}
       </FullModal>
       <div className="w-full h-full grid grid-cols-4 grid-rows-5 gap-4">
