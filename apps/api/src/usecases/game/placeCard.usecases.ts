@@ -11,10 +11,6 @@ export class PlaceCardUseCases {
   async execute(code: string, move: Move): Promise<void> {
     const round = await this.roomRepository.getRound(code);
 
-    console.log("-------------------");
-    console.log("move card");
-    console.log(move.card);
-    console.log("-------------------");
     if (move.card.isFlipped) {
       move.card.connections = this.getFlippedConnections(move.card.connections);
     }

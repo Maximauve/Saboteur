@@ -2,7 +2,7 @@ import { type Board } from "@saboteur/api/src/domain/model/board";
 import { type UserGame } from "@saboteur/api/src/domain/model/user"; // Utiliser UserGame pour myUser
 import { type UserGamePublic } from "@saboteur/api/src/domain/model/user"; // Utiliser UserGamePublic pour les membres
 import { type ChatMessage } from "@saboteur/api/src/domain/model/websocket";
-import React, { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, type ReactNode, useContext, useMemo, useState } from "react";
 
 
 interface GameContextType {
@@ -45,12 +45,6 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const addChatMessage = (message: ChatMessage) => {
     setMessagesChat((previousChat: ChatMessage[]) => [...previousChat, message]);
   };
-
-  useEffect(() => {
-    console.log('========== myUser ==========');
-    console.log(myUser);
-    console.log('============================');
-  }, [myUser]);
 
   const values = useMemo(() => ({
     members,
