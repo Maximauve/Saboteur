@@ -12,11 +12,14 @@ interface Properties {
 }
 
 export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: Properties) {
-  const { board } = useGame();
+  const { board, myUser } = useGame();
 
   const [{ isOver, canBeDropped }, dropReference] = useDrop(() => ({
     accept: "CARD",
     canDrop: (item: {card: Card}) => {
+      if (myUser === undefined || !myUser.hasToPlay) {
+        return false;
+      }
       if ([CardType.DEADEND, CardType.PATH].includes(item.card.type)) { 
         return isCardPlacementValid(item.card, board!, { x: rowIndex, y: colIndex });
       }
@@ -32,7 +35,7 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
       isOver: monitor.canDrop() && monitor.isOver(),
       canBeDropped: monitor.canDrop(),
     }),
-  }), [card]);
+  }), [card, board]);
 
   return (
     <div

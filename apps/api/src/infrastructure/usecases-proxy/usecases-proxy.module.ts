@@ -8,11 +8,19 @@ import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repos
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
+import { AttackPlayerUseCases } from '@/usecases/game/attackPlayer.usecases';
+import { CanUserPlayUseCases } from '@/usecases/game/canUserPlay.usecases';
+import { DestroyCardUseCases } from '@/usecases/game/destroyCard.usecases';
+import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
+import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
-import { PlayUseCases } from '@/usecases/game/play.usecases';
+import { NextUserUseCases } from '@/usecases/game/nextUser.usecases';
+import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
+import { RepairlayerUseCases } from '@/usecases/game/repairPlayer.usecases';
+import { RevealObjectiveUseCases } from '@/usecases/game/revealObjective.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
@@ -59,7 +67,15 @@ export class UsecasesProxyModule {
   static GET_ROUND_USECASES_PROXY = "getRoundUseCasesProxy";
   static GET_BOARD_USECASES_PROXY = "getBoardUseCasesProxy";
   static GET_USER_GAME_USECASES_PROXY = "getUserGameUseCasesProxy";
-  static PLAY_USECASES_PROXY = "playUseCasesProxy";
+  static NEXT_USER_USECASES_PROXY = "NextUserUseCasesProxy";
+  static ATTACK_PLAYER_USECASES_PROXY = "AttackPlayerUseCasesProxy";
+  static CAN_USER_PLAY_USECASES_PROXY = "CanUserPlayUseCasesProxy";
+  static DESTROY_CARD_USECASES_PROXY = "DestroyCardUseCasesProxy";
+  static DISCARD_CARD_USECASES_PROXY = "DiscardCardUseCasesProxy";
+  static DRAW_CARD_USECASES_PROXY = "DrawCardUseCasesProxy";
+  static PLACE_CARD_USECASES_PROXY = "PlaceCardUseCasesProxy";
+  static REPAIR_PLAYER_USECASES_PROXY = "RepairPlayerUseCasesProxy";
+  static REVEAL_OBJECTIVE_CARD_USECASES_PROXY = "RevealObjectiveCardUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -187,9 +203,57 @@ export class UsecasesProxyModule {
         },
         {
           inject: [LoggerService, DatabaseRoomRepository, TranslationService],
-          provide: UsecasesProxyModule.PLAY_USECASES_PROXY,
+          provide: UsecasesProxyModule.NEXT_USER_USECASES_PROXY,
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
-            new UseCaseProxy(new PlayUseCases(logger, roomRepository, translationService))
+            new UseCaseProxy(new NextUserUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.ATTACK_PLAYER_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new AttackPlayerUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.CAN_USER_PLAY_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new CanUserPlayUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.DESTROY_CARD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new DestroyCardUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.DISCARD_CARD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new DiscardCardUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.DRAW_CARD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new DrawCardUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.PLACE_CARD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new PlaceCardUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.REPAIR_PLAYER_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new RepairlayerUseCases(logger, roomRepository, translationService))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.REVEAL_OBJECTIVE_CARD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new RevealObjectiveUseCases(logger, roomRepository, translationService))
         },
         {
           inject: [LoggerService, DatabaseRoomRepository],
@@ -218,9 +282,17 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
         UsecasesProxyModule.GET_BOARD_USECASES_PROXY,
         UsecasesProxyModule.GET_USER_GAME_USECASES_PROXY,
-        UsecasesProxyModule.PLAY_USECASES_PROXY,
+        UsecasesProxyModule.NEXT_USER_USECASES_PROXY,
         UsecasesProxyModule.NEW_ROUND_USECASES_PROXY,
         UsecasesProxyModule.GET_CURRENT_ROUND_USER,
+        UsecasesProxyModule.ATTACK_PLAYER_USECASES_PROXY,
+        UsecasesProxyModule.CAN_USER_PLAY_USECASES_PROXY,
+        UsecasesProxyModule.DESTROY_CARD_USECASES_PROXY,
+        UsecasesProxyModule.DISCARD_CARD_USECASES_PROXY,
+        UsecasesProxyModule.DRAW_CARD_USECASES_PROXY,
+        UsecasesProxyModule.PLACE_CARD_USECASES_PROXY,
+        UsecasesProxyModule.REPAIR_PLAYER_USECASES_PROXY,
+        UsecasesProxyModule.REVEAL_OBJECTIVE_CARD_USECASES_PROXY,
       ],
     };
   }

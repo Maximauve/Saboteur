@@ -32,23 +32,16 @@ export class NewRoundUseCases {
     }
     const roundNumber = room.currentRound + 1;
     await this.roomRepository.setRoom(code, [
-      'currentRound',
-      roundNumber.toString(),
+      'currentRound', roundNumber.toString(),
     ]);
 
     await this.roomRepository.setRound(code, roundNumber, [
-      'users',
-      JSON.stringify(users),
-      'objectiveCards',
-      JSON.stringify(objectiveCards),
-      'treasurePosition',
-      treasurePosition.toString(),
-      'deck',
-      JSON.stringify(actionCards),
-      'board',
-      JSON.stringify(this.initializeGameBoard(objectiveCards)),
-      'currentTurn',
-      '0',
+      'index', roundNumber.toString(),
+      'users', JSON.stringify(users),
+      'objectiveCards', JSON.stringify(objectiveCards),
+      'treasurePosition', treasurePosition.toString(),
+      'deck', JSON.stringify(actionCards),
+      'board', JSON.stringify(this.initializeGameBoard(objectiveCards)),
     ]);
 
     return users;

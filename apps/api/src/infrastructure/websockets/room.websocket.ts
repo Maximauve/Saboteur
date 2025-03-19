@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from "socket.io";
 
+import { CardType } from '@/domain/model/card';
 import { Move } from '@/domain/model/move';
 import { UserGame, UserSocket } from '@/domain/model/user';
 import { Message, WebsocketEvent } from '@/domain/model/websocket';
@@ -17,9 +18,17 @@ import { RedisService } from '@/infrastructure/services/redis/service/redis.serv
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyModule } from '@/infrastructure/usecases-proxy/usecases-proxy.module';
+import { AttackPlayerUseCases } from '@/usecases/game/attackPlayer.usecases';
+import { CanUserPlayUseCases } from '@/usecases/game/canUserPlay.usecases';
+import { DestroyCardUseCases } from '@/usecases/game/destroyCard.usecases';
+import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
+import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
-import { PlayUseCases } from '@/usecases/game/play.usecases';
+import { NextUserUseCases } from '@/usecases/game/nextUser.usecases';
+import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
+import { RepairlayerUseCases } from '@/usecases/game/repairPlayer.usecases';
+import { RevealObjectiveUseCases } from '@/usecases/game/revealObjective.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
@@ -49,8 +58,24 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly startGameUseCases: UseCaseProxy<StartGameUseCases>,
     @Inject(UsecasesProxyModule.GET_BOARD_USECASES_PROXY)
     private readonly getBoardUseCases: UseCaseProxy<GetBoardUseCases>,
-    @Inject(UsecasesProxyModule.PLAY_USECASES_PROXY)
-    private readonly playUseCases: UseCaseProxy<PlayUseCases>,
+    @Inject(UsecasesProxyModule.NEXT_USER_USECASES_PROXY)
+    private readonly nextPlayerUseCases: UseCaseProxy<NextUserUseCases>,
+    @Inject(UsecasesProxyModule.ATTACK_PLAYER_USECASES_PROXY)
+    private readonly attackPlayerUseCases: UseCaseProxy<AttackPlayerUseCases>,
+    @Inject(UsecasesProxyModule.CAN_USER_PLAY_USECASES_PROXY)
+    private readonly canUserPlayUseCases: UseCaseProxy<CanUserPlayUseCases>,
+    @Inject(UsecasesProxyModule.DESTROY_CARD_USECASES_PROXY)
+    private readonly destroyCardUseCases: UseCaseProxy<DestroyCardUseCases>,
+    @Inject(UsecasesProxyModule.DISCARD_CARD_USECASES_PROXY)
+    private readonly discardCardUseCases: UseCaseProxy<DiscardCardUseCases>,
+    @Inject(UsecasesProxyModule.DRAW_CARD_USECASES_PROXY)
+    private readonly drawCardUseCases: UseCaseProxy<DrawCardUseCases>,
+    @Inject(UsecasesProxyModule.PLACE_CARD_USECASES_PROXY)
+    private readonly placeCardUseCases: UseCaseProxy<PlaceCardUseCases>,
+    @Inject(UsecasesProxyModule.REPAIR_PLAYER_USECASES_PROXY)
+    private readonly repairPlayerUseCases: UseCaseProxy<RepairlayerUseCases>,
+    @Inject(UsecasesProxyModule.REVEAL_OBJECTIVE_CARD_USECASES_PROXY)
+    private readonly revealObjectiveUseCases: UseCaseProxy<RevealObjectiveUseCases>,
     @Inject(UsecasesProxyModule.NEW_ROUND_USECASES_PROXY)
     private readonly newsRoundUseCases: UseCaseProxy<NewRoundUseCases>,
     @Inject(UsecasesProxyModule.GET_CURRENT_ROUND_USER)
@@ -147,7 +172,16 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   @SubscribeMessage(WebsocketEvent.PLAY)
   async play(@ConnectedSocket() client: Socket, @MessageBody() move: Move): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
-      await this.playUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
+
+      if (!this.canUserPlayUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, move)) {
+        return;
+      }
+      if (!move.discard) {
+        await this.handlePlayedCard(client.data.code as string, client.data.user as UserGame, move);
+      }
+      await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
+      await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
+      await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const currentUser = await this.getCurrentRoundUserUseCases.getInstance().execute(client.data.code as string, client.data.user.userId as string);
       if (currentUser !== null) {
         this.server.to(client.data.user.socketId).emit(WebsocketEvent.CARDS, currentUser.cards);
@@ -155,6 +189,28 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
     });
+  }
+
+  async handlePlayedCard(code: string, user: UserGame, move: Move): Promise<void> {
+    switch (move.card.type) {
+      case CardType.BROKEN_TOOL: {
+        return this.attackPlayerUseCases.getInstance().execute(code, move);
+      }
+      case CardType.COLLAPSE: {
+        return this.destroyCardUseCases.getInstance().execute(code, move);
+      }
+      case CardType.DEADEND:
+      case CardType.PATH: {
+        return this.placeCardUseCases.getInstance().execute(code, move);
+      }
+      case CardType.INSPECT: {
+        return this.revealObjectiveUseCases.getInstance().execute(code, user, move);
+      }
+      case CardType.REPAIR_DOUBLE:
+      case CardType.REPAIR_TOOL: {
+        return this.repairPlayerUseCases.getInstance().execute(code, move);
+      }
+    }
   }
 
   async handleAction(code: string, callback: () => Promise<unknown>): Promise<unknown> {

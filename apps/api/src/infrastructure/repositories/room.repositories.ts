@@ -38,12 +38,12 @@ export class DatabaseRoomRepository implements RoomRepository {
     }
     const roundData = await this.redisService.hgetall(`room:${code}:${roundNumber}`);
     return {
+      index: Number.parseInt(roundData.index),
       users: JSON.parse(roundData.users || '[]'),
       objectiveCards: JSON.parse(roundData.objectiveCards || '[]'),
       treasurePosition: Number.parseInt(roundData.treasurePosition),
       deck: JSON.parse(roundData.deck || '[]'),
       board: JSON.parse(roundData.board || '[]'),
-      currentTurn: Number.parseInt(roundData.currentTurn),
     } as Round;
   }
 

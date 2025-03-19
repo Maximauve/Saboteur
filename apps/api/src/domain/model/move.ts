@@ -6,4 +6,6 @@ export class Move {
   y: number;
   card: Card;
   userReceiver?: UserSocket;
+  targettedMalusCard?: Card;
+  discard?: boolean;
 }
