@@ -18,6 +18,14 @@ export default function GameBoard(): React.JSX.Element {
   const handleCardDrop = (item: { card: Card; colIndex: number; rowIndex: number }) => {
     const { card, rowIndex, colIndex } = item;
 
+    console.group("CardDrop");
+
+    console.log("Card", card);
+    console.log("x", rowIndex);
+    console.log("y", colIndex);
+
+    console.groupEnd();
+
     socket?.emitWithAck(WebsocketEvent.PLAY, { card: card, x: rowIndex, y: colIndex })
       .then(response => {
         if (response && response.error) {

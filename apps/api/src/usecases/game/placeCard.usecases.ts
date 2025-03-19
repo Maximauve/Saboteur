@@ -11,6 +11,10 @@ export class PlaceCardUseCases {
   async execute(code: string, move: Move): Promise<void> {
     const round = await this.roomRepository.getRound(code);
 
+    console.log("-------------------");
+    console.log("move card");
+    console.log(move.card);
+    console.log("-------------------");
     if (move.card.isFlipped) {
       move.card.connections = this.getFlippedConnections(move.card.connections);
     }
@@ -62,7 +66,7 @@ export class PlaceCardUseCases {
     }
   
     // il faut que soit les deux ne se lient pas, soit les deux se lient
-    if (adjascentCards.left !== null) {
+    if (adjascentCards.left) {
       if (move.card.connections.includes(Connection.LEFT) && !adjascentCards.left.connections.includes(Connection.RIGHT)) {
         return false;
       }
@@ -70,7 +74,7 @@ export class PlaceCardUseCases {
         return false;
       }
     }
-    if (adjascentCards.right !== null) {
+    if (adjascentCards.right) {
       if (move.card.connections.includes(Connection.RIGHT) && !adjascentCards.right.connections.includes(Connection.LEFT)) {
         return false;
       }
@@ -78,7 +82,7 @@ export class PlaceCardUseCases {
         return false;
       }
     }
-    if (adjascentCards.top !== null) {
+    if (adjascentCards.top) {
       if (move.card.connections.includes(Connection.TOP) && !adjascentCards.top.connections.includes(Connection.BOTTOM)) {
         return false;
       }
@@ -86,7 +90,7 @@ export class PlaceCardUseCases {
         return false;
       }
     }
-    if (adjascentCards.bottom !== null) {
+    if (adjascentCards.bottom) {
       if (move.card.connections.includes(Connection.BOTTOM) && !adjascentCards.bottom.connections.includes(Connection.TOP)) {
         return false;
       }
