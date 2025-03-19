@@ -35,6 +35,7 @@ export class UserSocket extends UserRoom {
 export class UserGamePublic extends UserSocket {
   malus: Card[];
   hasToPlay: boolean;
+  hasToChooseGold: boolean;
 }
 
 export class UserGame extends UserGamePublic {

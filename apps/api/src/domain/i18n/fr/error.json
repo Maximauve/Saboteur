@@ -16,5 +16,9 @@
   "CARD_NOT_FOUND": "La carte n'existe pas",
   "CARD_NOT_IN_HAND": "Tu n'as pas cette carte",
   "CARD_CANNOT_BE_PLACED": "La carte ne peut pas être placée ici",
-  "NO_OBJECTIVE_CARD_AT_POSITION": "La carte ne corresponds pas à une carte d'objectif"
+  "NO_OBJECTIVE_CARD_AT_POSITION": "La carte ne corresponds pas à une carte d'objectif",
+  "NOT_ENOUGH_GOLD": "Il n'y a plus d'or",
+  "ITS_GOLD_TIME": "Vous devez choisir les pépites d'or avant de jouer à nouveau",
+  "NOT_CHOOSE_GOLD": "Tu ne dois pas choisir de pépites d'or",
+  "NOT_GOOD_NB_GOLD": "Il n'y a pas ce nombre de pépites dans la liste"
 }

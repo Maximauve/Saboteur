@@ -45,6 +45,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       treasurePosition: Number.parseInt(roundData.treasurePosition),
       deck: JSON.parse(roundData.deck || '[]'),
       board: JSON.parse(roundData.board || '[]'),
+      goldList: JSON.parse(roundData.goldList),
     } as Round;
   }
 
@@ -55,7 +56,8 @@ export class DatabaseRoomRepository implements RoomRepository {
       return room.users.map(user => ({
         ...user,
         malus: [],
-        hasToPlay: false
+        hasToPlay: false,
+        hasToChooseGold: false,
       }));
     }
     return room.users.map(roomUser => {
@@ -70,14 +72,16 @@ export class DatabaseRoomRepository implements RoomRepository {
           ready: roomUser.ready,
           gold: roomUser.gold,
           malus: roundUser.malus || [],
-          hasToPlay: roundUser.hasToPlay || false
+          hasToPlay: roundUser.hasToPlay || false,
+          hasToChooseGold: roundUser.hasToChooseGold || false,
         } as UserGamePublic;
       }
       
       return {
         ...roomUser,
         malus: [],
-        hasToPlay: false
+        hasToPlay: false,
+        hasToChooseGold: false,
       } as UserGamePublic;
     });
   }
@@ -123,6 +127,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       host: JSON.parse(roomData.host),
       started: roomData.started === 'true',
       currentRound: Number.parseInt(roomData.currentRound),
+      goldDeck: JSON.parse(roomData.goldDeck || '[]'),
     } as Room;
   }
 

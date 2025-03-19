@@ -24,6 +24,10 @@ export type I18nTranslations = {
         "CARD_NOT_IN_HAND": string;
         "CARD_CANNOT_BE_PLACED": string;
         "NO_OBJECTIVE_CARD_AT_POSITION": string;
+        "NOT_ENOUGH_GOLD": string;
+        "ITS_GOLD_TIME": string;
+        "NOT_CHOOSE_GOLD": string;
+        "NOT_GOOD_NB_GOLD": string;
     };
     "validation": {
         "NOT_EMPTY": string;

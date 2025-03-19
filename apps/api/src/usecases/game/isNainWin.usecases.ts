@@ -19,7 +19,7 @@ function hasPathToTreasure(
   if (!treasurePosition) {
     return false;
   }
-  
+
   return bfs(grid, 2, 4, treasurePosition.x, treasurePosition.y);
 }
 
@@ -30,9 +30,7 @@ function bfs(grid: (Card | null)[][], startX: number, startY: number, treasureX:
   
   while (queue.length > 0) {
     const [currentX, currentY] = queue.shift()!;
-
-    console.log(currentY === treasureX && currentX === treasureY);
-    
+        
     if (currentY === treasureX && currentX === treasureY) {
       return true;
     }

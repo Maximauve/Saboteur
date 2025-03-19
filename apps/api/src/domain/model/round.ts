@@ -9,4 +9,5 @@ export class Round {
   treasurePosition: number;
   deck: Card[];
   board: Board;
+  goldList: number[];
 }

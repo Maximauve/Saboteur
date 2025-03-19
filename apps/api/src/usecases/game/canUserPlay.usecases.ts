@@ -17,6 +17,9 @@ export class CanUserPlayUseCases {
     if (realUser.hasToPlay === false) {
       return { result: false, error: await this.translationService.translate('error.NOT_YOUR_TURN') };
     }
+    if (round.goldList.length > 0){
+      return { result: false, error: await this.translationService.translate('error.ITS_GOLD_TIME') };
+    } 
     if (!move.card) {
       return { result: false, error: await this.translationService.translate('error.CARD_NOT_FOUND') };
     }
