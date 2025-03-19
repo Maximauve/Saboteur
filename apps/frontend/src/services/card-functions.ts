@@ -27,10 +27,6 @@ export function isCardPlacementValid(card: Card, board: Board, position: {x: num
     return false;
   }
 
-  if (position.x === 5 && position.y === 0) {
-    console.log(card, adjascentCards);
-  }
-
   let directLink = false;
   // il faut que soit les deux ne se lient pas, soit les deux se lient
   if (adjascentCards.left) {

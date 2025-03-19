@@ -9,16 +9,24 @@ import useModal from "@/hooks/use-modal";
 
 interface GameContextType {
   addChatMessage: (message: ChatMessage) => void;
+  closeNainWinModal: () => void;
   closeRoleModal: () => void;
+  closeSaboteurWinModal: () => void;
   deckLength: number;
   gameIsStarted: boolean;
+  goldList: number[];
+  isNainWinModalOpen: boolean;
   isRoleModalOpen: boolean;
+  isSaboteurWinModalOpen: boolean;
   members: UserGamePublic[]; // Membres sont de type UserGamePublic pour ne pas exposer les cartes
   messagesChat: ChatMessage[];
+  openNainWinModal: () => void;
   openRoleModal: () => void;
+  openSaboteurWinModal: () => void;
   setBoard: (newBoard: Board) => void;
   setDeckLength: (nb: number) => void;
   setGameIsStarted: (started: boolean) => void;
+  setGoldList: (list: number[]) => void;
   setMembers: (users: UserGamePublic[] | ((users: UserGamePublic[]) => UserGamePublic[])) => void; // setMembers pour UserGamePublic[]
   setMyUser: (user: UserGame | undefined) => void;
   board?: Board;
@@ -46,7 +54,10 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const [messagesChat, setMessagesChat] = useState<ChatMessage[]>([]);
   const [board, setBoard] = useState<Board>();
   const [deckLength, setDeckLength] = useState<number>(0);
+  const [goldList, setGoldList] = useState<number[]>([]);
   const { isOpen: isRoleModalOpen, openModal: openRoleModal, closeModal: closeRoleModal } = useModal();
+  const { isOpen: isSaboteurWinModalOpen, openModal: openSaboteurWinModal, closeModal: closeSaboteurWinModal } = useModal();
+  const { isOpen: isNainWinModalOpen, openModal: openNainWinModal, closeModal: closeNainWinModal } = useModal();
 
   const addChatMessage = (message: ChatMessage) => {
     setMessagesChat((previousChat: ChatMessage[]) => [...previousChat, message]);
@@ -67,8 +78,16 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
     setDeckLength,
     isRoleModalOpen,
     openRoleModal,
-    closeRoleModal
-  }), [members, messagesChat, myUser, gameIsStarted, board, deckLength, isRoleModalOpen]);
+    closeRoleModal,
+    openNainWinModal,
+    closeNainWinModal,
+    openSaboteurWinModal,
+    closeSaboteurWinModal,
+    isNainWinModalOpen,
+    isSaboteurWinModalOpen,
+    goldList,
+    setGoldList,
+  }), [members, messagesChat, myUser, gameIsStarted, board, deckLength, isRoleModalOpen, isSaboteurWinModalOpen, isNainWinModalOpen, goldList]);
 
   return (
     <GameContext.Provider value={values}>{children}</GameContext.Provider>

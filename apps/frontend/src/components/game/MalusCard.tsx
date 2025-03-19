@@ -17,7 +17,6 @@ export default function MalusCard({ user, card }: Properties) {
     accept: "CARD",
     canDrop: (item) => [CardType.REPAIR_DOUBLE, CardType.REPAIR_TOOL].includes(item.card.type),
     drop: (item) => {
-
       socket?.emitWithAck(WebsocketEvent.PLAY, { card: item.card, userReceiver: user, targettedMalusCard: card })
         .then(response => {
           if (response && response.error) {

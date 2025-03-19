@@ -9,6 +9,8 @@ import Discard from "@/components/game/Discard";
 import GameMembersList from "@/components/game/GameMembersList";
 import PlayerHand from "@/components/game/Hand";
 import FullModal from "@/components/modal/full-modal";
+import NainWinModal from "@/components/modal/nain-win-modal";
+import SaboteurWinModal from "@/components/modal/saboteur-win-modal";
 import { useGame } from "@/context/game/game-provider";
 import useTranslation from "@/hooks/use-translation";
 
@@ -19,32 +21,36 @@ export default function Game(): React.JSX.Element {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <FullModal isVisible={isRoleModalOpen} onClose={closeRoleModal} notClosable={!isReveal} title="game.yourRole">
-        {myUser ? (
-          <div className="flex flex-col items-center">
-            <p>{i18n.t('game.clickToDisplay')}</p>
-            <div 
-              className="relative w-40 h-60 cursor-pointer" 
-              onClick={() => setIsReveal(true)}
-            >
+      {isRoleModalOpen && (
+        <FullModal isVisible={isRoleModalOpen} onClose={closeRoleModal} notClosable={!isReveal} title="game.yourRole">
+          {myUser ? (
+            <div className="flex flex-col items-center">
+              <p>{i18n.t('game.clickToDisplay')}</p>
               <div 
-                className={`absolute inset-0 w-full h-full transition-transform duration-700 transform ${isReveal ? 'rotate-y-180' : ''}`}
+                className="relative w-40 h-60 cursor-pointer" 
+                onClick={() => setIsReveal(true)}
               >
-                {/* Face cachée */}
-                <img 
-                  src="/images/cards/back.png" 
-                  className={`absolute w-full h-full backface-hidden ${isReveal ? 'hidden' : 'block'}`}
-                />
-                {/* Face révélée */}
-                <img 
-                  src={`/images/cards/${myUser.isSaboteur ? "saboteur" : "nain" }.png`}
-                  className={`absolute w-full h-full backface-hidden ${isReveal ? 'block' : 'hidden'}`}
-                />
+                <div 
+                  className={`absolute inset-0 w-full h-full transition-transform duration-700 transform ${isReveal ? 'rotate-y-180' : ''}`}
+                >
+                  {/* Face cachée */}
+                  <img 
+                    src="/images/cards/back.png" 
+                    className={`absolute w-full h-full backface-hidden ${isReveal ? 'hidden' : 'block'}`}
+                  />
+                  {/* Face révélée */}
+                  <img 
+                    src={`/images/cards/${myUser.isSaboteur ? "saboteur" : "nain" }.png`}
+                    className={`absolute w-full h-full backface-hidden ${isReveal ? 'block' : 'hidden'}`}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ) : null}
-      </FullModal>
+          ) : null}
+        </FullModal>
+      )}
+      <SaboteurWinModal />
+      <NainWinModal />
       <div className="w-full h-full grid grid-cols-4 grid-rows-5 gap-4">
         <div className="col-span-1 row-span-5">
           <GameMembersList />

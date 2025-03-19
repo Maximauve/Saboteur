@@ -5,6 +5,13 @@
 		"role": {
 			"saboteur": "Saboteur",
 			"miner": "Mineur"
-		}
+		},
+		"saboteurWin": "Les saboteurs ont gagnés !",
+		"saboteurInfo": "Ils ont donc gagnés des pépites d'or et une nouvelle partie a été lancée",
+		"nain": {
+			"nainWin": "Les nains ont gagnés !",
+			"saboteurLoose": "Vous ne gagnez aucune pépites"
+		},
+		"notSelectGold": "Ce n'est pas encore à toi de choisir une pépite"
 	}
 }

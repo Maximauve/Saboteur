@@ -13,7 +13,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser, setDeckLength, openRoleModal } = useGame();
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser, setDeckLength, openRoleModal, openSaboteurWinModal, openNainWinModal, setGoldList } = useGame();
 
   useEffect(() => {
     if (!socket) {
@@ -23,7 +23,6 @@ export default function Room(): React.JSX.Element {
     socket?.on('connect', () => {
       socket?.emitWithAck(WebsocketEvent.JOIN_ROOM, code)
         .then((response) => {
-          console.log(response.error);
           if (response && response.error) {
             console.error(response.error);
             toast.error(response.error as ToastContent<string>);
@@ -64,6 +63,18 @@ export default function Room(): React.JSX.Element {
       openRoleModal();
     });
 
+    socket?.on(WebsocketEvent.END_ROUND, (({ type }) => {
+      if (type === "SABOTEUR_WIN") {
+        openSaboteurWinModal();
+      } else {
+        openNainWinModal();
+      }
+    }));
+
+    socket?.on(WebsocketEvent.GOLD_LIST, (goldList: number[]) => {
+      setGoldList(goldList);
+    });
+
     return () => {
       socket.off(WebsocketEvent.MEMBERS);
       socket.off(WebsocketEvent.GAME_IS_STARTED);
@@ -72,6 +83,8 @@ export default function Room(): React.JSX.Element {
       socket.off(WebsocketEvent.DECK);
       socket.off(WebsocketEvent.USER);
       socket.off(WebsocketEvent.SHOW_ROLE);
+      socket.off(WebsocketEvent.END_ROUND);
+      socket.off(WebsocketEvent.GOLD_LIST);
       socket.off('connect');
     };
   }, [socket]);

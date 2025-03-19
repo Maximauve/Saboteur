@@ -6,10 +6,12 @@ import { type TranslationService } from '@/infrastructure/services/translation/t
 export class ChooseGoldUseCases {
   constructor(private readonly logger: ILogger, private readonly roomRepository: RoomRepository, private readonly translationService: TranslationService) {}
 
-  async execute(code: string, user: UserSocket, nbGold: number): Promise<boolean> {
+  async execute(code: string, user: UserSocket, nbGold: number): Promise<number[]> {
+    const room = await this.roomRepository.getRoom(code);
     const round = await this.roomRepository.getRound(code);
     const userIndex = round.users.findIndex(roundUser => roundUser.userId === user.userId);
-    if (userIndex === -1) {
+    const roomUser = room.users.find(roomU => roomU.userId === user.userId);
+    if (userIndex === -1 || !roomUser) {
       throw new Error(await this.translationService.translate("error.USER_NOT_FOUND"));
     }
     const realUser = round.users[userIndex];
@@ -22,7 +24,7 @@ export class ChooseGoldUseCases {
     if (goldIndex === -1) {
       throw new Error(await this.translationService.translate("error.NOT_GOOD_NB_GOLD"));
     }
-    realUser.gold += nbGold;
+    roomUser.gold += nbGold;
     round.goldList.splice(goldIndex, 1);
     realUser.hasToChooseGold = false;
     
@@ -36,7 +38,12 @@ export class ChooseGoldUseCases {
         }
         nextIndex = (nextIndex - 1 + totalUsers) % totalUsers;
       }
-    } 
+    }
+    
+    await this.roomRepository.setRoom(code, [
+      'users',
+      JSON.stringify(room.users),
+    ]);
 
     await this.roomRepository.setRound(code, round.index, [
       'goldList',
@@ -44,6 +51,6 @@ export class ChooseGoldUseCases {
       'users',
       JSON.stringify(round.users),
     ]);
-    return round.goldList.length > 0;
+    return round.goldList;
   }
 }

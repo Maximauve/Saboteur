@@ -35,7 +35,6 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
           }
           return false;
         });
-      console.log(`Carte ${item.card.imageUrl} placée sur ${member.userId} à l'emplacement XXX`);
     },
     collect: (monitor) => ({
       isOver: monitor.canDrop() && monitor.isOver(),

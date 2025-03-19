@@ -28,6 +28,7 @@ import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetCardsToRevealUseCases } from '@/usecases/game/getCardsToReveal.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
+import { GetUserChooseGoldUseCases } from '@/usecases/game/getUserChooseGold.usecases';
 import { GoldPhaseUseCases } from '@/usecases/game/goldPhase.usecases';
 import { IsNainWinUseCases } from '@/usecases/game/isNainWin.usecases';
 import { IsSaboteurWinUseCases } from '@/usecases/game/isSaboteurWin.usecases';
@@ -101,6 +102,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly chooseGoldUseCases: UseCaseProxy<ChooseGoldUseCases>,
     @Inject(UsecasesProxyModule.GET_CARDS_TO_REVEAL_USECASES_PROXY)
     private readonly getCardsToRevealUseCases: UseCaseProxy<GetCardsToRevealUseCases>,
+    @Inject(UsecasesProxyModule.GET_USER_CHOOSE_GOLD_USECASES_PROXY)
+    private readonly getUserChooseGoldUseCases: UseCaseProxy<GetUserChooseGoldUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -211,10 +214,15 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const revealedCards = await this.getCardsToRevealUseCases.getInstance().execute(client.data.code as string);
       if (this.isNainWinUseCases.getInstance().execute(revealedCards)) {
-        await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, false);
+        const goldList = await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, false);
+        await this.server.to(client.data.code).emit(WebsocketEvent.END_ROUND, { type: "NAIN_WIN" });
+        await this.server.to(client.data.code).emit(WebsocketEvent.GOLD_LIST, goldList);
+        const userChooseGold = await this.getUserChooseGoldUseCases.getInstance().execute(client.data.code as string);
+        await this.server.to(userChooseGold?.socketId).emit(WebsocketEvent.CHOOSE_GOLD);
       } else if (await this.isSaboteurWinUseCases.getInstance().execute(client.data.code as string)) {
         await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, true);
         await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
+        await this.server.to(client.data.code).emit(WebsocketEvent.END_ROUND, { type: "SABOTEUR_WIN" });
       } else {
         await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       }
@@ -233,17 +241,24 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   @SubscribeMessage(WebsocketEvent.CHOOSE_GOLD)
   async chooseGold(@ConnectedSocket() client: Socket, @MessageBody() nbGold: number): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
-      const isGoldListEmpty = await this.chooseGoldUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, nbGold);
-      if (isGoldListEmpty) {
+      const goldList = await this.chooseGoldUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, nbGold);
+      if (goldList.length === 0) {
         const users = await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
         for (const user of users) {
           this.server.to(user.socketId).emit(WebsocketEvent.USER, user);
         }
+        await this.server.to(client.data.code).emit(WebsocketEvent.SHOW_ROLE); 
       }
+      const round = await this.getRoundUseCases.getInstance().execute(client.data.code as string);
+      if (round) {
+        round.users.forEach((member) => {
+          this.server.to(member.socketId).emit(WebsocketEvent.USER, member);
+        });
+      }
+      await this.server.to(client.data.code).emit(WebsocketEvent.GOLD_LIST, goldList);
       await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
-      await this.server.to(client.data.code).emit(WebsocketEvent.SHOW_ROLE); 
     });
   }
 

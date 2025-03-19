@@ -6,7 +6,7 @@ import { type TranslationService } from '@/infrastructure/services/translation/t
 export class GoldPhaseUseCases {
   constructor(private readonly logger: ILogger, private readonly roomRepository: RoomRepository, private readonly translationService: TranslationService) {}
 
-  async execute(code: string, user: UserSocket, isSaboteurWin: boolean): Promise<void> {
+  async execute(code: string, user: UserSocket, isSaboteurWin: boolean): Promise<number[]> {
     const room = await this.roomRepository.getRoom(code);
     const round = await this.roomRepository.getRound(code);
     const realUserIndex = round.users.findIndex(userRound => userRound.userId === user.userId);
@@ -21,10 +21,20 @@ export class GoldPhaseUseCases {
     }
 
     if (isSaboteurWin) {
-      round.users = round.users?.filter(roundUser => roundUser.isSaboteur).map(saboteurUser => {
-        saboteurUser.gold += this.saboteurCountGold(round?.users?.length);
-        return saboteurUser;
-      });
+      const saboteurUserIds = round.users
+        .filter(roundUser => roundUser.isSaboteur)
+        .map(saboteur => saboteur.userId);
+  
+      const goldPerSaboteur = this.saboteurCountGold(saboteurUserIds.length);
+  
+      if (room.users) {
+        room.users.map(roomUser => {
+          if (saboteurUserIds.includes(roomUser.userId)) {
+            roomUser.gold += goldPerSaboteur;
+          }
+          return roomUser;
+        });
+      }
     }  else {
       const numberPlayers = round.users.length;
         
@@ -61,7 +71,9 @@ export class GoldPhaseUseCases {
 
     await this.roomRepository.setRoom(code, [
       'goldDeck',
-      JSON.stringify(room.goldDeck)
+      JSON.stringify(room.goldDeck),
+      'users',
+      JSON.stringify(room.users),
     ]);
 
     await this.roomRepository.setRound(code, round.index, [
@@ -70,6 +82,7 @@ export class GoldPhaseUseCases {
       'users',
       JSON.stringify(round.users),
     ]);
+    return round.goldList;
   }
   
   private saboteurCountGold(nbSaboteur: number) {

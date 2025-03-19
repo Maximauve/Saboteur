@@ -1,6 +1,6 @@
 import { type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
-import React, { useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { toast, type ToastContent } from "react-toastify";
 
@@ -13,9 +13,6 @@ export default function Lobby(): React.JSX.Element {
   const { code } = useParams();
   const socket = useSocket();
   const { members, myUser } = useGame();
-  useEffect(() => {
-    console.log(myUser);
-  }, [myUser]);
   
   const startGame = () => {
     socket?.emitWithAck(WebsocketEvent.START_GAME)

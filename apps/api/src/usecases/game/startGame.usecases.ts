@@ -23,7 +23,17 @@ export class StartGameUseCases {
     if (room.users.length < 3) {
       throw new Error(await this.translationService.translate("error.ROOM_MIN"));
     }
-    const goldDeck = new GoldDeck().getDeck();
+    let goldDeck = new GoldDeck().getDeck();
+    goldDeck = this.shuffleArray(goldDeck);
     await this.roomRepository.setRoom(code, ['started', 'true', 'goldDeck', JSON.stringify(goldDeck)]);
+  }
+
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let index = shuffled.length - 1; index > 0; index--) {
+      const secondIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[secondIndex]] = [shuffled[secondIndex], shuffled[index]];
+    }
+    return shuffled;
   }
 }
