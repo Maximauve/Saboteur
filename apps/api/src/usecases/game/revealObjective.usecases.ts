@@ -23,7 +23,7 @@ export class RevealObjectiveUseCases {
     const myUser = round.users.find(userRound => userRound.userId === user.userId)!;
 
     myUser.cardsRevealed.push({
-      type: revealedObjective.type,
+      ...revealedObjective,
       x: move.x, 
       y: move.y
     });

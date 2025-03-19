@@ -25,6 +25,7 @@ import { DestroyCardUseCases } from '@/usecases/game/destroyCard.usecases';
 import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
 import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
+import { GetCardsToRevealUseCases } from '@/usecases/game/getCardsToReveal.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GoldPhaseUseCases } from '@/usecases/game/goldPhase.usecases';
@@ -98,7 +99,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly goldPhaseUseCases: UseCaseProxy<GoldPhaseUseCases>,
     @Inject(UsecasesProxyModule.CHOOSE_GOLD_USECASES_PROXY)
     private readonly chooseGoldUseCases: UseCaseProxy<ChooseGoldUseCases>,
-
+    @Inject(UsecasesProxyModule.GET_CARDS_TO_REVEAL_USECASES_PROXY)
+    private readonly getCardsToRevealUseCases: UseCaseProxy<GetCardsToRevealUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -207,7 +209,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       }
       await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
-      if (await this.isNainWinUseCases.getInstance().execute(client.data.code as string)) {        
+      const revealedCards = await this.getCardsToRevealUseCases.getInstance().execute(client.data.code as string);
+      if (this.isNainWinUseCases.getInstance().execute(revealedCards)) {        
         await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, false);
         await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
         await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));

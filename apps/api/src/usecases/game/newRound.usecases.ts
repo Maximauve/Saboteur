@@ -46,6 +46,7 @@ export class NewRoundUseCases {
       'deck', JSON.stringify(actionCards),
       'board', JSON.stringify(this.initializeGameBoard(objectiveCards)),
       'goldList', JSON.stringify([]),
+      'revealedCards', JSON.stringify([]),
     ]);
 
     return users;
@@ -86,9 +87,9 @@ export class NewRoundUseCases {
     const randNumber = this.shuffleArray([0, 1, 2]);
   
     const cards: ObjectiveCard[] = [
-      { type: 'TREASURE', ...objectivePositions[randNumber.pop()!] },
-      { type: 'COAL', ...objectivePositions[randNumber.pop()!] },
-      { type: 'COAL', ...objectivePositions[randNumber.pop()!] }
+      { type: 'TREASURE', ...objectivePositions[randNumber.pop()!], id: crypto.randomUUID(), connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP, Connection.RIGHT] },
+      { type: 'COAL', ...objectivePositions[randNumber.pop()!], id: crypto.randomUUID(), connections: [Connection.TOP, Connection.RIGHT] },
+      { type: 'COAL', ...objectivePositions[randNumber.pop()!], id:crypto.randomUUID(), connections: [Connection.TOP, Connection.LEFT] }
     ];
     
     const shuffledCards = this.shuffleArray(cards);
@@ -123,7 +124,7 @@ export class NewRoundUseCases {
         grid[card.x][card.y] = {
           id: crypto.randomUUID(),
           type: CardType.END_HIDDEN,
-          connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP],
+          connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP, Connection.RIGHT],
           tools: [],
           imageUrl: "back_end.png"
         };

@@ -10,4 +10,5 @@ export class Round {
   deck: Card[];
   board: Board;
   goldList: number[];
+  revealedCards: ObjectiveCard[];
 }

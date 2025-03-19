@@ -1,7 +1,9 @@
 export class ObjectiveCard {
+  id: string;
   type: "COAL" | "TREASURE";
   x: number;
   y: number;
+  connections: Connection[];
 }
 
 export class Card {
