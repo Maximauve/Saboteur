@@ -26,6 +26,7 @@ import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
+import { GoldPhaseUseCases } from '@/usecases/game/goldPhase.usecases';
 import { IsNainWinUseCases } from '@/usecases/game/isNainWin.usecases';
 import { IsSaboteurWinUseCases } from '@/usecases/game/isSaboteurWin.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
@@ -92,6 +93,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly isSaboteurWinUseCases: UseCaseProxy<IsSaboteurWinUseCases>,
     @Inject(UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY)
     private readonly isNainWinUseCases: UseCaseProxy<IsNainWinUseCases>,
+    @Inject(UsecasesProxyModule.GOLD_PHASE_USECASES_PROXY)
+    private readonly goldPhaseUseCases: UseCaseProxy<GoldPhaseUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -201,13 +204,11 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       }
       await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
-      if (await this.isSaboteurWinUseCases.getInstance().execute(client.data.code as string)) {        
-        // donner les pépites
-        await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
+      if (await this.isNainWinUseCases.getInstance().execute(client.data.code as string)) {        
+        await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, false);
         return;
-      } else if (await this.isNainWinUseCases.getInstance().execute(client.data.code as string)) {
-        // donner les pépites
-        await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
+      } else if (await this.isSaboteurWinUseCases.getInstance().execute(client.data.code as string)) {
+        await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, true);
         return;
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));

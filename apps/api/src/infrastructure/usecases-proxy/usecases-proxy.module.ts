@@ -17,6 +17,7 @@ import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
 import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
+import { GoldPhaseUseCases } from '@/usecases/game/goldPhase.usecases';
 import { IsNainWinUseCases } from '@/usecases/game/isNainWin.usecases';
 import { IsSaboteurWinUseCases } from '@/usecases/game/isSaboteurWin.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
@@ -82,6 +83,7 @@ export class UsecasesProxyModule {
   static GET_DECK_LENGTH_USECASES_PROXY = "getDeckUseCasesProxy";
   static IS_SABOTEUR_WIN_USECASES_PROXY = "isSaboteurWinUseCasesProxy";
   static IS_NAIN_WIN_USECASES_PROXY = "isNainWinUseCasesProxy";
+  static GOLD_PHASE_USECASES_PROXY = "goldPhaseUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -285,6 +287,12 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
             new UseCaseProxy(new IsNainWinUseCases(logger, roomRepository))
         },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.GOLD_PHASE_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new GoldPhaseUseCases(logger, roomRepository, translationService))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -320,6 +328,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.GET_DECK_LENGTH_USECASES_PROXY,
         UsecasesProxyModule.IS_SABOTEUR_WIN_USECASES_PROXY,
         UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY,
+        UsecasesProxyModule.GOLD_PHASE_USECASES_PROXY,
       ],
     };
   }

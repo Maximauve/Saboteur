@@ -28,9 +28,10 @@ export class NewRoundUseCases {
         cards: actionCards.splice(0, cardsPerPlayer),
         malus: [],
         cardsRevealed: [],
+        hasToChooseGold: false,
       });
     }
-    
+
     const roundNumber = room.currentRound + 1;
 
     await this.roomRepository.setRoom(code, [
@@ -44,6 +45,8 @@ export class NewRoundUseCases {
       'treasurePosition', treasurePosition.toString(),
       'deck', JSON.stringify(actionCards),
       'board', JSON.stringify(this.initializeGameBoard(objectiveCards)),
+      'chooseGoldTime', JSON.stringify(false),
+      'goldList', JSON.stringify([]),
     ]);
 
     return users;
