@@ -173,8 +173,9 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   async play(@ConnectedSocket() client: Socket, @MessageBody() move: Move): Promise<unknown> {
     return this.handleAction(client.data.code as string, async () => {
 
-      if (!this.canUserPlayUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, move)) {
-        return;
+      const { result: canPlay, error } = await this.canUserPlayUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, move);
+      if (!canPlay) {
+        throw new Error(error);
       }
       if (!move.discard) {
         await this.handlePlayedCard(client.data.code as string, client.data.user as UserGame, move);

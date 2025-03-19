@@ -20,7 +20,12 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
 
   const [{ isOver }, dropReference] = useDrop<{ card: Card }, void, { isOver: boolean }>(() => ({
     accept: "CARD",
-    canDrop: (item) => (myUser?.userId !== member.userId) && (item.card.type === CardType.BROKEN_TOOL),
+    canDrop: (item) => {
+      if (myUser === undefined || !myUser.hasToPlay) {
+        return false;
+      }
+      return (myUser?.userId !== member.userId) && (item.card.type === CardType.BROKEN_TOOL);
+    },
     drop: (item) => {
       socket?.emitWithAck(WebsocketEvent.PLAY, { card: item.card, userReceiver: member })
         .then(response => {
@@ -35,7 +40,7 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
     collect: (monitor) => ({
       isOver: monitor.canDrop() && monitor.isOver(),
     }),
-  }));
+  }), [myUser, member]);
 
 
   return (

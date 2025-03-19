@@ -10,7 +10,7 @@ export class DiscardCardUseCases {
   async execute(code: string, user: UserSocket, move: Move): Promise<void> {
     const round = await this.roomRepository.getRound(code);
     const realUser = round.users.find(userRound => userRound.userId === user.userId)!;
-    realUser.cards.filter(card => card.id !== move.card.id);
+    realUser.cards = realUser.cards.filter(card => card.id !== move.card.id);
 
     await this.roomRepository.setRound(code, round.index, [
       'board', JSON.stringify(round.board),

@@ -35,7 +35,7 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
       isOver: monitor.canDrop() && monitor.isOver(),
       canBeDropped: monitor.canDrop(),
     }),
-  }), [card, board]);
+  }), [card, board, myUser?.hasToPlay]);
 
   return (
     <div
