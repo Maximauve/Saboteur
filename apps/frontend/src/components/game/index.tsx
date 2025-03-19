@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { toast, type ToastContent } from "react-toastify";
 
 import Chatlist from "@/components/common/Chatlist";
 import GameBoard from "@/components/game/Board";
@@ -18,6 +19,13 @@ export default function Game(): React.JSX.Element {
   const { isRoleModalOpen, closeRoleModal, myUser } = useGame();
   const [isReveal, setIsReveal] = useState<boolean>(false);
   const i18n = useTranslation();
+
+
+  useEffect(() => {
+    if (myUser?.hasToPlay) {
+      toast.info(i18n.t("game.yourTurn") as ToastContent<string>);
+    }
+  }, [myUser?.hasToPlay]);
 
   return (
     <DndProvider backend={HTML5Backend}>

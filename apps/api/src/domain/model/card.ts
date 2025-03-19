@@ -4,6 +4,7 @@ export class ObjectiveCard {
   x: number;
   y: number;
   connections: Connection[];
+  isFlipped?: boolean;
 }
 
 export class Card {

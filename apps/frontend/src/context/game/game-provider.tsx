@@ -1,14 +1,14 @@
 import { type Board } from "@saboteur/api/src/domain/model/board";
 import { type UserGame } from "@saboteur/api/src/domain/model/user"; // Utiliser UserGame pour myUser
 import { type UserGamePublic } from "@saboteur/api/src/domain/model/user"; // Utiliser UserGamePublic pour les membres
-import { type ChatMessage } from "@saboteur/api/src/domain/model/websocket";
+import { type Message } from "@saboteur/api/src/domain/model/websocket";
 import React, { createContext, type ReactNode, useContext, useMemo, useState } from "react";
 
 import useModal from "@/hooks/use-modal";
 
 
 interface GameContextType {
-  addChatMessage: (message: ChatMessage) => void;
+  addChatMessage: (message: Message) => void;
   closeNainWinModal: () => void;
   closeRoleModal: () => void;
   closeSaboteurWinModal: () => void;
@@ -19,7 +19,7 @@ interface GameContextType {
   isRoleModalOpen: boolean;
   isSaboteurWinModalOpen: boolean;
   members: UserGamePublic[]; // Membres sont de type UserGamePublic pour ne pas exposer les cartes
-  messagesChat: ChatMessage[];
+  messagesChat: Message[];
   openNainWinModal: () => void;
   openRoleModal: () => void;
   openSaboteurWinModal: () => void;
@@ -28,6 +28,7 @@ interface GameContextType {
   setGameIsStarted: (started: boolean) => void;
   setGoldList: (list: number[]) => void;
   setMembers: (users: UserGamePublic[] | ((users: UserGamePublic[]) => UserGamePublic[])) => void; // setMembers pour UserGamePublic[]
+  setMessagesChat: (messages: Message[]) => void;
   setMyUser: (user: UserGame | undefined) => void;
   board?: Board;
   myUser?: UserGame; // myUser est de type UserGame pour inclure les cartes et informations détaillées
@@ -51,7 +52,7 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const [members, setMembers] = useState<UserGamePublic[]>([]); // Membres en UserGamePublic
   const [gameIsStarted, setGameIsStarted] = useState<boolean>(false);
   const [myUser, setMyUser] = useState<UserGame | undefined>(undefined); // myUser en UserGame pour inclure les cartes
-  const [messagesChat, setMessagesChat] = useState<ChatMessage[]>([]);
+  const [messagesChat, setMessagesChat] = useState<Message[]>([]);
   const [board, setBoard] = useState<Board>();
   const [deckLength, setDeckLength] = useState<number>(0);
   const [goldList, setGoldList] = useState<number[]>([]);
@@ -59,8 +60,8 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
   const { isOpen: isSaboteurWinModalOpen, openModal: openSaboteurWinModal, closeModal: closeSaboteurWinModal } = useModal();
   const { isOpen: isNainWinModalOpen, openModal: openNainWinModal, closeModal: closeNainWinModal } = useModal();
 
-  const addChatMessage = (message: ChatMessage) => {
-    setMessagesChat((previousChat: ChatMessage[]) => [...previousChat, message]);
+  const addChatMessage = (message: Message) => {
+    setMessagesChat((previousChat: Message[]) => [...previousChat, message]);
   };
 
   const values = useMemo(() => ({
@@ -70,6 +71,7 @@ export const GameProvider: React.FC<GameProviderProperties> = ({ children }) => 
     setGameIsStarted,
     myUser,
     messagesChat,
+    setMessagesChat,
     addChatMessage,
     board,
     setBoard,

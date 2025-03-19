@@ -29,11 +29,13 @@ import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
 import { RepairlayerUseCases } from '@/usecases/game/repairPlayer.usecases';
 import { RevealObjectiveUseCases } from '@/usecases/game/revealObjective.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
+import { AddRoomMessageUseCases } from '@/usecases/room/addRoomMessage.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
 import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
 import { GetRoomUseCases } from '@/usecases/room/getRoom.usecases';
+import { GetRoomMessagesUseCases } from '@/usecases/room/getRoomMessages.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
@@ -69,6 +71,8 @@ export class UsecasesProxyModule {
   static GET_ROOM_USECASES_PROXY = "getRoomUseCasesProxy";
   static NEW_ROUND_USECASES_PROXY = "newRoundUseCasesProxy";
   static GET_CURRENT_ROUND_USER = "getCurrentRoundUserUseCases";
+  static GET_ROOM_MESSAGES_USECASES_PROXY = "getRoomMessagesUseCasesProxy";
+  static ADD_ROOM_MESSAGE_USECASES_PROXY = "addRoomMessageUseCasesProxy";
 
   static START_GAME_USECASES_PROXY = "startGameUseCasesProxy";
   static GET_ROUND_USECASES_PROXY = "getRoundUseCasesProxy";
@@ -317,6 +321,18 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
             new UseCaseProxy(new GetUserChooseGoldUseCases(logger, roomRepository))
         },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.GET_ROOM_MESSAGES_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new GetRoomMessagesUseCases(logger, roomRepository))
+        },
+        {
+          inject: [LoggerService, DatabaseRoomRepository],
+          provide: UsecasesProxyModule.ADD_ROOM_MESSAGE_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository) =>
+            new UseCaseProxy(new AddRoomMessageUseCases(logger, roomRepository))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -356,6 +372,8 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.CHOOSE_GOLD_USECASES_PROXY,
         UsecasesProxyModule.GET_CARDS_TO_REVEAL_USECASES_PROXY,
         UsecasesProxyModule.GET_USER_CHOOSE_GOLD_USECASES_PROXY,
+        UsecasesProxyModule.GET_ROOM_MESSAGES_USECASES_PROXY,
+        UsecasesProxyModule.ADD_ROOM_MESSAGE_USECASES_PROXY,
       ],
     };
   }

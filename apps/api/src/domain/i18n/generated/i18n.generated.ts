@@ -28,6 +28,30 @@ export type I18nTranslations = {
         "ITS_GOLD_TIME": string;
         "NOT_CHOOSE_GOLD": string;
         "NOT_GOOD_NB_GOLD": string;
+        "TOOL_ALREADY_BROKEN": string;
+        "USER_CANT_PLACE_CARD": string;
+        "CARD_NOT_BROKEN_TOOL": string;
+        "TOOL_NOT_BROKEN": string;
+        "CARD_CANT_REPAIR_THIS_TOOL": string;
+        "INVALID_MOVE": string;
+    };
+    "game": {
+        "BROKEN_TOOL": string;
+        "COLLAPSE": string;
+        "PLACE_CARD": string;
+        "INSPECT": string;
+        "CARD_TOP": string;
+        "CARD_MIDDLE": string;
+        "CARD_BOTTOM": string;
+        "REPAIR": string;
+    };
+    "tool": {
+        "CART": string;
+        "LANTERN": string;
+        "PICKAXE": string;
+        "THE_CART": string;
+        "THE_LANTERN": string;
+        "THE_PICKAXE": string;
     };
     "validation": {
         "NOT_EMPTY": string;

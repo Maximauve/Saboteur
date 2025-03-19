@@ -37,7 +37,6 @@ export class GetCardsToRevealUseCases {
       if (card.type === 'COAL') {
         suffix = '_' + card.connections[1].toLowerCase();
       }
-      card = this.handleCardRotation(round.board.grid, card);
       round.revealedCards.push(card);
       round.board.grid[card.x][card.y] = {
         ...card,
@@ -64,7 +63,7 @@ export class GetCardsToRevealUseCases {
       const [currentX, currentY] = queue.shift()!;
 
       const currentCard = grid[currentY][currentX];
-      if (!currentCard) {
+      if (!currentCard || currentCard.type === CardType.DEADEND) {
         continue;
       }
     
@@ -149,18 +148,22 @@ export class GetCardsToRevealUseCases {
     if (card.x > 0 && grid[card.x - 1][card.y] !== null) { // top
       if (!card.connections.includes(Connection.TOP)) {
         card.connections = this.getFlippedConnections(card.connections);
+        card.isFlipped = true;
       }
     } else if (card.x < grid.length && grid[card.x + 1][card.y] !== null) { // bottom
       if (!card.connections.includes(Connection.BOTTOM)) {
         card.connections = this.getFlippedConnections(card.connections);
+        card.isFlipped = true;
       }
     } else if (card.y > 0 && grid[card.x][card.y - 1] !== null) { // left
       if (!card.connections.includes(Connection.LEFT)) {
         card.connections = this.getFlippedConnections(card.connections);
+        card.isFlipped = true;
       }
     } else if (card.y < grid[0].length && grid[card.x][card.y + 1] !== null && // right
       !card.connections.includes(Connection.RIGHT)) {
       card.connections = this.getFlippedConnections(card.connections);
+      card.isFlipped = true;
     }
 
     return card;

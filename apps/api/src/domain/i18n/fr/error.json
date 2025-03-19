@@ -20,5 +20,11 @@
   "NOT_ENOUGH_GOLD": "Il n'y a plus d'or",
   "ITS_GOLD_TIME": "Vous devez choisir les pépites d'or avant de jouer à nouveau",
   "NOT_CHOOSE_GOLD": "Tu ne dois pas choisir de pépites d'or",
-  "NOT_GOOD_NB_GOLD": "Il n'y a pas ce nombre de pépites dans la liste"
+  "NOT_GOOD_NB_GOLD": "Il n'y a pas ce nombre de pépites dans la liste",
+  "TOOL_ALREADY_BROKEN": "Cet utilisateur a déjà cet outil cassé",
+  "USER_CANT_PLACE_CARD": "Tu ne peux pas placer de carte tant que tu as des malus",
+  "CARD_NOT_BROKEN_TOOL": "Tu ne peux pas réparer un outil avec cette carte",
+  "TOOL_NOT_BROKEN": "Cet outil n'est pas cassé",
+  "CARD_CANT_REPAIR_THIS_TOOL": "Cette carte ne peut pas réparer cet outil",
+  "INVALID_MOVE": "Mouvement invalide"
 }

@@ -1,6 +1,6 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
 import { type Board } from '@/domain/model/board';
-import { type Card, Connection } from '@/domain/model/card';
+import { type Card, CardType, Connection } from '@/domain/model/card';
 import { type Move, type PlacedMove } from '@/domain/model/move';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
 import { type TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -51,7 +51,7 @@ export class PlaceCardUseCases {
     };
   
     for (const place in adjascentCards) {
-      if (adjascentCards[place] === undefined || adjascentCards === null) {
+      if (adjascentCards[place] === undefined || adjascentCards === null || adjascentCards[place]?.type === CardType.END_HIDDEN) {
         delete adjascentCards[place];
       }
     }

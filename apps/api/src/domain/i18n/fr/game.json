@@ -1,0 +1,10 @@
+{
+	"BROKEN_TOOL": "{attacker} a cassé {tool} de {victim}",
+	"COLLAPSE": "{player} a fait sauter un tunnel",
+	"PLACE_CARD": "{player} a creusé un tunnel",
+	"INSPECT": "{player} a inspecté la carte {position}",
+	"CARD_TOP": "d'en haut",
+	"CARD_MIDDLE": "du milieu",
+	"CARD_BOTTOM": "d'en bas",
+	"REPAIR": "{player} a réparé {tool} de {fixedPlayer}"
+}

@@ -18,7 +18,8 @@ export class CreateRoomUseCases {
       users: [],
       started: false,
       currentRound: 0,
-      goldDeck: []
+      goldDeck: [],
+      messages: [],
     };
     
     room.code = await this.generateUniqueRoomCode();

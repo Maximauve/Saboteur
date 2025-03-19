@@ -12,6 +12,7 @@
 			"nainWin": "Les nains ont gagnés !",
 			"saboteurLoose": "Vous ne gagnez aucune pépites"
 		},
-		"notSelectGold": "Ce n'est pas encore à toi de choisir une pépite"
+		"notSelectGold": "Ce n'est pas encore à toi de choisir une pépite",
+		"yourTurn": "C'est à toi de jouer !"
 	}
 }

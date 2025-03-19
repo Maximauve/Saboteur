@@ -1,5 +1,5 @@
-import { type ChatMessage, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
-import React, { useState } from "react";
+import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
+import React, { Fragment, useState } from "react";
 
 import { useGame } from "@/context/game/game-provider";
 import { useSocket } from "@/context/socket/socket-provider";
@@ -26,11 +26,16 @@ export default function Chatlist(): React.JSX.Element {
     <div className="content-end h-full p-4">
       <div className="overflow-y-auto max-h-[90%] mb-4 flex flex-col-reverse">
         <div className="flex flex-col">
-          {messagesChat?.map((messageChat: ChatMessage, index: number) => (
-            <div key={index} className="mb-2 p-2 rounded">
-              <span className="text-gray-500 text-xs mr-2">{formatTime(messageChat.timeSent)}</span>
+          {messagesChat?.map((messageChat: Message, index: number) => (
+            <div key={index} className={`mb-2 p-2 rounded
+                ${messageChat.username ? '' : 'text-yellow-600 italic font-semibold'}
+                `}
+            >
               {messageChat.username && (
-                <span className="font-bold mr-2">{messageChat.username}:</span>
+                <Fragment>
+                  <span className="text-gray-500 text-xs mr-2">{formatTime(messageChat.timeSent)}</span>
+                  <span className="font-bold mr-2">{messageChat.username}:</span>
+                </Fragment>
               )}
               <span>{messageChat.text}</span>
             </div>

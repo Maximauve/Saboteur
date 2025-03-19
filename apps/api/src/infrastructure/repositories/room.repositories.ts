@@ -129,6 +129,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       started: roomData.started === 'true',
       currentRound: Number.parseInt(roomData.currentRound),
       goldDeck: JSON.parse(roomData.goldDeck || '[]'),
+      messages: JSON.parse(roomData.messages || '[]'),
     } as Room;
   }
 

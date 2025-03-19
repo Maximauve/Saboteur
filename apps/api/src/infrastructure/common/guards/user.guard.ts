@@ -29,7 +29,7 @@ export class UserGuard implements CanActivate {
       },
     });
     if (!user) {
-      throw new HttpException(await this.translationsService.translate("error.RATING_NOT_FOUND"), HttpStatus.NOT_FOUND);
+      throw new HttpException(await this.translationsService.translate("error.USER_NOT_NOUD"), HttpStatus.NOT_FOUND);
     }
 
     request.user = user;

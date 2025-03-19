@@ -18,6 +18,8 @@ export enum WebsocketEvent {
 }
 
 export class Message {
+  username?: string;
+  userId?: string;
   timeSent: string;
   text: string;
 }

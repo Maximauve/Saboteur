@@ -13,7 +13,7 @@ import { Socket } from "socket.io";
 import { CardType } from '@/domain/model/card';
 import { Move } from '@/domain/model/move';
 import { UserGame, UserSocket } from '@/domain/model/user';
-import { Message, WebsocketEvent } from '@/domain/model/websocket';
+import { ChatMessage, Message, WebsocketEvent } from '@/domain/model/websocket';
 import { RedisService } from '@/infrastructure/services/redis/service/redis.service';
 import { TranslationService } from '@/infrastructure/services/translation/translation.service';
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
@@ -38,9 +38,11 @@ import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
 import { RepairlayerUseCases } from '@/usecases/game/repairPlayer.usecases';
 import { RevealObjectiveUseCases } from '@/usecases/game/revealObjective.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
+import { AddRoomMessageUseCases } from '@/usecases/room/addRoomMessage.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
 import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
+import { GetRoomMessagesUseCases } from '@/usecases/room/getRoomMessages.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { IsHostUseCases } from '@/usecases/room/isHost.usecases';
@@ -104,6 +106,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly getCardsToRevealUseCases: UseCaseProxy<GetCardsToRevealUseCases>,
     @Inject(UsecasesProxyModule.GET_USER_CHOOSE_GOLD_USECASES_PROXY)
     private readonly getUserChooseGoldUseCases: UseCaseProxy<GetUserChooseGoldUseCases>,
+    @Inject(UsecasesProxyModule.GET_ROOM_MESSAGES_USECASES_PROXY)
+    private readonly getRoomMessagesUseCases: UseCaseProxy<GetRoomMessagesUseCases>,
+    @Inject(UsecasesProxyModule.ADD_ROOM_MESSAGE_USECASES_PROXY)
+    private readonly addRoomMessageUseCases: UseCaseProxy<AddRoomMessageUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -148,6 +154,7 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
         });
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
+      await this.server.to(client.data.code).emit(WebsocketEvent.CHAT, await this.getRoomMessagesUseCases.getInstance().execute(client.data.code as string));
       return {
         gameIsStarted: await this.gameIsStartedUseCase.getInstance().execute(client.data.code as string)
       };
@@ -163,8 +170,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   }
 
   @SubscribeMessage(WebsocketEvent.CHAT)
-  chat(@ConnectedSocket() client: Socket, @MessageBody() message: Message) {
-    this.server.to(client.data.code).emit(WebsocketEvent.CHAT, message, client.data.user);
+  async chat(@ConnectedSocket() client: Socket, @MessageBody() message: Message) {
+    const userMessage: ChatMessage = { ...message, username: client.data.user.username, userId: client.data.user.userId };
+    await this.addRoomMessageUseCases.getInstance().execute(client.data.code as string, userMessage);
+    await this.server.to(client.data.code).emit(WebsocketEvent.CHAT, userMessage);
     return;
   }
 
@@ -226,6 +235,7 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       } else {
         await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       }
+      await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const round = await this.getRoundUseCases.getInstance().execute(client.data.code as string);
       if (round) {
         round.users.forEach((member) => {
@@ -265,23 +275,83 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
   async handlePlayedCard(code: string, user: UserGame, move: Move): Promise<void> {
     switch (move.card.type) {
       case CardType.BROKEN_TOOL: {
-        return this.attackPlayerUseCases.getInstance().execute(code, move);
+        await this.attackPlayerUseCases.getInstance().execute(code, move);
+        await this.sendSystemMessage(
+          code,
+          await this.translationService.translate("game.BROKEN_TOOL", {
+            args: {
+              attacker: user.username,
+              victim: move.userReceiver?.username,
+              tool: await this.translationService.translate(`tool.THE_${move.card.tools[0]}`)
+            }
+          })
+        );
+        return;
       }
       case CardType.COLLAPSE: {
-        return this.destroyCardUseCases.getInstance().execute(code, move);
+        await this.destroyCardUseCases.getInstance().execute(code, move);
+        await this.sendSystemMessage(
+          code,
+          await this.translationService.translate("game.COLLAPSE", {
+            args: {
+              player: user.username
+            }
+          })
+        );
+        return;
       }
       case CardType.DEADEND:
       case CardType.PATH: {
-        return this.placeCardUseCases.getInstance().execute(code, move);
+        await this.placeCardUseCases.getInstance().execute(code, move);
+        await this.sendSystemMessage(
+          code,
+          await this.translationService.translate("game.PLACE_CARD", {
+            args: {
+              player: user.username
+            }
+          })
+        );
+        return;
       }
       case CardType.INSPECT: {
-        return this.revealObjectiveUseCases.getInstance().execute(code, user, move);
+        await this.revealObjectiveUseCases.getInstance().execute(code, user, move);
+        const position = move.x === 2 ? "CARD_TOP" : (move.x === 4 ? "CARD_MIDDLE" : "CARD_BOTTOM");
+        await this.sendSystemMessage(
+          code,
+          await this.translationService.translate("game.INSPECT", {
+            args: {
+              player: user.username,
+              position: await this.translationService.translate(`game.${position}`)
+            }
+          })
+        );
+        return;
       }
       case CardType.REPAIR_DOUBLE:
       case CardType.REPAIR_TOOL: {
-        return this.repairPlayerUseCases.getInstance().execute(code, move);
+        await this.repairPlayerUseCases.getInstance().execute(code, move);
+        await this.sendSystemMessage(
+          code,
+          await this.translationService.translate("game.REPAIR", {
+            args: {
+              player: user.username,
+              tool: await this.translationService.translate(`tool.THE_${move.targettedMalusCard?.tools[0]}`),
+              fixedPlayer: move.userReceiver?.username
+            }
+          })
+        );
+        return;
       }
     }
+  }
+
+  async sendSystemMessage(code: string, message: string): Promise<void> {
+    const messageToSend: Message = {
+      timeSent: new Date().toISOString(),
+      text: message,
+    };
+    await this.addRoomMessageUseCases.getInstance().execute(code, messageToSend);
+    await this.server.to(code).emit(WebsocketEvent.CHAT, messageToSend);
   }
 
   async handleAction(code: string, callback: () => Promise<unknown>): Promise<unknown> {

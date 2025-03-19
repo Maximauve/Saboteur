@@ -51,8 +51,10 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
       if (revealedCard) {
         setRevealedType(revealedCard.type.toLowerCase() + ".png");
       }
+    } else {
+      setRevealedType(null);
     }
-  }, [myUser, board]);
+  }, [myUser, board, card]);
 
   return (
     <div
