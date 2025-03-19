@@ -13,11 +13,7 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
-<<<<<<< HEAD
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setCards, setDeckLength } = useGame();
-=======
-  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser } = useGame();
->>>>>>> 6e2e588 (Sates handling, User data passed via WS)
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser, setDeckLength } = useGame();
 
   useEffect(() => {
     if (!socket) {
