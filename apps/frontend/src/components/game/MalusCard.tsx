@@ -1,21 +1,33 @@
-import { type Card, CardType, type Tool } from "@saboteur/api/src/domain/model/card";
+import { type Card, CardType } from "@saboteur/api/src/domain/model/card";
+import { type UserGamePublic } from "@saboteur/api/src/domain/model/user";
+import { WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import { useDrop } from "react-dnd";
+import { toast, type ToastContent } from "react-toastify";
+
+import { useSocket } from "@/context/socket/socket-provider";
 
 interface Properties {
-  card: Tool
-  slotIndex: number;
-  userId: string;
+  card: Card;
+  user: UserGamePublic;
 }
-export default function MalusCard({ slotIndex, userId }: Properties) {
+export default function MalusCard({ user, card }: Properties) {
+  const socket = useSocket();
 
   const [{ isOver }, dropReference] = useDrop<{ card: Card }, void, { isOver: boolean }>(() => ({
     accept: "CARD",
     canDrop: (item) => [CardType.REPAIR_DOUBLE, CardType.REPAIR_TOOL].includes(item.card.type),
     drop: (item) => {
-      // TODO Mattéo : envoyer au WS action de réparation
 
-      console.log(`Carte ${item.card.imageUrl} placée sur ${userId} à l'emplacement ${slotIndex + 1}`);
+      socket?.emitWithAck(WebsocketEvent.PLAY, { card: item.card, userReceiver: user, targettedMalusCard: card })
+        .then(response => {
+          if (response && response.error) {
+            toast.error(response.error as ToastContent<string>);
+            return true;
+          }
+          return false;
+        });
     },
+
     collect: (monitor) => ({
       isOver: monitor.isOver(),
     }),
@@ -24,10 +36,15 @@ export default function MalusCard({ slotIndex, userId }: Properties) {
   return (
     <div
       ref={dropReference}
-      className={`w-12 h-16 border-2 border-dashed border-gray-400 rounded-sm flex items-center justify-center transition-colors ${
-        isOver ? "bg-green-200" : "bg-white"
+      className={`w-12 h-16 border-2 border-dashed border-gray-400 rounded-sm flex items-center justify-center transition-colors no-select ${
+        isOver ? "border-green-200" : ""
       }`}
     >
+      <img
+        src={`/images/cards/${card.imageUrl}`}
+        className="w-full h-full rounded-sm no-select"
+        alt=""
+      />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { type Board } from "@saboteur/api/src/domain/model/board";
-import { type Card } from "@saboteur/api/src/domain/model/card";
-import { type UserGamePublic, type UserSocket } from "@saboteur/api/src/domain/model/user";
+import { type UserGame, type UserGamePublic, type UserSocket } from "@saboteur/api/src/domain/model/user";
 import { type Message, WebsocketEvent } from "@saboteur/api/src/domain/model/websocket";
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -14,7 +13,11 @@ import { useSocket } from '@/context/socket/socket-provider';
 export default function Room(): React.JSX.Element {
   const socket = useSocket();
   const { code } = useParams();
+<<<<<<< HEAD
   const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setCards, setDeckLength } = useGame();
+=======
+  const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setBoard, setMyUser } = useGame();
+>>>>>>> 6e2e588 (Sates handling, User data passed via WS)
 
   useEffect(() => {
     if (!socket) {
@@ -51,8 +54,8 @@ export default function Room(): React.JSX.Element {
       setBoard(board);
     });
 
-    socket?.on(WebsocketEvent.CARDS, (cards: Card[]) => {
-      setCards(cards);
+    socket?.on(WebsocketEvent.USER, (user: UserGame) => {
+      setMyUser(user);
     });
 
     socket?.on(WebsocketEvent.DECK, (deckLength: number) => {
@@ -64,8 +67,8 @@ export default function Room(): React.JSX.Element {
       socket.off(WebsocketEvent.GAME_IS_STARTED);
       socket.off(WebsocketEvent.CHAT);
       socket.off(WebsocketEvent.BOARD);
-      socket.off(WebsocketEvent.CARDS);
       socket.off(WebsocketEvent.DECK);
+      socket.off(WebsocketEvent.USER);
       socket.off('connect');
     };
   }, [socket]);

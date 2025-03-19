@@ -75,15 +75,15 @@ export class NewRoundUseCases {
 	
   private prepareObjectiveCards(): [ObjectiveCard[], number] {
     const objectivePositions = [
-      { x: 10, y: 2 },
-      { x: 10, y: 4 },
-      { x: 10, y: 6 }
+      { x: 2, y: 10 },
+      { x: 4, y: 10 },
+      { x: 6, y: 10 }
     ];
   
     const cards: ObjectiveCard[] = [
       { type: 'TREASURE', ...objectivePositions[0] },
-      { type: 'STONE', ...objectivePositions[1] },
-      { type: 'STONE', ...objectivePositions[2] }
+      { type: 'COAL', ...objectivePositions[1] },
+      { type: 'COAL', ...objectivePositions[2] }
     ];
     
     const shuffledCards = this.shuffleArray([...cards]);
@@ -115,7 +115,7 @@ export class NewRoundUseCases {
     grid[4][2] = startCard;
     objectiveCards.forEach((card, index) => {
       if (index < objectiveCards.length) {
-        grid[card.y][card.x] = {
+        grid[card.x][card.y] = {
           id: crypto.randomUUID(),
           type: CardType.END_HIDDEN,
           connections: [Connection.BOTTOM, Connection.LEFT, Connection.TOP],

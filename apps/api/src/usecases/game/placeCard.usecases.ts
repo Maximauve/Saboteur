@@ -1,7 +1,7 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
 import { type Board } from '@/domain/model/board';
 import { type Card, Connection } from '@/domain/model/card';
-import { type Move } from '@/domain/model/move';
+import { type Move, type PlacedMove } from '@/domain/model/move';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
 import { type TranslationService } from '@/infrastructure/services/translation/translation.service';
 
@@ -10,13 +10,15 @@ export class PlaceCardUseCases {
 
   async execute(code: string, move: Move): Promise<void> {
     const round = await this.roomRepository.getRound(code);
-    if (!this.isPlacementValid(round.board, move)) {
-      throw new Error(await this.translationService.translate("error.CARD_CANNOT_BE_PLACED"));
-    }
 
     if (move.card.isFlipped) {
       move.card.connections = this.getFlippedConnections(move.card.connections);
     }
+
+    if (!this.isPlacementValid(round.board, move)) {
+      throw new Error(await this.translationService.translate("error.CARD_CANNOT_BE_PLACED"));
+    }
+
 
     round.board.grid[move.x][move.y] = move.card;
 
@@ -27,7 +29,11 @@ export class PlaceCardUseCases {
     ]);
   }
 
-  private isPlacementValid(board: Board, move: Move) : boolean {
+  private isPlacementValid(board: Board, move: Move) : move is PlacedMove {
+    if (move.x === undefined || move.y === undefined) {
+      return false;
+    }
+
     const position = {
       x: move.x,
       y: move.y

@@ -52,7 +52,7 @@ export default function MemberRow({ member }: Properties): React.JSX.Element {
       <div className="flex gap-4">
         <div className="flex gap-2">
           {member.malus.map((malus, slotIndex) => (
-            <MalusCard key={slotIndex} slotIndex={slotIndex} userId={member.userId} card={malus} />
+            <MalusCard key={slotIndex} user={member} card={malus} />
           ))}
         </div>
         <div className="flex items-center">

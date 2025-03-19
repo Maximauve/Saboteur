@@ -1,7 +1,7 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
 import { type Board } from '@/domain/model/board';
 import { CardType } from '@/domain/model/card';
-import { type Move } from '@/domain/model/move';
+import { type Move, type PlacedMove } from '@/domain/model/move';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
 import { type TranslationService } from '@/infrastructure/services/translation/translation.service';
 
@@ -22,7 +22,10 @@ export class DestroyCardUseCases {
     ]);
   }
 
-  private isPlacementValid(board: Board, move: Move): boolean {
+  private isPlacementValid(board: Board, move: Move): move is PlacedMove {
+    if (move.x === undefined || move.y === undefined) {
+      return false;
+    }
     const card = board.grid[move.x][move.y];
     if (card === null) {
       return false;

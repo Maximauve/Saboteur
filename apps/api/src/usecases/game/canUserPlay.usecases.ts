@@ -1,4 +1,5 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
+import { CardType } from '@/domain/model/card';
 import { type Move } from '@/domain/model/move';
 import { type UserGame, type UserSocket } from '@/domain/model/user';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
@@ -21,6 +22,9 @@ export class CanUserPlayUseCases {
     }
     if (!this.cardIsInDeck(move, realUser)) {
       return { result: false, error: await this.translationService.translate('error.CARD_NOT_IN_HAND') };
+    }
+    if ([CardType.DEADEND, CardType.PATH].includes(move.card.type) && realUser.malus.length > 0) {
+      return { result: false, error: await this.translationService.translate('error.USER_CANT_PLACE_CARD') };
     }
     return { result: true, error: '' };
   }  

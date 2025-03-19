@@ -1,5 +1,5 @@
 import { type ILogger } from '@/domain/logger/logger.interface';
-import { type Move } from '@/domain/model/move';
+import { type Move, type PlacedMove } from '@/domain/model/move';
 import { type UserSocket } from '@/domain/model/user';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
 import { type TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -16,9 +16,12 @@ export class RevealObjectiveUseCases {
     if (!revealedObjective) {
       throw new Error(await this.translationService.translate('error.NO_OBJECTIVE_CARD_AT_POSITION'));
     }
+    if (!this.isMoveValid(move)){
+      throw new Error(await this.translationService.translate('error.INVALID_MOVE'));
+    }
 
     const myUser = round.users.find(userRound => userRound.userId === user.userId)!;
-    
+
     myUser.cardsRevealed.push({
       type: revealedObjective.type,
       x: move.x, 
@@ -31,6 +34,13 @@ export class RevealObjectiveUseCases {
       'deck' , JSON.stringify(round.deck)
     ]);
     
+  }
+
+  private isMoveValid(move: Move) : move is PlacedMove {
+    if (move.x === undefined || move.y === undefined) {
+      return false;
+    }
+    return true;
   }
 }
 

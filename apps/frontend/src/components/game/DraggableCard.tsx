@@ -3,14 +3,16 @@ import { motion } from "framer-motion";
 import React, { Fragment, useState } from "react";
 import { useDrag } from "react-dnd";
 
+import { useGame } from "@/context/game/game-provider";
+
 interface Properties {
   canRotate: boolean;
   card: Card;
-  index: number;
 }
 
-export default function DraggableCard({ card, index, canRotate }: Properties): React.JSX.Element {
+export default function DraggableCard({ card, canRotate }: Properties): React.JSX.Element {
   const [rotation, setRotation] = useState<number>(0);
+  const { myUser } = useGame();
 
   const toggleFlip = () => {
     if (canRotate) {
@@ -21,17 +23,16 @@ export default function DraggableCard({ card, index, canRotate }: Properties): R
   const [, dragReference] = useDrag(() => ({
     type: "CARD",
     item: { 
-      id: index, 
       card: { 
         ...card,
         isFlipped: (rotation % 360) !== 0,
       }
     },
-  }), [rotation]);
+  }), [rotation, myUser]);
 
   return (
     <Fragment>
-      <div ref={dragReference} className="relative cursor-grab h-min w-min" onClick={toggleFlip}>
+      <div ref={dragReference} className="relative cursor-grab h-min w-min no-select" onClick={toggleFlip}>
         <motion.div
           animate={{ rotate: rotation }} 
           className="flex flex-col w-12 h-20 mx-1 border border-gray-300 rounded-sm shadow-md bg-white relative"
@@ -39,7 +40,7 @@ export default function DraggableCard({ card, index, canRotate }: Properties): R
         >
           <img
             src={`/images/cards/${card.imageUrl}`}
-            className="w-full h-full rounded-sm"
+            className={`w-full h-full rounded-sm ${myUser?.hasToPlay ? "" : "no-select"}`}
           />
         </motion.div>
       </div>

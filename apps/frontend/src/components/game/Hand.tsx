@@ -5,15 +5,14 @@ import DraggableCard from "@/components/game/DraggableCard";
 import { useGame } from "@/context/game/game-provider";
 
 export default function PlayerHand(): React.JSX.Element {
-  const { cards } = useGame();
+  const { myUser } = useGame();
 
   return (
     <div className="flex flex-row h-full place-content-center items-center">
-      {cards.map((card: Card, index) => (
+      {myUser?.cards?.map((card: Card) => (
         <DraggableCard
-          key={index}
+          key={card.id}
           card={card}
-          index={index}
           canRotate={card.type === CardType.DEADEND || card.type === CardType.PATH}
         />
       ))}

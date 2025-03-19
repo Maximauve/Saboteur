@@ -1,5 +1,5 @@
 export class ObjectiveCard {
-  type: "STONE" | "TREASURE";
+  type: "COAL" | "TREASURE";
   x: number;
   y: number;
 }
@@ -18,6 +18,7 @@ export enum CardType {
   COLLAPSE = "COLLAPSE",
   DEADEND = "DEADEND",
   END_HIDDEN = "END_HIDDEN",
+  END_REVEALED = "END_REVEALED",
   INSPECT = "INSPECT",
   PATH = "PATH",
   REPAIR_DOUBLE = "REPAIR_DOUBLE",

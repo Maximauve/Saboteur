@@ -25,6 +25,7 @@ import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
 import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
+import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
 import { NextUserUseCases } from '@/usecases/game/nextUser.usecases';
 import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
@@ -83,6 +84,8 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly getCurrentRoundUserUseCases: UseCaseProxy<GetCurrentRoundUserUseCases>,
     @Inject(UsecasesProxyModule.GET_DECK_LENGTH_USECASES_PROXY)
     private readonly getDeckLengthUseCases: UseCaseProxy<GetDeckLengthUseCases>,
+    @Inject(UsecasesProxyModule.GET_ROUND_USECASES_PROXY)
+    private readonly getRoundUseCases: UseCaseProxy<GetRoundUseCases>,
     private readonly redisService: RedisService,
     private readonly translationService: TranslationService
   ) {}
@@ -113,14 +116,18 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
     return this.handleAction(client.data.code as string, async () => {
       await this.addUserToRoomUseCase.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       client.join(client.data.code as string);
+      const members = await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string);
       if (await this.gameIsStartedUseCase.getInstance().execute(client.data.code as string)) {
         await this.server.to(client.data.user.socketId).emit(WebsocketEvent.GAME_IS_STARTED, true);
         await this.server.to(client.data.user.socketId).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
         const currentUser = await this.getCurrentRoundUserUseCases.getInstance().execute(client.data.code as string, client.data.user.userId as string);
         if (currentUser !== null) {
-          this.server.to(client.data.user.socketId).emit(WebsocketEvent.CARDS, currentUser.cards);
+          this.server.to(client.data.user.socketId).emit(WebsocketEvent.USER, currentUser);
         }
-        await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
+      } else {
+        members.forEach((member) => {
+          this.server.to(member.socketId).emit(WebsocketEvent.USER, member);
+        });
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.MEMBERS, await this.getRoomUsersUseCase.getInstance().execute(client.data.code as string));
       return {
@@ -165,7 +172,7 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       await this.startGameUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const users = await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
       for (const user of users) {
-        this.server.to(await this.getSocketIdUseCase.getInstance().execute(client.data.code as string, user.userId)).emit(WebsocketEvent.CARDS, user.cards);
+        this.server.to(user.socketId).emit(WebsocketEvent.USER, user);
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));
@@ -188,9 +195,11 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
-      const currentUser = await this.getCurrentRoundUserUseCases.getInstance().execute(client.data.code as string, client.data.user.userId as string);
-      if (currentUser !== null) {
-        this.server.to(client.data.user.socketId).emit(WebsocketEvent.CARDS, currentUser.cards);
+      const round = await this.getRoundUseCases.getInstance().execute(client.data.code as string);
+      if (round) {
+        round.users.forEach((member) => {
+          this.server.to(member.socketId).emit(WebsocketEvent.USER, member);
+        });
       }
       await this.server.to(client.data.code).emit(WebsocketEvent.DECK, await this.getDeckLengthUseCases.getInstance().execute(client.data.code as string));
       await this.server.to(client.data.code).emit(WebsocketEvent.BOARD, await this.getBoardUseCases.getInstance().execute(client.data.code as string));

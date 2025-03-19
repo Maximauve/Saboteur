@@ -180,10 +180,10 @@ export class UsecasesProxyModule {
             new UseCaseProxy(new NewRoundUseCases(logger, roomRepository))
         },
         {
-          inject: [LoggerService, DatabaseRoomRepository, UsecasesProxyModule],
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
           provide: UsecasesProxyModule.START_GAME_USECASES_PROXY,
-          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService, newRoundUseCases: UseCaseProxy<NewRoundUseCases>) =>
-            new UseCaseProxy(new StartGameUseCases(logger, roomRepository, translationService, newRoundUseCases))
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new StartGameUseCases(logger, roomRepository, translationService))
         },
         {
           inject: [LoggerService, DatabaseRoomRepository],
