@@ -45,7 +45,6 @@ export class DatabaseRoomRepository implements RoomRepository {
       treasurePosition: Number.parseInt(roundData.treasurePosition),
       deck: JSON.parse(roundData.deck || '[]'),
       board: JSON.parse(roundData.board || '[]'),
-      chooseGoldTime: roundData.chooseGoldTime === "true",
       goldList: JSON.parse(roundData.goldList),
     } as Round;
   }
@@ -128,6 +127,7 @@ export class DatabaseRoomRepository implements RoomRepository {
       host: JSON.parse(roomData.host),
       started: roomData.started === 'true',
       currentRound: Number.parseInt(roomData.currentRound),
+      goldDeck: JSON.parse(roomData.goldDeck || '[]'),
     } as Room;
   }
 

@@ -45,7 +45,6 @@ export class NewRoundUseCases {
       'treasurePosition', treasurePosition.toString(),
       'deck', JSON.stringify(actionCards),
       'board', JSON.stringify(this.initializeGameBoard(objectiveCards)),
-      'chooseGoldTime', JSON.stringify(false),
       'goldList', JSON.stringify([]),
     ]);
 

@@ -6,4 +6,5 @@ export class Room {
   code: string;
   started: boolean;
   currentRound: number;
+  goldDeck: number[];
 }

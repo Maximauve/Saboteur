@@ -9,6 +9,5 @@ export class Round {
   treasurePosition: number;
   deck: Card[];
   board: Board;
-  chooseGoldTime: boolean;
-  goldList: UserGame[];
+  goldList: number[];
 }

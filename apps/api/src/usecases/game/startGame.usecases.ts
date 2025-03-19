@@ -1,5 +1,6 @@
 
 import { type ILogger } from '@/domain/logger/logger.interface';
+import { GoldDeck } from '@/domain/model/gold-deck';
 import { type UserSocket } from '@/domain/model/user';
 import { type RoomRepository } from '@/domain/repositories/roomRepository.interface';
 import { type TranslationService } from '@/infrastructure/services/translation/translation.service';
@@ -22,6 +23,7 @@ export class StartGameUseCases {
     if (room.users.length < 3) {
       throw new Error(await this.translationService.translate("error.ROOM_MIN"));
     }
-    await this.roomRepository.setRoom(code, ['started', 'true']);
+    const goldDeck = new GoldDeck().getDeck();
+    await this.roomRepository.setRoom(code, ['started', 'true', 'goldDeck', JSON.stringify(goldDeck)]);
   }
 }

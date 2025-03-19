@@ -10,6 +10,7 @@ import { TranslationService } from '@/infrastructure/services/translation/transl
 import { UseCaseProxy } from '@/infrastructure/usecases-proxy/usecases-proxy';
 import { AttackPlayerUseCases } from '@/usecases/game/attackPlayer.usecases';
 import { CanUserPlayUseCases } from '@/usecases/game/canUserPlay.usecases';
+import { ChooseGoldUseCases } from '@/usecases/game/chooseGold.usecases';
 import { DestroyCardUseCases } from '@/usecases/game/destroyCard.usecases';
 import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
 import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
@@ -84,6 +85,7 @@ export class UsecasesProxyModule {
   static IS_SABOTEUR_WIN_USECASES_PROXY = "isSaboteurWinUseCasesProxy";
   static IS_NAIN_WIN_USECASES_PROXY = "isNainWinUseCasesProxy";
   static GOLD_PHASE_USECASES_PROXY = "goldPhaseUseCasesProxy";
+  static CHOOSE_GOLD_USECASES_PROXY = "chooseGoldUseCasesProxy";
 
   static register(): DynamicModule {
     return {
@@ -293,6 +295,12 @@ export class UsecasesProxyModule {
           useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
             new UseCaseProxy(new GoldPhaseUseCases(logger, roomRepository, translationService))
         },
+        {
+          inject: [LoggerService, DatabaseRoomRepository, TranslationService],
+          provide: UsecasesProxyModule.CHOOSE_GOLD_USECASES_PROXY,
+          useFactory: (logger: LoggerService, roomRepository: DatabaseRoomRepository, translationService: TranslationService) =>
+            new UseCaseProxy(new ChooseGoldUseCases(logger, roomRepository, translationService))
+        },
       ],
       exports: [
         UsecasesProxyModule.GET_USER_BY_ID_USECASES_PROXY,
@@ -329,6 +337,7 @@ export class UsecasesProxyModule {
         UsecasesProxyModule.IS_SABOTEUR_WIN_USECASES_PROXY,
         UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY,
         UsecasesProxyModule.GOLD_PHASE_USECASES_PROXY,
+        UsecasesProxyModule.CHOOSE_GOLD_USECASES_PROXY,
       ],
     };
   }

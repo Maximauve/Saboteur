@@ -14,4 +14,7 @@ export class GoldDeck {
     );
   }
 
+  public getDeck(): number[] {
+    return this.goldCards;
+  }
 }
