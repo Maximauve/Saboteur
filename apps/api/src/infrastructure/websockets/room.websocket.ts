@@ -232,10 +232,10 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
         await this.goldPhaseUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket, true);
         await this.newsRoundUseCases.getInstance().execute(client.data.code as string);
         await this.server.to(client.data.code).emit(WebsocketEvent.END_ROUND, { type: "SABOTEUR_WIN" });
+        await this.server.to(client.data.code).emit(WebsocketEvent.SHOW_ROLE);
       } else {
         await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       }
-      await this.nextPlayerUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const round = await this.getRoundUseCases.getInstance().execute(client.data.code as string);
       if (round) {
         round.users.forEach((member) => {

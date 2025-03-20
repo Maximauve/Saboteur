@@ -20,6 +20,10 @@ export default function Game(): React.JSX.Element {
   const [isReveal, setIsReveal] = useState<boolean>(false);
   const i18n = useTranslation();
 
+  const handleCloseModal = () => {
+    closeRoleModal();
+    setIsReveal(false);
+  };
 
   useEffect(() => {
     if (myUser?.hasToPlay) {
@@ -30,7 +34,7 @@ export default function Game(): React.JSX.Element {
   return (
     <DndProvider backend={HTML5Backend}>
       {isRoleModalOpen && (
-        <FullModal isVisible={isRoleModalOpen} onClose={closeRoleModal} notClosable={!isReveal} title="game.yourRole">
+        <FullModal isVisible={isRoleModalOpen} onClose={handleCloseModal} notClosable={!isReveal} title="game.yourRole">
           {myUser ? (
             <div className="flex flex-col items-center">
               <p>{i18n.t('game.clickToDisplay')}</p>
