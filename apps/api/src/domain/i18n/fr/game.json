@@ -6,5 +6,7 @@
 	"CARD_TOP": "d'en haut",
 	"CARD_MIDDLE": "du milieu",
 	"CARD_BOTTOM": "d'en bas",
-	"REPAIR": "{player} a réparé {tool} de {fixedPlayer}"
+	"REPAIR": "{player} a réparé {tool} de {fixedPlayer}",
+	"REPAIR_SELF": "{player} s'est réparé {tool}",
+	"DISCARD": "{player} a défaussé une carte"
 }

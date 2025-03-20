@@ -47,8 +47,11 @@ export default function NainWinModal() {
       {userSelected && (<p>C'est à {userSelected?.username} de sélectionner un nombre de pépites</p>)}
       <div className="flex m-5 gap-5">
         {goldList.map(gold => (
-          <div className="w-20 h-32 flex justify-center items-center rounded-lg shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-2 hover:shadow-lg bg-gradient-to-br from-yellow-300 to-amber-500 border-2 border-yellow-600" onClick={() => handleSelectGold(gold)}>
-            {gold}
+          <div className="w-20 h-32 rounded-lg shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-2 hover:shadow-lg" onClick={() => handleSelectGold(gold)}>
+            <img
+              src={`/images/cards/$gold_{gold}.png`}
+              className={`w-full h-full rounded-lg`}
+            />
           </div>
         ))}
       </div>

@@ -37,6 +37,7 @@ export class GetCardsToRevealUseCases {
       if (card.type === 'COAL') {
         suffix = '_' + card.connections[1].toLowerCase();
       }
+      card = this.handleCardRotation(round.board.grid, card);
       round.revealedCards.push(card);
       round.board.grid[card.x][card.y] = {
         ...card,

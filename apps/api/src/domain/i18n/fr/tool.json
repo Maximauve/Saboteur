@@ -4,5 +4,8 @@
 	"PICKAXE": "pioche",
 	"THE_CART": "le wagon",
 	"THE_LANTERN": "la lanterne",
-	"THE_PICKAXE": "la pioche"
+	"THE_PICKAXE": "la pioche",
+	"THEIR_CART": "son wagon",
+	"THEIR_LANTERN": "sa lanterne",
+	"THEIR_PICKAXE": "sa pioche"
 }

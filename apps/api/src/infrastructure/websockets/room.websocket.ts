@@ -216,9 +216,16 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       if (!canPlay) {
         throw new Error(error);
       }
-      if (!move.discard) {
-        await this.handlePlayedCard(client.data.code as string, client.data.user as UserGame, move);
-      }
+
+      await (move.discard ? this.sendSystemMessage(
+        client.data.code as string,
+        await this.translationService.translate("game.DISCARD", {
+          args: {
+            player: client.data.user.username
+          }
+        })
+      ) : this.handlePlayedCard(client.data.code as string, client.data.user as UserGame, move));
+
       await this.discardCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserGame, move);
       await this.drawCardUseCases.getInstance().execute(client.data.code as string, client.data.user as UserSocket);
       const revealedCards = await this.getCardsToRevealUseCases.getInstance().execute(client.data.code as string);
@@ -330,15 +337,23 @@ export class RoomWebsocketGateway implements OnGatewayConnection, OnGatewayDisco
       case CardType.REPAIR_DOUBLE:
       case CardType.REPAIR_TOOL: {
         await this.repairPlayerUseCases.getInstance().execute(code, move);
+        const selfRepair = user.username === move.userReceiver?.username;
         await this.sendSystemMessage(
           code,
-          await this.translationService.translate("game.REPAIR", {
-            args: {
-              player: user.username,
-              tool: await this.translationService.translate(`tool.THE_${move.targettedMalusCard?.tools[0]}`),
-              fixedPlayer: move.userReceiver?.username
-            }
-          })
+          selfRepair ? 
+            await this.translationService.translate("game.REPAIR_SELF", {
+              args: {
+                player: user.username,
+                tool: await this.translationService.translate(`tool.THEIR_${move.targettedMalusCard?.tools[0]}`)
+              }
+            }) :
+            await this.translationService.translate("game.REPAIR", {
+              args: {
+                player: user.username,
+                tool: await this.translationService.translate(`tool.THE_${move.targettedMalusCard?.tools[0]}`),
+                fixedPlayer: move.userReceiver?.username
+              }
+            })
         );
         return;
       }

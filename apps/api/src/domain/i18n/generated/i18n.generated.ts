@@ -44,6 +44,8 @@ export type I18nTranslations = {
         "CARD_MIDDLE": string;
         "CARD_BOTTOM": string;
         "REPAIR": string;
+        "REPAIR_SELF": string;
+        "DISCARD": string;
     };
     "tool": {
         "CART": string;
@@ -52,6 +54,9 @@ export type I18nTranslations = {
         "THE_CART": string;
         "THE_LANTERN": string;
         "THE_PICKAXE": string;
+        "THEIR_CART": string;
+        "THEIR_LANTERN": string;
+        "THEIR_PICKAXE": string;
     };
     "validation": {
         "NOT_EMPTY": string;
