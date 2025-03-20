@@ -1,8 +1,9 @@
 // src/components/protected-route.tsx
-import React, { useContext } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import React, { Fragment, useContext } from "react";
 
+import AuthModal from "@/components/modal/auth-modal";
 import { authContext } from "@/context/auth/auth-provider";
+import useModal from "@/hooks/use-modal";
 
 interface ProtectedRouteProperties {
   children: React.ReactNode;
@@ -10,15 +11,16 @@ interface ProtectedRouteProperties {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProperties) {
   const { user } = useContext(authContext);
-  const location = useLocation();
+  const { closeModal } = useModal();
 
   if (user?.loading) {
     return <div>Chargement...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/" state={{ from: location }} replace />;
-  }
-
-  return <>{children}</>;
+  return (
+    <Fragment>
+      <AuthModal isVisible={user === null} onClose={closeModal} notClosable/>
+      {children}
+    </Fragment>
+  );
 }

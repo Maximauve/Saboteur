@@ -26,13 +26,15 @@ export default function Game(): React.JSX.Element {
   };
 
   useEffect(() => {
-    if (myUser?.hasToPlay) {
+    if (myUser && myUser.hasToPlay) {
       toast.info(i18n.t("game.yourTurn") as ToastContent<string>);
     }
   }, [myUser?.hasToPlay]);
 
   return (
     <DndProvider backend={HTML5Backend}>
+      <SaboteurWinModal />
+      <NainWinModal />
       {isRoleModalOpen && (
         <FullModal isVisible={isRoleModalOpen} onClose={handleCloseModal} notClosable={!isReveal} title="game.yourRole">
           {myUser ? (
@@ -61,8 +63,6 @@ export default function Game(): React.JSX.Element {
           ) : null}
         </FullModal>
       )}
-      <SaboteurWinModal />
-      <NainWinModal />
       <div className="w-full h-full grid grid-cols-4 grid-rows-5 gap-4">
         <div className="col-span-1 row-span-5">
           <GameMembersList />

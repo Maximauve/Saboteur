@@ -12,7 +12,7 @@ export class LoginDto {
 
   @IsNotEmpty({ message: i18nValidationMessage<I18nTranslations>('validation.NOT_EMPTY') })
   @IsString({ message: i18nValidationMessage<I18nTranslations>('validation.NOT_STRING') })
-  @MinLength(6, { message: i18nValidationMessage<I18nTranslations>('validation.MIN') })
+  // @MinLength(6, { message: i18nValidationMessage<I18nTranslations>('validation.MIN') })
   password: string;
 }
 
@@ -29,6 +29,6 @@ export class RegisterDto {
 
   @IsNotEmpty({ message: i18nValidationMessage<I18nTranslations>('validation.NOT_EMPTY') })
   @IsString({ message: i18nValidationMessage<I18nTranslations>('validation.NOT_STRING') })
-  @MinLength(6, { message: i18nValidationMessage<I18nTranslations>('validation.MIN') })
+  // @MinLength(6, { message: i18nValidationMessage<I18nTranslations>('validation.MIN') })
   password: string;
 }

@@ -9,14 +9,19 @@ import Game from "@/components/game";
 import Lobby from "@/components/lobby";
 import { useGame } from "@/context/game/game-provider";
 import { useSocket } from '@/context/socket/socket-provider';
+import useAuth from "@/hooks/use-auth";
 
 export default function Room(): React.JSX.Element {
+  const { user } = useAuth();
   const socket = useSocket();
   const { code } = useParams();
   const { setMembers, gameIsStarted, setGameIsStarted, addChatMessage, setMessagesChat, setBoard, setMyUser, setDeckLength, openRoleModal, openSaboteurWinModal, openNainWinModal, setGoldList } = useGame();
 
   useEffect(() => {
     if (!socket) {
+      return;
+    }
+    if (!user) {
       return;
     }
 
@@ -55,8 +60,8 @@ export default function Room(): React.JSX.Element {
       setBoard(board);
     });
 
-    socket?.on(WebsocketEvent.USER, (user: UserGame) => {
-      setMyUser(user);
+    socket?.on(WebsocketEvent.USER, (userGame: UserGame) => {
+      setMyUser(userGame);
     });
 
     socket?.on(WebsocketEvent.DECK, (deckLength: number) => {
@@ -91,7 +96,7 @@ export default function Room(): React.JSX.Element {
       socket.off(WebsocketEvent.GOLD_LIST);
       socket.off('connect');
     };
-  }, [socket]);
+  }, [socket, user]);
 
   return gameIsStarted ? <Game /> : <Lobby />;
 }

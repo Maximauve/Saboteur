@@ -4,6 +4,7 @@ import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { toast, type ToastContent } from 'react-toastify';
 
 import FullModal from "@/components/modal/full-modal";
+import useAuth from "@/hooks/use-auth";
 import useTranslation from "@/hooks/use-translation";
 import { type WordingKey } from "@/i18n/i18n-service";
 import { useLoginMutation, useRegisterMutation } from '@/services/auth';
@@ -40,6 +41,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
   const i18n = useTranslation();
   const [ register ] = useRegisterMutation();
   const [ login ] = useLoginMutation();
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     if (isRegisterMode) {
@@ -82,6 +84,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
           position: "top-right",
           autoClose: 3000,
         });
+        refreshUser();
       } catch (error) {
         toast.error((error as ApiErrorResponse)?.data?.message as ToastContent<string>, {
           position: "top-right",
@@ -100,6 +103,7 @@ export default function AuthModal({ isVisible, onClose, notClosable = false }: P
           position: "top-right",
           autoClose: 3000,
         });
+        refreshUser();
       } catch (error) {
         console.warn('error', error);
         toast.error((error as ApiErrorResponse)?.data?.message as ToastContent<string>, {

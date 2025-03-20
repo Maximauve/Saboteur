@@ -73,6 +73,15 @@ export class AuthController {
     });
     return response.send({ accessToken });
   }
+
+  @Post('/logout')
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiNotFoundResponse({ description: "User not found" })
+  @ApiOkResponse({ type: LoginResponse })
+  logout(@Res() response: Response): void {
+    response.clearCookie('access_token');
+    response.send();
+  }
 }
 
 async function hashPassword(plaintextPassword: string) {

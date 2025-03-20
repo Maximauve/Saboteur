@@ -49,7 +49,7 @@ export default function NainWinModal() {
         {goldList.map(gold => (
           <div className="w-20 h-32 rounded-lg shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-2 hover:shadow-lg" onClick={() => handleSelectGold(gold)}>
             <img
-              src={`/images/cards/$gold_{gold}.png`}
+              src={`/images/cards/gold_${gold}.png`}
               className={`w-full h-full rounded-lg`}
             />
           </div>

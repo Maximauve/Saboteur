@@ -1,5 +1,9 @@
 {
 	"home": {
-		"title": "Bienvenue sur la page d'accueil"
+		"title": "Bienvenue sur la page d'accueil",
+		"createRoom": "Créer un salon",
+		"enterCode": "Pour rejoindre un salon, entrez le code (à 6 chiffres) ci dessous",
+		"joinRoom": "Rejoindre le salon",
+		"invalidCode": "Merci de rentrer un code à 6 chiffres"
 	}
 }

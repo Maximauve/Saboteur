@@ -50,6 +50,8 @@ export default function DroppableCell({ rowIndex, colIndex, card, handleDrop }: 
       const revealedCard: ObjectiveCard =  myUser.cardsRevealed?.find(userCard => userCard.x === rowIndex && userCard.y === colIndex);
       if (revealedCard) {
         setRevealedType(revealedCard.type.toLowerCase() + ".png");
+      } else {
+        setRevealedType(null);
       }
     } else {
       setRevealedType(null);
