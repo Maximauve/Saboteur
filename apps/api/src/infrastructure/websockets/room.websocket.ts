@@ -41,7 +41,7 @@ import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { AddRoomMessageUseCases } from '@/usecases/room/addRoomMessage.usecases';
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
-import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
+import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUser.usecases';
 import { GetRoomMessagesUseCases } from '@/usecases/room/getRoomMessages.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';
 import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';

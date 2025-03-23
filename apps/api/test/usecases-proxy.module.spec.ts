@@ -24,7 +24,7 @@ import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { GetUserGameUseCases } from '@/usecases/game/getUserGame.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
-import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
+import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUser.usecases';
 import { DatabaseRoomRepository } from '@/infrastructure/repositories/room.repositories';
 import { DatabaseUserRepository } from '@/infrastructure/repositories/user.repository';
 
@@ -167,6 +167,10 @@ describe('UsecasesProxyModule', () => {
           provide: UsecasesProxyModule.GET_USER_GAME_USECASES_PROXY,
           useFactory: () => new UseCaseProxy(new GetUserGameUseCases(mockLoggerService as any, mockDatabaseRoomRepository as any))
         },
+        {
+          provide: UsecasesProxyModule.START_GAME_USECASES_PROXY,
+          useFactory: () => new UseCaseProxy(new StartGameUseCases(mockLoggerService as any, mockDatabaseRoomRepository as any, mockTranslationService as any))
+        },
       ],
     })
     .overrideProvider(LoggerService)
@@ -248,6 +252,5 @@ describe('UsecasesProxyModule', () => {
       expect(proxy).toBeInstanceOf(UseCaseProxy);
       expect(proxy.getInstance()).toBeInstanceOf(StartGameUseCases);
     });
-    
   });
 });

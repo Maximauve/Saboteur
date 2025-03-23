@@ -43,7 +43,7 @@ export class CreateRoomUseCases {
     return room;
   }
 
-  private generateUniqueRoomCode = async (): Promise<string> => {
+  public generateUniqueRoomCode = async (): Promise<string> => {
     const code = Math.floor(100_000 + Math.random() * 900_000).toString();
     if (await this.roomRepository.doesRoomExists(code)) {
       return this.generateUniqueRoomCode();

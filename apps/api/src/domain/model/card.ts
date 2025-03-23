@@ -39,5 +39,6 @@ export enum Connection {
 export enum Tool {
   CART = "CART",
   LANTERN = "LANTERN",
-  PICKAXE = "PICKAXE"
+  PICKAXE = "PICKAXE",
+  WAGON = "WAGON"
 }

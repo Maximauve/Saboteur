@@ -33,7 +33,7 @@ import { AddRoomMessageUseCases } from '@/usecases/room/addRoomMessage.usecases'
 import { AddUserToRoomUseCases } from '@/usecases/room/addUserToRoom.usecases';
 import { CreateRoomUseCases } from '@/usecases/room/createRoom.usecases';
 import { GameIsStartedUseCases } from '@/usecases/room/gameIsStarted.usecases';
-import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
+import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUser.usecases';
 import { GetRoomUseCases } from '@/usecases/room/getRoom.usecases';
 import { GetRoomMessagesUseCases } from '@/usecases/room/getRoomMessages.usecases';
 import { GetRoomUsersUseCases } from '@/usecases/room/getRoomUsers.usecases';

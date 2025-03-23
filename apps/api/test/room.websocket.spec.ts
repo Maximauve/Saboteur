@@ -15,10 +15,29 @@ import { GetSocketIdUseCases } from '@/usecases/room/getSocketId.usecases';
 import { StartGameUseCases } from '@/usecases/game/startGame.usecases';
 import { GetBoardUseCases } from '@/usecases/game/getBoard.usecases';
 import { NewRoundUseCases } from '@/usecases/game/newRound.usecases';
-import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUserUseCases.usecases';
+import { GetCurrentRoundUserUseCases } from '@/usecases/room/getCurrentRoundUser.usecases';
 import { UserSocket, UserGame } from '@/domain/model/user';
 import { Move } from '@/domain/model/move';
 import { Card } from '@/domain/model/card';
+import { NextUserUseCases } from '@/usecases/game/nextUser.usecases';
+import { AttackPlayerUseCases } from '@/usecases/game/attackPlayer.usecases';
+import { CanUserPlayUseCases } from '@/usecases/game/canUserPlay.usecases';
+import { DestroyCardUseCases } from '@/usecases/game/destroyCard.usecases';
+import { DiscardCardUseCases } from '@/usecases/game/discardCard.usecases';
+import { DrawCardUseCases } from '@/usecases/game/drawCard.usecases';
+import { PlaceCardUseCases } from '@/usecases/game/placeCard.usecases';
+import { RepairlayerUseCases } from '@/usecases/game/repairPlayer.usecases';
+import { RevealObjectiveUseCases } from '@/usecases/game/revealObjective.usecases';
+import { GetDeckLengthUseCases } from '@/usecases/game/getDeckLength.usecases';
+import { GetRoundUseCases } from '@/usecases/game/getRound.usecases';
+import { IsSaboteurWinUseCases } from '@/usecases/game/isSaboteurWin.usecases';
+import { IsNainWinUseCases } from '@/usecases/game/isNainWin.usecases';
+import { GoldPhaseUseCases } from '@/usecases/game/goldPhase.usecases';
+import { ChooseGoldUseCases } from '@/usecases/game/chooseGold.usecases';
+import { GetCardsToRevealUseCases } from '@/usecases/game/getCardsToReveal.usecases';
+import { GetUserChooseGoldUseCases } from '@/usecases/game/getUserChooseGold.usecases';
+import { GetRoomMessagesUseCases } from '@/usecases/room/getRoomMessages.usecases';
+import { AddRoomMessageUseCases } from '@/usecases/room/addRoomMessage.usecases';
 
 describe('RoomWebsocketGateway', () => {
   let gateway: RoomWebsocketGateway;
@@ -27,6 +46,7 @@ describe('RoomWebsocketGateway', () => {
   let mockSocket: Partial<Socket>;
   let mockServer: any;
   
+  // Original use cases
   let mockAddUserToRoomUseCase: Partial<UseCaseProxy<AddUserToRoomUseCases>>;
   let mockIsHostUseCase: Partial<UseCaseProxy<IsHostUseCases>>;
   let mockRemoveUserFromRoomUseCase: Partial<UseCaseProxy<RemoveUserFromRoomUseCases>>;
@@ -37,6 +57,27 @@ describe('RoomWebsocketGateway', () => {
   let mockGetBoardUseCases: Partial<UseCaseProxy<GetBoardUseCases>>;
   let mockNewsRoundUseCases: Partial<UseCaseProxy<NewRoundUseCases>>;
   let mockGetCurrentRoundUserUseCases: Partial<UseCaseProxy<GetCurrentRoundUserUseCases>>;
+  
+  // Additional use cases
+  let mockNextPlayerUseCases: Partial<UseCaseProxy<NextUserUseCases>>;
+  let mockAttackPlayerUseCases: Partial<UseCaseProxy<AttackPlayerUseCases>>;
+  let mockCanUserPlayUseCases: Partial<UseCaseProxy<CanUserPlayUseCases>>;
+  let mockDestroyCardUseCases: Partial<UseCaseProxy<DestroyCardUseCases>>;
+  let mockDiscardCardUseCases: Partial<UseCaseProxy<DiscardCardUseCases>>;
+  let mockDrawCardUseCases: Partial<UseCaseProxy<DrawCardUseCases>>;
+  let mockPlaceCardUseCases: Partial<UseCaseProxy<PlaceCardUseCases>>;
+  let mockRepairPlayerUseCases: Partial<UseCaseProxy<RepairlayerUseCases>>;
+  let mockRevealObjectiveUseCases: Partial<UseCaseProxy<RevealObjectiveUseCases>>;
+  let mockGetDeckLengthUseCases: Partial<UseCaseProxy<GetDeckLengthUseCases>>;
+  let mockGetRoundUseCases: Partial<UseCaseProxy<GetRoundUseCases>>;
+  let mockIsSaboteurWinUseCases: Partial<UseCaseProxy<IsSaboteurWinUseCases>>;
+  let mockIsNainWinUseCases: Partial<UseCaseProxy<IsNainWinUseCases>>;
+  let mockGoldPhaseUseCases: Partial<UseCaseProxy<GoldPhaseUseCases>>;
+  let mockChooseGoldUseCases: Partial<UseCaseProxy<ChooseGoldUseCases>>;
+  let mockGetCardsToRevealUseCases: Partial<UseCaseProxy<GetCardsToRevealUseCases>>;
+  let mockGetUserChooseGoldUseCases: Partial<UseCaseProxy<GetUserChooseGoldUseCases>>;
+  let mockGetRoomMessagesUseCases: Partial<UseCaseProxy<GetRoomMessagesUseCases>>;
+  let mockAddRoomMessageUseCases: Partial<UseCaseProxy<AddRoomMessageUseCases>>;
   
   const mockRoomCode = 'ABC123';
   const mockUser: UserSocket = {
@@ -49,9 +90,10 @@ describe('RoomWebsocketGateway', () => {
   };
   
   const mockUsers = [mockUser, { ...mockUser, socketId: 'socket-id-2', userId: 'user-id-2', username: 'user2', isHost: false }];
+  const mockMessages = [{ text: 'Hello', username: 'testuser', userId: 'user-id', timeSent: '2023-01-01' }];
   
   beforeEach(async () => {
-    // Create mocks for all use cases
+    // Create mocks for original use cases
     mockAddUserToRoomUseCase = {
       getInstance: jest.fn().mockReturnValue({
         execute: jest.fn().mockResolvedValue(undefined)
@@ -109,6 +151,121 @@ describe('RoomWebsocketGateway', () => {
     mockGetCurrentRoundUserUseCases = {
       getInstance: jest.fn().mockReturnValue({
         execute: jest.fn().mockResolvedValue({ ...mockUser, cards: ['card1', 'card2'] })
+      })
+    };
+    
+    // Create mocks for additional use cases
+    mockNextPlayerUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockAttackPlayerUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockCanUserPlayUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(true)
+      })
+    };
+    
+    mockDestroyCardUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockDiscardCardUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockDrawCardUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(['card1', 'card2'])
+      })
+    };
+    
+    mockPlaceCardUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockRepairPlayerUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockRevealObjectiveUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockGetDeckLengthUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(40)
+      })
+    };
+    
+    mockGetRoundUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(1)
+      })
+    };
+    
+    mockIsSaboteurWinUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(false)
+      })
+    };
+    
+    mockIsNainWinUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(false)
+      })
+    };
+    
+    mockGoldPhaseUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockChooseGoldUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
+      })
+    };
+    
+    mockGetCardsToRevealUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue([{ id: 'card1' }])
+      })
+    };
+    
+    mockGetUserChooseGoldUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(mockUsers)
+      })
+    };
+    
+    mockGetRoomMessagesUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(mockMessages)
+      })
+    };
+    
+    mockAddRoomMessageUseCases = {
+      getInstance: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue(undefined)
       })
     };
     
@@ -193,6 +350,82 @@ describe('RoomWebsocketGateway', () => {
           useValue: mockGetCurrentRoundUserUseCases
         },
         {
+          provide: UsecasesProxyModule.NEXT_USER_USECASES_PROXY,
+          useValue: mockNextPlayerUseCases
+        },
+        {
+          provide: UsecasesProxyModule.ATTACK_PLAYER_USECASES_PROXY,
+          useValue: mockAttackPlayerUseCases
+        },
+        {
+          provide: UsecasesProxyModule.CAN_USER_PLAY_USECASES_PROXY,
+          useValue: mockCanUserPlayUseCases
+        },
+        {
+          provide: UsecasesProxyModule.DESTROY_CARD_USECASES_PROXY,
+          useValue: mockDestroyCardUseCases
+        },
+        {
+          provide: UsecasesProxyModule.DISCARD_CARD_USECASES_PROXY,
+          useValue: mockDiscardCardUseCases
+        },
+        {
+          provide: UsecasesProxyModule.DRAW_CARD_USECASES_PROXY,
+          useValue: mockDrawCardUseCases
+        },
+        {
+          provide: UsecasesProxyModule.PLACE_CARD_USECASES_PROXY,
+          useValue: mockPlaceCardUseCases
+        },
+        {
+          provide: UsecasesProxyModule.REPAIR_PLAYER_USECASES_PROXY,
+          useValue: mockRepairPlayerUseCases
+        },
+        {
+          provide: UsecasesProxyModule.REVEAL_OBJECTIVE_CARD_USECASES_PROXY,
+          useValue: mockRevealObjectiveUseCases
+        },
+        {
+          provide: UsecasesProxyModule.GET_DECK_LENGTH_USECASES_PROXY,
+          useValue: mockGetDeckLengthUseCases
+        },
+        {
+          provide: UsecasesProxyModule.GET_ROUND_USECASES_PROXY,
+          useValue: mockGetRoundUseCases
+        },
+        {
+          provide: UsecasesProxyModule.IS_SABOTEUR_WIN_USECASES_PROXY,
+          useValue: mockIsSaboteurWinUseCases
+        },
+        {
+          provide: UsecasesProxyModule.IS_NAIN_WIN_USECASES_PROXY,
+          useValue: mockIsNainWinUseCases
+        },
+        {
+          provide: UsecasesProxyModule.GOLD_PHASE_USECASES_PROXY,
+          useValue: mockGoldPhaseUseCases
+        },
+        {
+          provide: UsecasesProxyModule.CHOOSE_GOLD_USECASES_PROXY,
+          useValue: mockChooseGoldUseCases
+        },
+        {
+          provide: UsecasesProxyModule.GET_CARDS_TO_REVEAL_USECASES_PROXY,
+          useValue: mockGetCardsToRevealUseCases
+        },
+        {
+          provide: UsecasesProxyModule.GET_USER_CHOOSE_GOLD_USECASES_PROXY,
+          useValue: mockGetUserChooseGoldUseCases
+        },
+        {
+          provide: UsecasesProxyModule.GET_ROOM_MESSAGES_USECASES_PROXY,
+          useValue: mockGetRoomMessagesUseCases
+        },
+        {
+          provide: UsecasesProxyModule.ADD_ROOM_MESSAGE_USECASES_PROXY,
+          useValue: mockAddRoomMessageUseCases
+        },
+        {
           provide: RedisService,
           useValue: mockRedisService
         },
@@ -241,8 +474,12 @@ describe('RoomWebsocketGateway', () => {
       
       expect(mockAddUserToRoomUseCase?.getInstance && mockAddUserToRoomUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
       expect(mockSocket.join).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockGetRoomUsersUseCase.getInstance && mockGetRoomUsersUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
       expect(mockGameIsStartedUseCase?.getInstance && mockGameIsStartedUseCase?.getInstance()?.execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockGetRoomMessagesUseCases.getInstance && mockGetRoomMessagesUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockServer.to).toHaveBeenCalledWith(mockRoomCode);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.CHAT, mockMessages);
       expect(result).toEqual({ gameIsStarted: false });
     });
     
@@ -256,11 +493,13 @@ describe('RoomWebsocketGateway', () => {
       expect(mockAddUserToRoomUseCase.getInstance && mockAddUserToRoomUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
       expect(mockSocket.join).toHaveBeenCalledWith(mockRoomCode);
       expect(mockGameIsStartedUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockGetCurrentRoundUserUseCases.getInstance && mockGetCurrentRoundUserUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser.userId);
       
       // Check that the right events are emitted to the socket
       expect(mockServer.to).toHaveBeenCalledWith(mockUser.socketId);
-      expect(mockServer.emit).toHaveBeenNthCalledWith(1, WebsocketEvent.GAME_IS_STARTED, true);
-      expect(mockServer.emit).toHaveBeenNthCalledWith(2, WebsocketEvent.BOARD, { board: 'mock-board' });
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.GAME_IS_STARTED, true);
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.BOARD, { board: 'mock-board' });
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.USER, { ...mockUser, cards: ['card1', 'card2'] });
     });
     
     it('should handle room not found error', async () => {
@@ -277,17 +516,30 @@ describe('RoomWebsocketGateway', () => {
       await gateway.leaveRoom(mockSocket as Socket);
       
       expect(mockRemoveUserFromRoomUseCase.getInstance && mockRemoveUserFromRoomUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
+      expect(mockGetRoomUsersUseCase.getInstance && mockGetRoomUsersUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockServer.to).toHaveBeenCalledWith(mockRoomCode);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
     });
   });
   
   describe('chat', () => {
-    it('should emit chat message to room', () => {
+    it('should add message to room and emit chat message', async () => {
       const message = { text: 'Hello room!', timeSent: new Date().toString() };
       
-      gateway.chat(mockSocket as Socket, message);
+      await gateway.chat(mockSocket as Socket, message);
       
-      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.CHAT, message, mockUser);
+      // Check that addRoomMessageUseCases was called with the correct message
+      const expectedMessage = { 
+        ...message, 
+        username: mockUser.username, 
+        userId: mockUser.userId 
+      };
+      
+      expect(mockAddRoomMessageUseCases.getInstance && mockAddRoomMessageUseCases.getInstance().execute)
+        .toHaveBeenCalledWith(mockRoomCode, expectedMessage);
+      
+      expect(mockServer.to).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.CHAT, expectedMessage);
     });
   });
   
@@ -299,8 +551,11 @@ describe('RoomWebsocketGateway', () => {
       
       expect(mockIsHostUseCase.getInstance && mockIsHostUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
       expect(mockGetSocketIdUseCase.getInstance && mockGetSocketIdUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, 'user-id-2');
+      expect(mockServer.to).toHaveBeenCalledWith('socket-id-2');
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.REMOVE_USER);
       expect(mockRemoveUserFromRoomUseCase.getInstance && mockRemoveUserFromRoomUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
+      expect(mockGetRoomUsersUseCase.getInstance && mockGetRoomUsersUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockServer.to).toHaveBeenCalledWith(mockRoomCode);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
     });
     
@@ -325,12 +580,17 @@ describe('RoomWebsocketGateway', () => {
       expect(mockIsHostUseCase.getInstance && mockIsHostUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
       expect(mockStartGameUseCases.getInstance && mockStartGameUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser);
       expect(mockNewsRoundUseCases.getInstance && mockNewsRoundUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockGetDeckLengthUseCases.getInstance && mockGetDeckLengthUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockGetBoardUseCases.getInstance && mockGetBoardUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockGetRoomUsersUseCase.getInstance && mockGetRoomUsersUseCase.getInstance().execute).toHaveBeenCalledWith(mockRoomCode);
       
-      expect(mockGetSocketIdUseCase.getInstance && mockGetSocketIdUseCase.getInstance().execute).toHaveBeenCalledTimes(2);
-      
+      // Verify that events are emitted to all clients in the room
+      expect(mockServer.to).toHaveBeenCalledWith(mockRoomCode);
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.DECK, 40);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.BOARD, { board: 'mock-board' });
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
       expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.GAME_IS_STARTED, true);
+      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.SHOW_ROLE);
     });
     
     it('should throw error if current user is not host', async () => {
@@ -345,49 +605,4 @@ describe('RoomWebsocketGateway', () => {
       expect(mockStartGameUseCases.getInstance && mockStartGameUseCases.getInstance().execute).not.toHaveBeenCalled();
     });
   });
-  
-  describe('play', () => {
-    it('should process player move and update game state', async () => {
-      const move: Move = { x: 1, y: 2, card: {} as Card };
-      
-      await gateway.play(mockSocket as Socket, move);
-      
-      expect(mockGetCurrentRoundUserUseCases.getInstance && mockGetCurrentRoundUserUseCases.getInstance().execute).toHaveBeenCalledWith(mockRoomCode, mockUser.userId);
-      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.BOARD, { board: 'mock-board' });
-      expect(mockServer.emit).toHaveBeenCalledWith(WebsocketEvent.MEMBERS, mockUsers);
-    });
-  });
-  
-  describe('handleAction', () => {
-    it('should execute callback if room exists', async () => {
-      const callback = jest.fn().mockResolvedValue({ success: true });
-      
-      const result = await gateway.handleAction(mockRoomCode, callback);
-      
-      expect(mockRedisService.exists).toHaveBeenCalledWith(`room:${mockRoomCode}`);
-      expect(callback).toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
-    });
-    
-    it('should return error if room does not exist', async () => {
-      mockRedisService.exists = jest.fn().mockResolvedValue(false);
-      const callback = jest.fn();
-      
-      const result = await gateway.handleAction(mockRoomCode, callback);
-      
-      expect(mockRedisService.exists).toHaveBeenCalledWith(`room:${mockRoomCode}`);
-      expect(callback).not.toHaveBeenCalled();
-      expect(result).toEqual({ error: 'error.ROOM_NOT_FOUND' });
-    });
-    
-    it('should return error if callback throws', async () => {
-      const callback = jest.fn().mockRejectedValue(new Error('Custom error'));
-      
-      const result = await gateway.handleAction(mockRoomCode, callback);
-      
-      expect(mockRedisService.exists).toHaveBeenCalledWith(`room:${mockRoomCode}`);
-      expect(callback).toHaveBeenCalled();
-      expect(result).toEqual({ error: 'Custom error' });
-    });
-  });
-});
+})

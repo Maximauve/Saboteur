@@ -55,7 +55,7 @@ export class GetCardsToRevealUseCases {
     return cardsToReveal;
   }
 
-  private bfs(grid: (Card | null)[][], startX: number, startY: number, treasureX: number, treasureY: number): boolean {
+  public bfs(grid: (Card | null)[][], startX: number, startY: number, treasureX: number, treasureY: number): boolean {
     const queue: [number, number][] = [[startX, startY]];
     const visited = new Set<string>();
     visited.add(`${startX},${startY}`);
@@ -100,7 +100,7 @@ export class GetCardsToRevealUseCases {
     return false;
   }
 
-  private canMoveTo(
+  public canMoveTo(
     grid: (Card | null)[][],
     fromCard: Card,
     direction: Connection,
@@ -145,7 +145,7 @@ export class GetCardsToRevealUseCases {
     return toCard.connections.includes(oppositeDirection);
   }
 
-  private handleCardRotation(grid: (Card | null)[][], card: ObjectiveCard): ObjectiveCard {
+  public handleCardRotation(grid: (Card | null)[][], card: ObjectiveCard): ObjectiveCard {
     if (card.x > 0 && grid[card.x - 1][card.y] !== null) { // top
       if (!card.connections.includes(Connection.TOP)) {
         card.connections = this.getFlippedConnections(card.connections);
@@ -171,7 +171,7 @@ export class GetCardsToRevealUseCases {
 
   }
 
-  private getFlippedConnections(connections: Connection[]): Connection[] {
+  public getFlippedConnections(connections: Connection[]): Connection[] {
     return connections.map(connection => {
       switch (connection) {
         case Connection.BOTTOM: {
