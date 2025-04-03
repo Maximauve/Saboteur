@@ -56,7 +56,7 @@ Le projet est structuré en monorepo avec les dossiers principaux suivants :
 
 - **Frontend** : React + TypeScript
 - **Backend** : NestJS (Node.js) avec WebSocket
-- **Base de données** : PostgreSQL
+- **Base de données** : PostgreSQL, Redis
 - **Gestion des dépendances** : Yarn
 - **Conteneurisation** : Docker avec `docker-compose`
 
@@ -67,6 +67,8 @@ Le projet est structuré en monorepo avec les dossiers principaux suivants :
 - Création, lancement et gestion de parties
 - Attribution aléatoire des rôles : Nain ou Saboteur
 - Pose de cartes pour construire des chemins ou saboter les autres joueurs
+- Rotation des cartes 
+- Résolution du chemin gagnant
 - Objectifs :
   - **Nains** : Atteindre la pépite d'or
   - **Saboteurs** : Empêcher les Nains d'atteindre la pépite
@@ -102,6 +104,36 @@ Le projet est structuré en monorepo avec les dossiers principaux suivants :
 3. **Configurer les variables d'environnement :**
 
    Copier le fichier `.env.example` en `.env` et renseigner les variables nécessaires.
+
+   ```
+    NEST_PORT=3000
+
+    REDIS_HOST=localhost
+    REDIS_PORT=6379
+    REDIS_USER=
+    REDIS_PASSWORD=
+    REDISCLOUD_URL=redis://localhost:6379
+
+    DB_SSL=false
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_USER=saboteur_user
+    DB_PASSWORD=saboteur_password
+    DB_DATABASE=saboteur_db
+
+    AWS_ACCESS_KEY_ID=minioadmin
+    AWS_SECRET_ACCESS_KEY=minioadmin
+    AWS_BUCKET=data
+    AWS_ENDPOINT=http://localhost:9000/
+    MINIO_ADDRESS=9000
+    MINIO_CONSOLE_ADDRESS=9001
+
+    JWT_SECRET=secret-My-Secret
+
+    FRONT_BASE_URL=http://localhost:8080
+
+    VITE_API_BASE_URL=http://localhost:3000/
+   ```
 
 4. **Démarrer la base de données avec Docker :**
 
