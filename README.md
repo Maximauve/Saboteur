@@ -158,6 +158,29 @@ Le projet est structuré en monorepo avec les dossiers principaux suivants :
 - **Frontend** : [http://localhost:8080/](http://localhost:8080/)
 - **Swagger API** : [http://localhost:3000/swagger](http://localhost:3000/swagger)
 
+
+### Règles du jeu (résumé)
+
+  Deux équipes secrètes s’affrontent : Nains (chercheurs d’or) vs Saboteurs.
+
+  Les Nains doivent construire un chemin jusqu’à la pépite d’or cachée.
+
+  Les Saboteurs tentent de les bloquer sans se faire repérer.
+
+  À chaque tour, un joueur peut poser une carte, utiliser une action (sabotage, réparation…) ou défausser.
+
+  Un joueur ne peut pas creuser s’il est saboté.
+
+  La partie se termine lorsque :
+
+  - Un chemin atteint la pépite → Victoire des Nains
+
+  - La pioche est vide et aucun chemin n’atteint la pépite → Victoire des Saboteurs
+
+Pour plus d'informations sur les règles : 
+
+https://www.letempledujeu.fr/IMG/pdf/saboteur.pdf
+
 ---
 
 ## ✅ Plan de tests
