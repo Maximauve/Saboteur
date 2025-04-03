@@ -26,19 +26,19 @@ Un jeu multijoueur en ligne basé sur le jeu de société "Saboteur", conçu pou
 ## 🧩 Design Patterns utilisés
 
 ### **Singleton**
-Utilisé pour les éléments centralisés du jeu (ex. gestionnaire de parties) afin d’éviter les duplications.
+Le Singleton garantit qu'une classe n'a qu'une seule instance et fournit un point d'accès global à cette instance. Dans notre projet, il est utilisé pour des éléments centralisés comme la traduction ou notre service redis.
 
 ### **Adapter**
-Permet de faire la liaison entre les entités internes et les représentations externes (DTO, WebSocket, etc.).
+Le pattern Adapter permet de faire coopérer deux interfaces incompatibles en les convertissant en une interface commune. On utilise notamment des DTO pour transformer nos entités.
 
 ### **Decorator**
-Utilisé pour ajouter dynamiquement des comportements aux cartes ou actions sans modifier leur structure d’origine.
+Le pattern decorator est utilisé pour ajouter dynamiquement des comportements aux cartes ou actions sans modifier leur structure d’origine. On les utilise notamment dans notre projet pour vérifier si une entité existe bel et bien avant de faire une requête.
 
 ### **Observer**
-Mis en place pour notifier les joueurs des changements en temps réel via WebSocket.
+Le pattern observer a été mis en place pour notifier les joueurs des changements en temps réel via WebSocket.
 
 ### **Proxy**
-Utilisé pour contrôler l’accès à certaines méthodes (ex. autoriser certaines actions uniquement au joueur courant).
+Le pattern Proxy permet de contrôler l'accès aux cas d'utilisation, de cacher la complexité et d'ajouter des fonctionnalités supplémentaires sans modifier les classes de cas d'utilisation.
 
 ---
 
@@ -159,7 +159,7 @@ Le projet est structuré en monorepo avec les dossiers principaux suivants :
 - **Swagger API** : [http://localhost:3000/swagger](http://localhost:3000/swagger)
 
 
-### Règles du jeu (résumé)
+### Notice d'utilisation (règles)
 
   Deux équipes secrètes s’affrontent : Nains (chercheurs d’or) vs Saboteurs.
 
