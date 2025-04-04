@@ -209,8 +209,3 @@ https://www.letempledujeu.fr/IMG/pdf/saboteur.pdf
 - **Mattéo FERREIRA SILVA**
 - **Sandra HERAUD**
 
----
-
-## 📄 Licence
-
-Ce projet est sous licence [MIT](LICENSE).
